@@ -12,7 +12,7 @@ let pickHelper;
 
 let hoverObjectsList = ['Close', 'btn-1', 'btn-2', 'btn-3', 'btn-4'];  
 let lastChooseObj = [undefined, undefined, undefined, undefined, undefined];
-let rightChoose = ['btn-3']
+let rightChoose = ['btn-2', 'btn-1', 'btn-2', 'btn-2']
 
 let objectsParams = {
 	modelPath: './assets/models/',
@@ -25,28 +25,28 @@ let objectsParams = {
 	},	
 	interactiveObjectList: [
 		{
-			id: 0,
+			id: 4,
 			fileName: 'gown_01',
 			objName: 'Robe',
 			position: new THREE.Vector3(-4.0, 0.5, -1.8),
 			scale: 	  new THREE.Vector3(0.2, 0.2, 0.2),
 		},
 		{
-			id: 1,
+			id: 5,
 			fileName: 'mask_01',
 			objName: 'Mask',
 			position: new THREE.Vector3(-0.5, -1.0, -1.3),
 			scale: 	  new THREE.Vector3(0.2, 0.2, 0.2),
 		},
 		{
-			id: 2,
+			id: 6,
 			fileName: 'eye protection_01',
 			objName: 'Glasses',
 			position: new THREE.Vector3(0, -1.2, -1.4),
 			scale: 	  new THREE.Vector3(0.2, 0.2, 0.2),
 		},
 		{
-			id: 3,
+			id: 7,
 			fileName: 'gloves_01',
 			objName: 'Gloves',
 			position: new THREE.Vector3(-3.0, 2.0, -2.1),
@@ -210,26 +210,32 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 				//}
 				if (intersect.object.parent != undefined){
 					//is click on body
+					
 					if (intersect.object.parent.name == objectsParams.body.objName && 
-						objectsParams.availableObjectIndex == 0 &&
+						objectsParams.availableObjectIndex < 4 &&
 						!objectsParams.isPopupShown){
 							//show popup
-							showWindow();
-							objectsParams.isPopupShown = true;
+							showWindow();							
 						}
 					//moveobjects
 					objectsParams.interactiveObjectList.forEach(el => {
 						let name = el.objName;
 						let elementId = getObjectId(name);
-						if (intersect.object.parent.name == name && elementId == objectsParams.availableObjectIndex){
-							scene.getObjectByName(name).position.copy(objectsParams.body.position);
-							objectsParams.availableObjectIndex++;
+						if (intersect.object.parent.name == name){
+							if (elementId == objectsParams.availableObjectIndex){
+								scene.getObjectByName(name).position.copy(objectsParams.body.position);
+								objectsParams.availableObjectIndex++;
+								showCorrectIncorrectPopup(true);
+							}
+							else if (elementId > objectsParams.availableObjectIndex) showCorrectIncorrectPopup(false);
 						}
 					});
 					//win btn click
 					if (objectsParams.isPopupShown && intersect.object.name.includes('btn')){
 						let isCorrect = intersect.object.name == rightChoose[objectsParams.availableObjectIndex];
 						showCorrectIncorrectPopup(isCorrect);
+						objectsParams.availableObjectIndex ++;
+						refreshBtnContent();
 					}
 				}
 			}
@@ -524,7 +530,7 @@ function createWindow(){
 	let info = new THREE.Mesh(infoGeometry, infoMaterial);
 	info.position.set(0.0, 0.7, -2.6);
 	info.scale.set(0.08, 0.08, 0.08);
-	info.name = 'window';
+	info.name = 'bg';
 	window.add(info);
 	//title
 	const titleGeometry = new THREE.BoxGeometry(24, 2.5, 0.05);
@@ -554,7 +560,6 @@ function createWindow(){
 	window.add(btnClose);
 	//btn 1
 	const btnGeometry = new THREE.BoxGeometry(22, 2.5, 0.05);
-	const btnLargeGeometry = new THREE.BoxGeometry(22, 4, 0.05);
 	let btnMaterial = new THREE.MeshBasicMaterial( { 
 		transparent: true,
 		map: textureLoader.load('./assets/img/step1/1.png', function (texture) {
@@ -585,8 +590,8 @@ function createWindow(){
 			texture.minFilter = THREE.LinearFilter;
 		}),
 	} );
-	btn = new THREE.Mesh(btnLargeGeometry, btnMaterial);
-	btn.position.set(0, 0.5, -2.5);
+	btn = new THREE.Mesh(btnGeometry, btnMaterial);
+	btn.position.set(0, 0.54, -2.5);
 	btn.scale.set(0.08, 0.08, 0.08); 	
 	btn.name = 'btn-3'; 	
 	window.add(btn);
@@ -598,8 +603,8 @@ function createWindow(){
 		}),
 	} );
 	btn = new THREE.Mesh(btnGeometry, btnMaterial);
-	btn.position.set(0, 0.2, -2.5);
-	btn.scale.set(0.08, 0.08, 0.08); 	
+	btn.position.set(0, 0.21, -2.5);
+	btn.scale.set(0.08, 0.14, 0.08); 	
 	btn.name = 'btn-4'; 	
 	window.add(btn);
 	window.visible = false;
@@ -608,15 +613,36 @@ function createWindow(){
 }
 function showWindow(){
 	scene.getObjectByName('window').visible = true;
+	objectsParams.isPopupShown = true;
 }
 function showCorrectIncorrectPopup(isCorrect){
 	scene.getObjectByName('window').visible = false;
+
 	let name = isCorrect ? 'correct' : 'incorrect';
 	scene.getObjectByName(name).visible = true;
 	setTimeout(() => {
 		scene.getObjectByName(name).visible = false;
+		objectsParams.isPopupShown = false;
 	}, 2000);
-	objectsParams.availableObjectIndex ++;
+}
+
+function refreshBtnContent(){
+	let textureLoader = new THREE.TextureLoader();
+	let stepN = objectsParams.availableObjectIndex + 1;
+
+	if (stepN == 2){
+		scene.getObjectByName('bg').scale.y = 0.062;
+		scene.getObjectByName('btn-4').scale.y = 0.08;
+		scene.getObjectByName('btn-4').position.y = 0.29;
+	}
+
+	for (let i = 1; i < 5; i++) {
+		let map = textureLoader.load(`./assets/img/step${stepN}/${i}.png`, function (texture) {
+			texture.minFilter = THREE.LinearFilter;
+		});
+		scene.getObjectByName(`btn-${i}`).material.map = map;
+		scene.getObjectByName(`btn-${i}`).material.needsUpdate = true;			
+	}
 }
 
 export default App;
