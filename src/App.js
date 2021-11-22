@@ -12,45 +12,45 @@ let pickHelper;
 
 let hoverObjectsList = ['Close', 'btn-1', 'btn-2', 'btn-3', 'btn-4'];  
 let lastChooseObj = [undefined, undefined, undefined, undefined, undefined];
-let rightChoose = ['btn-2', 'btn-1', 'btn-2', 'btn-2']
+let rightChoose = ['btn-2', 'btn-1', 'btn-2', 'btn-2','','','','','btn-1']
 
 let objectsParams = {
 	modelPath: './assets/models/',
 	body: {
-		fileName: 'Physician_01',
+		fileName: 'physician',
 		objName: 'Body',
-		position: new THREE.Vector3(-2.0, 0.0, -1.0),
+		position: new THREE.Vector3(-2.6, 0.0, -1.0),
 		rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-		scale: 	  new THREE.Vector3(0.2, 0.2, 0.2),
+		scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 	},	
 	interactiveObjectList: [
 		{
 			id: 4,
-			fileName: 'gown_01',
+			fileName: 'gown',
 			objName: 'Robe',
-			position: new THREE.Vector3(-4.0, 0.5, -1.8),
-			scale: 	  new THREE.Vector3(0.2, 0.2, 0.2),
+			position: new THREE.Vector3(-5.5, 0.0, -1.5),
+			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 		},
 		{
 			id: 5,
-			fileName: 'mask_01',
+			fileName: 'mask',
 			objName: 'Mask',
-			position: new THREE.Vector3(-0.5, -1.0, -1.3),
-			scale: 	  new THREE.Vector3(0.2, 0.2, 0.2),
+			position: new THREE.Vector3(-1.2, -2.0, -1.7),
+			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 		},
 		{
 			id: 6,
-			fileName: 'eye protection_01',
+			fileName: 'eye protection',
 			objName: 'Glasses',
-			position: new THREE.Vector3(0, -1.2, -1.4),
-			scale: 	  new THREE.Vector3(0.2, 0.2, 0.2),
+			position: new THREE.Vector3(-0.8, -2.15, -1.0),
+			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 		},
 		{
 			id: 7,
-			fileName: 'gloves_01',
+			fileName: 'gloves',
 			objName: 'Gloves',
-			position: new THREE.Vector3(-3.0, 2.0, -2.1),
-			scale: 	  new THREE.Vector3(0.2, 0.2, 0.2),
+			position: new THREE.Vector3(-4.0, 1.6, -1.9),
+			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 		},
 	],	
 	availableObjectIndex: 0, //-1 is for body
@@ -82,7 +82,7 @@ class App {
 			}
 		)
 		roomObj.scale.set(0.08, 0.08, 0.08);
-		roomObj.position.set(-4.0, 0, 2); 
+		roomObj.position.set(-4.0, 0, 1.2); 
 		roomObj.name = 'Room';
 		scene.add(roomObj);
 				
@@ -205,17 +205,17 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 		intersections.forEach(intersect => {
 			if (intersect != undefined && intersect.object.type == 'Mesh') { 
 				//close popup
-				//if (intersect.object.name == 'Ok' || intersect.object.name == 'Close'){
-				//	removePopup();
-				//}
+				if (intersect.object.name == 'Close'){
+					showCloseWindow(false);
+				}
 				if (intersect.object.parent != undefined){
 					//is click on body
 					
 					if (intersect.object.parent.name == objectsParams.body.objName && 
-						objectsParams.availableObjectIndex < 4 &&
+						(objectsParams.availableObjectIndex < 4 || objectsParams.availableObjectIndex == 8) &&
 						!objectsParams.isPopupShown){
 							//show popup
-							showWindow();							
+							showCloseWindow();							
 						}
 					//moveobjects
 					objectsParams.interactiveObjectList.forEach(el => {
@@ -365,6 +365,7 @@ function getObjectId(objName){
 }
 
 function addObject(fileName, position, scale, objName, visible = true){
+	/*
 	let Obj = new THREE.Object3D();
 	let mtlLoader = new MTLLoader();
 	mtlLoader.setPath(objectsParams.modelPath);
@@ -384,6 +385,22 @@ function addObject(fileName, position, scale, objName, visible = true){
 	Obj.scale.copy(scale);
 	Obj.name = objName;
 	Obj.visible = visible;
+	*/
+	let Obj = new THREE.Object3D();
+	let fbxLoader = new FBXLoader();
+	fbxLoader.setPath(objectsParams.modelPath);
+	fbxLoader.load(
+		fileName + '.fbx',
+		(object) => {
+			object.name = objName;
+			Obj.add(object)
+		}
+	)
+	Obj.position.copy(position);
+	Obj.scale.copy(scale);
+	Obj.name = objName;
+	Obj.visible = visible;
+
 	scene.add(Obj);
 	return Obj;
 }
@@ -611,9 +628,9 @@ function createWindow(){
 
 	camera.add(window);
 }
-function showWindow(){
-	scene.getObjectByName('window').visible = true;
-	objectsParams.isPopupShown = true;
+function showCloseWindow(isShow = true){
+	scene.getObjectByName('window').visible = isShow;
+	objectsParams.isPopupShown = isShow;
 }
 function showCorrectIncorrectPopup(isCorrect){
 	scene.getObjectByName('window').visible = false;
@@ -635,8 +652,27 @@ function refreshBtnContent(){
 		scene.getObjectByName('btn-4').scale.y = 0.08;
 		scene.getObjectByName('btn-4').position.y = 0.29;
 	}
+	if (objectsParams.availableObjectIndex == 4){
+		stepN = 9;
+		scene.getObjectByName('btn-4').visible = false;
+		scene.getObjectByName('bg').scale.y = 0.052;
+		scene.getObjectByName('bg').position.y = 0.86;
+	}
+	if (objectsParams.availableObjectIndex == 9){
+		objectsParams.availableObjectIndex = 0;
+		stepN = 1;
+		scene.getObjectByName('btn-4').visible = true;
+		scene.getObjectByName('btn-4').scale.y = 0.14;
+		scene.getObjectByName('btn-4').position.y = 0.21;
+		scene.getObjectByName('bg').scale.y = 0.08;
+		scene.getObjectByName('bg').position.y = 0.7;
+		objectsParams.interactiveObjectList.forEach(element => {
+			scene.getObjectByName(element.objName).position.copy(element.position);
+		});
+	}
+	let iMax = stepN < 9 ? 5 : 4;
 
-	for (let i = 1; i < 5; i++) {
+	for (let i = 1; i < iMax; i++) {
 		let map = textureLoader.load(`./assets/img/step${stepN}/${i}.png`, function (texture) {
 			texture.minFilter = THREE.LinearFilter;
 		});
