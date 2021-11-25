@@ -20,8 +20,10 @@ let objectsParams = {
 		fileName: 'physician',
 		objName: 'Body',
 		position: new THREE.Vector3(-2.6, 0.0, -1.0),
+		glowPosition: new THREE.Vector3(-2.94, 0.0, -4.93),
 		rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 		scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
+		glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 	},	
 	interactiveObjectList: [
 		{
@@ -29,28 +31,36 @@ let objectsParams = {
 			fileName: 'gown',
 			objName: 'Robe',
 			position: new THREE.Vector3(-5.5, 0.0, -1.5),
+			glowPosition: new THREE.Vector3(-5.78, -0.1, -5.32),
 			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
+			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 		},
 		{
 			id: 5,
 			fileName: 'mask',
 			objName: 'Mask',
 			position: new THREE.Vector3(-1.2, -2.0, -1.7),
+			glowPosition: new THREE.Vector3(-1.52, -2.08, -5.32),
 			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
+			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 		},
 		{
 			id: 6,
 			fileName: 'eye protection',
 			objName: 'Glasses',
 			position: new THREE.Vector3(-0.8, -2.15, -1.0),
+			glowPosition: new THREE.Vector3(-1.14, -2.24, -4.61),
 			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
+			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 		},
 		{
 			id: 7,
 			fileName: 'gloves',
 			objName: 'Gloves',
 			position: new THREE.Vector3(-4.0, 1.6, -1.9),
+			glowPosition: new THREE.Vector3(-4.34, 1.54, -5.84),
 			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
+			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 		},
 	],	
 	availableObjectIndex: 0, //-1 is for body
@@ -89,7 +99,9 @@ class App {
 		//patient
 		addObject(	objectsParams.body.fileName, 
 					objectsParams.body.position,
+					objectsParams.body.glowPosition,
 					objectsParams.body.scale,
+					objectsParams.body.glowScale,
 					objectsParams.body.objName
 				);
 		
@@ -97,10 +109,16 @@ class App {
 		objectsParams.interactiveObjectList.forEach(element => {
 			addObject(	element.fileName, 
 						element.position,
+						element.glowPosition,
 						element.scale,
+						element.glowScale,
 						element.objName
 			);
 		});
+
+		setTimeout(() => {
+			createGlow();
+		}, 5000);
 
 		//window with btns
 		createWindow();
@@ -224,6 +242,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 						if (intersect.object.parent.name == name){
 							if (elementId == objectsParams.availableObjectIndex){
 								scene.getObjectByName(name).position.copy(objectsParams.body.position);
+								scene.getObjectByName(name + "Glow").visible = false;
 								objectsParams.availableObjectIndex++;
 								showCorrectIncorrectPopup(true);
 							}
@@ -364,7 +383,7 @@ function getObjectId(objName){
 	return elementId;
 }
 
-function addObject(fileName, position, scale, objName, visible = true){
+function addObject(fileName, position, glowPosition, scale, glowScale, objName, visible = true){
 	/*
 	let Obj = new THREE.Object3D();
 	let mtlLoader = new MTLLoader();
@@ -393,8 +412,8 @@ function addObject(fileName, position, scale, objName, visible = true){
 		fileName + '.fbx',
 		(object) => {
 			object.name = objName;
-			Obj.add(object)
-		}
+			Obj.add(object);
+		},
 	)
 	Obj.position.copy(position);
 	Obj.scale.copy(scale);
@@ -402,7 +421,57 @@ function addObject(fileName, position, scale, objName, visible = true){
 	Obj.visible = visible;
 
 	scene.add(Obj);
+
+	let ObjGlow = new THREE.Object3D();
+	fbxLoader = new FBXLoader();
+	fbxLoader.setPath(objectsParams.modelPath);
+	fbxLoader.load(
+		fileName + '.fbx',
+		(object) => {
+			//object.name = objName;
+			ObjGlow.add(object);
+		}
+	)
+	
+	ObjGlow.position.copy(glowPosition);
+	ObjGlow.scale.copy(glowScale);
+	ObjGlow.name = objName + 'Glow';
+	ObjGlow.visible = false;
+
+	scene.add(ObjGlow);
+
 	return Obj;
+}
+
+function createGlow() {
+	//glowing obj
+	var glowMaterial = new THREE.ShaderMaterial( 
+	{
+		uniforms: 
+		{ 
+			"base":   { type: "f", value: 0.0 },
+			"p":   { type: "f", value: 0.0 },
+			glowColor: { type: "c", value: new THREE.Color(0x0000FF) },
+			viewVector: { type: "v3", value: camera.position }
+		},
+		vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
+		fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+		side: THREE.BackSide,
+		blending: THREE.AdditiveBlending,
+		transparent: true
+	}   );
+
+	scene.getObjectByName("BodyGlow").children[0].children.forEach(element => {
+		element.material = glowMaterial;
+	});
+	scene.getObjectByName("BodyGlow").visible = true;
+	objectsParams.interactiveObjectList.forEach(element => {
+		let name = element.objName + 'Glow';
+		scene.getObjectByName(name).children[0].children.forEach(element => {
+			element.material = glowMaterial;
+		});
+		//scene.getObjectByName(name).visible = true;
+	});
 }
 
 function showInroPopup(){
@@ -653,12 +722,22 @@ function refreshBtnContent(){
 		scene.getObjectByName('btn-4').position.y = 0.29;
 	}
 	if (objectsParams.availableObjectIndex == 4){
+		//go to step 9
 		stepN = 9;
 		scene.getObjectByName('btn-4').visible = false;
 		scene.getObjectByName('bg').scale.y = 0.052;
 		scene.getObjectByName('bg').position.y = 0.86;
+		objectsParams.interactiveObjectList.forEach(element => {
+			let name = element.objName + 'Glow';
+			scene.getObjectByName(name).visible = true;
+		});
+		scene.getObjectByName('BodyGlow').visible = false;
+	}
+	if (objectsParams.availableObjectIndex == 8){
+		scene.getObjectByName("BodyGlow").visible = true;
 	}
 	if (objectsParams.availableObjectIndex == 9){
+		//back to init
 		objectsParams.availableObjectIndex = 0;
 		stepN = 1;
 		scene.getObjectByName('btn-4').visible = true;
