@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
 let camera, scene, renderer;
@@ -10,7 +8,7 @@ let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 let pickHelper;
 
-let hoverObjectsList = ['Close', 'btn-1', 'btn-2', 'btn-3', 'btn-4'];  
+let hoverObjectsList = ['Close', 'btn-1', 'btn-2', 'btn-3', 'btn-4', 'Back', 'Next', 'Ok'];  
 let lastChooseObj = [undefined, undefined, undefined, undefined, undefined];
 let rightChoose = ['btn-2', 'btn-1', 'btn-2', 'btn-2','','','','','btn-1']
 
@@ -63,7 +61,13 @@ let objectsParams = {
 			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 		},
 	],	
-	availableObjectIndex: 0, //-1 is for body
+	availableObjectIndex: -6, 
+	//-6,-5,-4,-3 - intro
+	//-2 - intro video
+	//-1 - intro
+	//0-4 - window
+	//5-8 - put on
+	//9 - window
 	isPopupShown: false,
 };
 
@@ -116,17 +120,14 @@ class App {
 			);
 		});
 
-		setTimeout(() => {
-			createGlow();
-		}, 5000);
-
 		//window with btns
 		createWindow();
 		createCorrectIncorrectPopup();
+		createIntroPopup();
 
 		//render
 		renderer = new THREE.WebGLRenderer( { antialias: true } );
-		renderer.setPixelRatio( window.devicePixelRatio );
+		//renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		renderer.outputEncoding = THREE.sRGBEncoding;
 		renderer.xr.enabled = true;
@@ -226,11 +227,21 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 				if (intersect.object.name == 'Close'){
 					showCloseWindow(false);
 				}
+				if (intersect.object.name == 'Ok'){
+					restartSimulation();
+				}
+				if (intersect.object.name == 'Next' && objectsParams.availableObjectIndex < 0){
+					refreshIntroContent(true);
+					objectsParams.availableObjectIndex++;
+				}
+				if (intersect.object.name == 'Back' && objectsParams.availableObjectIndex < 0 && objectsParams.availableObjectIndex > -6){
+					refreshIntroContent(false);
+					objectsParams.availableObjectIndex--;
+				}
 				if (intersect.object.parent != undefined){
-					//is click on body
-					
+					//is click on body					
 					if (intersect.object.parent.name == objectsParams.body.objName && 
-						(objectsParams.availableObjectIndex < 4 || objectsParams.availableObjectIndex == 8) &&
+						((objectsParams.availableObjectIndex >= 0 && objectsParams.availableObjectIndex < 4) || objectsParams.availableObjectIndex == 8) &&
 						!objectsParams.isPopupShown){
 							//show popup
 							showCloseWindow();							
@@ -245,6 +256,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 								scene.getObjectByName(name + "Glow").visible = false;
 								objectsParams.availableObjectIndex++;
 								showCorrectIncorrectPopup(true);
+								if (objectsParams.availableObjectIndex == 8) scene.getObjectByName("BodyGlow").visible = true;
 							}
 							else if (elementId > objectsParams.availableObjectIndex) showCorrectIncorrectPopup(false);
 						}
@@ -253,7 +265,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 					if (objectsParams.isPopupShown && intersect.object.name.includes('btn')){
 						let isCorrect = intersect.object.name == rightChoose[objectsParams.availableObjectIndex];
 						showCorrectIncorrectPopup(isCorrect);
-						objectsParams.availableObjectIndex ++;
+						objectsParams.availableObjectIndex++;
 						refreshBtnContent();
 					}
 				}
@@ -474,101 +486,86 @@ function createGlow() {
 	});
 }
 
-function showInroPopup(){
-	let textureLoader = new THREE.TextureLoader();
-	const infoGeometry = new THREE.BoxGeometry(25, 20, 0.01);
-	const infoMaterial = new THREE.MeshBasicMaterial( { 
-		transparent: true,
-		map: textureLoader.load('./assets/img/introPopup.png', function (texture) {
-			texture.minFilter = THREE.LinearFilter;
-		}),
-	} );
-	let info = new THREE.Mesh(infoGeometry, infoMaterial);
-	info.rotation.set(0, 0, 0.0);
-	info.position.set(0.5, 2.3, -2.6);
-	info.scale.set(0.08, 0.08, 0.08);
-	info.name = 'Info';
-	scene.add(info)
-	//info btns
-	const btnOKGeometry = new THREE.BoxGeometry(6, 1.6, 0.05);
-	const btnCloseGeometry = new THREE.BoxGeometry(2, 2, 0.05);
-	const btnOkMaterial = new THREE.MeshBasicMaterial( { 
-		transparent: true,
-		map: textureLoader.load('./assets/img/ok.png', function (texture) {
-			texture.minFilter = THREE.LinearFilter;
-		}),
-	} );
-	const btnCloseMaterial = new THREE.MeshBasicMaterial( { 
-		transparent: true,
-		map: textureLoader.load('./assets/img/close.png', function (texture) {
-			texture.minFilter = THREE.LinearFilter;
-		}),
-	} );
-	let btnOk = new THREE.Mesh(btnOKGeometry, btnOkMaterial);
-	let btnClose = new THREE.Mesh( btnCloseGeometry, btnCloseMaterial);
-	btnOk.rotation.set(0, 0, 0.0); 			btnClose.rotation.set(0, 0, 0.0);
-	btnOk.position.set(0.5, 1.63, -2.5);	btnClose.position.set(1.35, 2.96, -2.5);
-	btnOk.scale.set(0.08, 0.08, 0.08); 		btnClose.scale.set(0.05, 0.05, 0.05);
-	btnOk.name = 'Ok'; 						btnClose.name = 'Close';
-	scene.add(btnOk); 						scene.add(btnClose);
-}
 function showSuccessPopup(){
+	let popupGroup = new THREE.Group();
+	popupGroup.name = "successPopup";
 	let textureLoader = new THREE.TextureLoader();
 	const infoGeometry = new THREE.BoxGeometry(25, 10, 0.01);
 	const infoMaterial = new THREE.MeshBasicMaterial( { 
 		transparent: true,
-		map: textureLoader.load('./assets/img/correctPopup.png', function (texture) {
+		map: textureLoader.load('./assets/img/successPopup.png', function (texture) {
 			texture.minFilter = THREE.LinearFilter;
 		}),
 	} );
 	let info = new THREE.Mesh(infoGeometry, infoMaterial);
 	info.rotation.set(0, 0, 0.0);
-	info.position.set(0.5, 2.5, -4.0);
+	info.position.set(0.0, 2.5, -2.6);
 	info.scale.set(0.08, 0.08, 0.08);
-	info.name = 'Info';
-	scene.add(info)
+	info.name = 'bg';
+	popupGroup.add(info)
 	//info btns
 	const btnOKGeometry = new THREE.BoxGeometry(6, 1.6, 0.05);
-	const btnCloseGeometry = new THREE.BoxGeometry(2, 2, 0.05);
 	const btnOkMaterial = new THREE.MeshBasicMaterial( { 
 		transparent: true,
 		map: textureLoader.load('./assets/img/ok.png', function (texture) {
 			texture.minFilter = THREE.LinearFilter;
 		}),
 	} );
-	const btnCloseMaterial = new THREE.MeshBasicMaterial( { 
+	let btnOk = new THREE.Mesh(btnOKGeometry, btnOkMaterial);
+	btnOk.rotation.set(0, 0, 0.0); 	
+	btnOk.position.set(0.0, 2.25, -2.6);
+	btnOk.scale.set(0.08, 0.08, 0.08); 
+	btnOk.name = 'Ok'; 
+	popupGroup.add(btnOk); 
+	
+	scene.add(popupGroup); 
+}
+
+function createIntroPopup(){
+	let popupGroup = new THREE.Group();
+	popupGroup.name = "introGroup";
+	let textureLoader = new THREE.TextureLoader();
+
+	const infoGeometry = new THREE.BoxGeometry(60, 32, 0.01);
+	const infoMaterial = new THREE.MeshBasicMaterial( { 
 		transparent: true,
-		map: textureLoader.load('./assets/img/close.png', function (texture) {
+		map: textureLoader.load('./assets/img/introPopup-6.png', function (texture) {
 			texture.minFilter = THREE.LinearFilter;
 		}),
 	} );
-	let btnOk = new THREE.Mesh(btnOKGeometry, btnOkMaterial);
-	let btnClose = new THREE.Mesh( btnCloseGeometry, btnCloseMaterial);
-	btnOk.rotation.set(0, 0, 0.0); 			btnClose.rotation.set(0, 0, 0.0);
-	btnOk.position.set(0.5, 2.25, -4.0);	btnClose.position.set(1.35, 2.81, -4.0);
-	btnOk.scale.set(0.08, 0.08, 0.08); 		btnClose.scale.set(0.05, 0.05, 0.05);
-	btnOk.name = 'Ok'; 						btnClose.name = 'Close';
-	scene.add(btnOk); 						scene.add(btnClose);
-}
+	let info = new THREE.Mesh(infoGeometry, infoMaterial);
+	info.position.set(0.0, 2.16, -2.6);
+	info.scale.set(0.08, 0.08, 0.08);
+	info.name = 'introHero';
+	info.visible = true;
+	popupGroup.add(info);
 
-function removePopup(){
-	scene.remove(scene.getObjectByName("Ok"));
-	scene.remove(scene.getObjectByName("Close"));
-	scene.remove(scene.getObjectByName("Info"));
-	
-	scene.getObjectByName("Body").children[0].children.forEach(element => {
-		element.material.emissive.b = 0;
-	});
-	objectsParams.availableObjectIndex = 0;
-	objectsParams.interactiveObjectList.forEach(element => {
-		let name = element.objName;
-		scene.getObjectByName(name).children[0].children.forEach(element => {
-			element.material.emissive.b = 1;
-		});
-	});
-	objectsParams.interactiveObjectList.forEach(element => {
-		scene.getObjectByName(element.objName).position.copy(element.position);
-	});
+	//btns
+	//info btns
+	const btnBackGeometry = new THREE.BoxGeometry(6, 2.7, 0.05);
+	const btnNextGeometry = new THREE.BoxGeometry(6, 2.7, 0.05);
+	const btnBackMaterial = new THREE.MeshBasicMaterial( { 
+		transparent: true,
+		map: textureLoader.load('./assets/img/Back.png', function (texture) {
+			texture.minFilter = THREE.LinearFilter;
+		}),
+	} );
+	const btnNextMaterial = new THREE.MeshBasicMaterial( { 
+		transparent: true,
+		map: textureLoader.load('./assets/img/Next.png', function (texture) {
+			texture.minFilter = THREE.LinearFilter;
+		}),
+	} );
+	let btnNext = new THREE.Mesh(btnNextGeometry, btnNextMaterial);
+	let btnBack = new THREE.Mesh( btnBackGeometry, btnBackMaterial);
+	btnNext.rotation.set(0, 0, 0.0); 			btnBack.rotation.set(0, 0, 0.0);
+	btnNext.position.set(2.0, 1.07, -2.6);		btnBack.position.set(1.45, 1.07, -2.6);
+	btnNext.scale.set(0.08, 0.08, 0.08); 		btnBack.scale.set(0.08, 0.08, 0.08);
+	btnNext.name = 'Next'; 						btnBack.name = 'Back';
+												btnBack.visible = false;
+	popupGroup.add(btnNext); 					popupGroup.add(btnBack);
+
+	scene.add(popupGroup);
 }
 
 function createCorrectIncorrectPopup(){
@@ -602,8 +599,9 @@ function createCorrectIncorrectPopup(){
 	info.name = 'correct';
 	info.visible = false;
 	popupGroup.add(info);
+	popupGroup.position.y = 1.9;
 	
-	camera.add(popupGroup);
+	scene.add(popupGroup);
 }
 
 function createWindow(){
@@ -694,8 +692,9 @@ function createWindow(){
 	btn.name = 'btn-4'; 	
 	window.add(btn);
 	window.visible = false;
+	window.position.y = 1.9;
 
-	camera.add(window);
+	scene.add(window);
 }
 function showCloseWindow(isShow = true){
 	scene.getObjectByName('window').visible = isShow;
@@ -733,22 +732,13 @@ function refreshBtnContent(){
 		});
 		scene.getObjectByName('BodyGlow').visible = false;
 	}
-	if (objectsParams.availableObjectIndex == 8){
-		scene.getObjectByName("BodyGlow").visible = true;
-	}
+
 	if (objectsParams.availableObjectIndex == 9){
-		//back to init
-		objectsParams.availableObjectIndex = 0;
-		stepN = 1;
-		scene.getObjectByName('btn-4').visible = true;
-		scene.getObjectByName('btn-4').scale.y = 0.14;
-		scene.getObjectByName('btn-4').position.y = 0.21;
-		scene.getObjectByName('bg').scale.y = 0.08;
-		scene.getObjectByName('bg').position.y = 0.7;
-		objectsParams.interactiveObjectList.forEach(element => {
-			scene.getObjectByName(element.objName).position.copy(element.position);
-		});
+		setTimeout(() => {
+			showSuccessPopup();
+		}, 3000);
 	}
+
 	let iMax = stepN < 9 ? 5 : 4;
 
 	for (let i = 1; i < iMax; i++) {
@@ -758,6 +748,74 @@ function refreshBtnContent(){
 		scene.getObjectByName(`btn-${i}`).material.map = map;
 		scene.getObjectByName(`btn-${i}`).material.needsUpdate = true;			
 	}
+}
+
+function refreshIntroContent(isForward){
+	let textureLoader = new THREE.TextureLoader();
+	let deltaStep = isForward ? 1 : -1;
+	let step = objectsParams.availableObjectIndex + deltaStep;
+
+	scene.getObjectByName('Back').visible = step > -6 ? true : false;
+	
+	if (step != -2 && step < 0){
+		let map = textureLoader.load(`./assets/img/introPopup${step}.png`, function (texture) {
+			texture.minFilter = THREE.LinearFilter;
+		});
+		scene.getObjectByName(`introHero`).material.map = map;
+		scene.getObjectByName(`introHero`).material.needsUpdate = true;
+	}
+
+	if (step == -1 || step == -3){
+		const video = document.getElementById('video');
+		video.pause();
+	}
+
+	if (step == -2){//video
+		//scene.getObjectByName('Back').visible = false;
+		//scene.getObjectByName('Next').visible = false;
+
+		const video = document.getElementById('video');
+		let videoTexture = new THREE.VideoTexture( video );		
+		videoTexture.flipY = true;
+
+		scene.getObjectByName(`introHero`).material.map = videoTexture;
+		video.play();
+	}
+
+	scene.getObjectByName(`introHero`).scale.x = step == -1 ? 0.06 : 0.08;
+	scene.getObjectByName(`Next`).position.x = step == -1 ? 1.45 : 2.0;
+	scene.getObjectByName(`Back`).position.x = step == -1 ? 0.9 : 1.45;
+
+	if (step == 0){
+		scene.getObjectByName(`introGroup`).visible = false;
+		setTimeout(() => {
+			createGlow();
+		}, 1000);
+	}
+}
+
+function restartSimulation(){
+	let textureLoader = new THREE.TextureLoader();
+
+	objectsParams.availableObjectIndex = 0;
+	scene.getObjectByName('btn-4').visible = true;
+	scene.getObjectByName('btn-4').scale.y = 0.14;
+	scene.getObjectByName('btn-4').position.y = 0.21;
+	scene.getObjectByName('bg').scale.y = 0.08;
+	scene.getObjectByName('bg').position.y = 0.7;
+	objectsParams.interactiveObjectList.forEach(element => {
+		scene.getObjectByName(element.objName).position.copy(element.position);
+	});
+
+	for (let i = 1; i < 5; i++) {
+		let map = textureLoader.load(`./assets/img/step1/${i}.png`, function (texture) {
+			texture.minFilter = THREE.LinearFilter;
+		});
+		scene.getObjectByName(`btn-${i}`).material.map = map;
+		scene.getObjectByName(`btn-${i}`).material.needsUpdate = true;			
+	}
+
+	scene.remove(scene.getObjectByName('successPopup'));
 }
 
 export default App;
