@@ -18,11 +18,12 @@
     "url": "https://github.com/KingArthur-IT/VR-Room/issues"
   },
   "homepage": "https://github.com/KingArthur-IT/VR-Room#readme",
-  "dependencies": {
-    "three": "^0.133.0"
-  },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.5",
     "rollup": "^2.57.0"
+  },
+  "dependencies": {
+    "three": "^0.132.1",
+    "three-mesh-ui": "^6.0.2"
   }
 }

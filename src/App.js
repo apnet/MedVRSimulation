@@ -7,6 +7,7 @@ let camera, scene, renderer;
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 let pickHelper;
+let PPE_DATA;
 
 let hoverObjectsList = ['Close', 'btn-1', 'btn-2', 'btn-3', 'btn-4', 'Back', 'Next', 'Ok'];  
 let lastChooseObj = [undefined, undefined, undefined, undefined, undefined];
@@ -73,6 +74,11 @@ let objectsParams = {
 
 class App {
 	init() {
+		getJSON()
+		setTimeout(() => {
+			console.log(PPE_DATA)
+		}, 5000);
+		
 		scene = new THREE.Scene();
 		scene.background = new THREE.Color( 0x505050 );
 		camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -134,15 +140,15 @@ class App {
 		document.body.appendChild( renderer.domElement );
 		document.body.appendChild( VRButton.createButton( renderer ) );
 
+		window.addEventListener( 'resize', onWindowResize );
+
 		// controllers
 		function onSelectStart() {
 			this.userData.isSelecting = true;
 		}
-
 		function onSelectEnd() {
 			this.userData.isSelecting = false;
 		}
-
 		controller1 = renderer.xr.getController( 0 );
 		controller1.addEventListener( 'selectstart', onSelectStart );
 		controller1.addEventListener( 'selectend', onSelectEnd );
@@ -165,11 +171,6 @@ class App {
 		} );
 		scene.add( controller2 );
 
-		// The XRControllerModelFactory will automatically fetch controller models
-		// that match what the user is holding as closely as possible. The models
-		// should be attached to the object returned from getControllerGrip in
-		// order to match the orientation of the held device.
-
 		const controllerModelFactory = new XRControllerModelFactory();
 
 		controllerGrip1 = renderer.xr.getControllerGrip( 0 );
@@ -178,14 +179,24 @@ class App {
 
 		controllerGrip2 = renderer.xr.getControllerGrip( 1 );
 		controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
-		scene.add( controllerGrip2 );
-
-		window.addEventListener( 'resize', onWindowResize );
+		scene.add( controllerGrip2 );	
 
 		pickHelper = new ControllerPickHelper(scene);
 
 		animate();
 	}
+}
+
+async function getJSON(){
+	await fetch('../build/ppe.json', {
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'}
+	})
+		.then(async (response) => {
+			if (response.ok){
+				PPE_DATA = await response.json();
+			}
+		})
 }
 
 class ControllerPickHelper extends THREE.EventDispatcher {
@@ -272,14 +283,11 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 			}
 		});
       };
-	  //--- end of start click
-
 	  //------- endClick -------------
       const endListener = () => {
         
       };
 	  //------- end of endClick -------------
-
       for (let i = 0; i < 2; ++i) {
         const controller = renderer.xr.getController(i);
         //controller.addEventListener('select', selectListener);
@@ -302,7 +310,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
       this.objectToColorMap.clear();
       this.controllerToObjectMap.clear();
     }
-	//update
+	//update - for hover
     update(scene) {
       this.reset();
 	  let isChoose = [false, false, false, false, false];
@@ -348,19 +356,16 @@ class ControllerPickHelper extends THREE.EventDispatcher {
   }
 
 function onWindowResize() {
-
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 
 	renderer.setSize( window.innerWidth, window.innerHeight );
-
 }
 
 function buildController( data, name ) {
 	let geometry, material;
 	switch ( data.targetRayMode ) {
 		case 'tracked-pointer':
-
 			geometry = new THREE.BufferGeometry();
 			geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( [ 0, 0, 0, 0, 0, - 1 ], 3 ) );
 			geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( [ 0.5, 0.5, 0.5, 0, 0, 0 ], 3 ) );
@@ -370,7 +375,6 @@ function buildController( data, name ) {
 			return new THREE.Line( geometry, material );
 
 		case 'gaze':
-
 			geometry = new THREE.RingGeometry( 0.02, 0.04, 32 ).translate( 0, 0, - 1 );
 			material = new THREE.MeshBasicMaterial( { opacity: 0.5, transparent: true } );
 			return new THREE.Mesh( geometry, material );
@@ -396,27 +400,6 @@ function getObjectId(objName){
 }
 
 function addObject(fileName, position, glowPosition, scale, glowScale, objName, visible = true){
-	/*
-	let Obj = new THREE.Object3D();
-	let mtlLoader = new MTLLoader();
-	mtlLoader.setPath(objectsParams.modelPath);
-	mtlLoader.load(fileName + '.mtl', function (materials) {
-		materials.preload();
-		let objLoader = new OBJLoader();
-		objLoader.setMaterials(materials);
-		objLoader.setPath(objectsParams.modelPath);
-		objLoader.load(fileName + '.obj', function (object) {
-			object.name = objName;
-			Obj.add(object);
-			
-		});
-	});
-
-	Obj.position.copy(position);
-	Obj.scale.copy(scale);
-	Obj.name = objName;
-	Obj.visible = visible;
-	*/
 	let Obj = new THREE.Object3D();
 	let fbxLoader = new FBXLoader();
 	fbxLoader.setPath(objectsParams.modelPath);
@@ -440,7 +423,6 @@ function addObject(fileName, position, glowPosition, scale, glowScale, objName, 
 	fbxLoader.load(
 		fileName + '.fbx',
 		(object) => {
-			//object.name = objName;
 			ObjGlow.add(object);
 		}
 	)
@@ -482,7 +464,6 @@ function createGlow() {
 		scene.getObjectByName(name).children[0].children.forEach(element => {
 			element.material = glowMaterial;
 		});
-		//scene.getObjectByName(name).visible = true;
 	});
 }
 
