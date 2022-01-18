@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import ThreeMeshUI from "three-mesh-ui";
 
 let camera, scene, renderer;
 let controller1, controller2;
@@ -9,7 +10,7 @@ let controllerGrip1, controllerGrip2;
 let pickHelper;
 let PPE_DATA;
 
-let hoverObjectsList = ['Close', 'btn-1', 'btn-2', 'btn-3', 'btn-4', 'Back', 'Next', 'Ok'];  
+let hoverObjectsList = [];  
 let lastChooseObj = [undefined, undefined, undefined, undefined, undefined];
 let rightChoose = ['btn-2', 'btn-1', 'btn-2', 'btn-2','','','','','btn-1']
 
@@ -73,12 +74,20 @@ let objectsParams = {
 };
 
 class App {
+	async start(){
+		await fetch('../build/ppe.json', {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'}
+		})
+			.then(async (response) => {
+				if (response.ok){
+					PPE_DATA = await response.json();
+					console.log('PPE_DATA', PPE_DATA)
+					this.init();
+				}
+			})
+	}
 	init() {
-		getJSON()
-		setTimeout(() => {
-			console.log(PPE_DATA)
-		}, 5000);
-		
 		scene = new THREE.Scene();
 		scene.background = new THREE.Color( 0x505050 );
 		camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -187,18 +196,6 @@ class App {
 	}
 }
 
-async function getJSON(){
-	await fetch('../build/ppe.json', {
-		method: 'GET',
-		headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'}
-	})
-		.then(async (response) => {
-			if (response.ok){
-				PPE_DATA = await response.json();
-			}
-		})
-}
-
 class ControllerPickHelper extends THREE.EventDispatcher {
     constructor(scene) {
       super();
@@ -231,7 +228,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 
 		//find intersects
         const intersections = this.raycaster.intersectObjects(scene.children, true);
-		//console.log(intersections)
+		console.log(intersections)
 		intersections.forEach(intersect => {
 			if (intersect != undefined && intersect.object.type == 'Mesh') { 
 				//close popup
@@ -313,45 +310,35 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 	//update - for hover
     update(scene) {
       this.reset();
-	  let isChoose = [false, false, false, false, false];
 	  let index = 0;
+
+	  hoverObjectsList.forEach(el => {
+		  if (el.state === 'selected'){
+			scene.getObjectByName(el.name).parent.setState('normal');
+			el.state = "normal";
+		  }
+	  });
 
       for (const {controller, line} of this.controllers) {
         this.tempMatrix.identity().extractRotation(controller.matrixWorld);
         this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
         this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(this.tempMatrix);
 
-        const intersections = this.raycaster.intersectObjects(scene.children);
+        const intersections = this.raycaster.intersectObjects(scene.children, true);
 		line.scale.z = 20;
-		
 		//hover
 		intersections.forEach(intersect => {
-			if (intersect != undefined && intersect.object.type == 'Mesh') {		
+			if (intersect != undefined) {
 				hoverObjectsList.forEach(el => {
-					if (intersect.object.name == el){
-						lastChooseObj.forEach((element) => {
-							if (element != undefined){
-								element.material.color.setHex(0xffffff);
-								element = undefined;
-							}
-						});
-						lastChooseObj[index] = intersect.object;
-						isChoose[index] = true;
-						isChoose.map((i) => { if (i != index) return false})
-						line.scale.z = intersect.distance;
-						intersect.object.material.color.setHex(0xcccccc);
+					if (intersect.object.parent.name == el.name){
+						scene.getObjectByName(el.name).parent.setState('selected');
+						el.state = "selected";
 					}
 				});
 			}
 		});
 		index++;
       }
-
-	  for (index = 0; index < 5; index++)
-		if (!isChoose[index] && lastChooseObj[index] != undefined){
-			lastChooseObj[index].material.color.setHex(0xffffff);
-			lastChooseObj[index] = undefined;
-		}
     }
   }
 
@@ -382,10 +369,12 @@ function buildController( data, name ) {
 }
 
 function animate() {	
+	//ThreeMeshUI.update();
 	renderer.setAnimationLoop( render );
 }
 
 function render() {
+	ThreeMeshUI.update();
 	pickHelper.update(scene);
 	renderer.render( scene, camera );
 }
@@ -503,8 +492,138 @@ function showSuccessPopup(){
 }
 
 function createIntroPopup(){
+	const params = {
+		popupName: "introGroup",
+		fontFamily: "./assets/Roboto-msdf.json",
+	  	fontTexture: "./assets/Roboto-msdf.png",
+		darkColor: new THREE.Color(0x3e3e3e),
+		lightColor: new THREE.Color(0xe2e2e2),
+		width: 4.0,
+	}
+	const selectedAttributes = {
+		backgroundColor: new THREE.Color( 0x777777 ),
+		fontColor: new THREE.Color( 0x222222 )
+	};
+	const normalAttributes = {
+		backgroundColor: params.darkColor,
+		fontColor: params.lightColor
+	};
+
 	let popupGroup = new THREE.Group();
 	popupGroup.name = "introGroup";
+
+	const container = new ThreeMeshUI.Block({
+		//height: 3.0,
+		width: params.width,
+		fontFamily: params.fontFamily,
+	  	fontTexture: params.fontTexture,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});
+	const titleBlock = new ThreeMeshUI.Block({
+		height: 0.28,
+		width: params.width,
+		alignContent: "left",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.darkColor,
+	  });  
+	const contentBlock = new ThreeMeshUI.Block({
+		height: 2.5,
+		width: params.width,
+		alignContent: "left",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	  });  
+	container.add(titleBlock, contentBlock);
+	const titleText = new ThreeMeshUI.Text({
+		content: "Info",
+		fontColor: params.lightColor,
+	  	fontSize: 0.125,
+	});
+	const contentText = new ThreeMeshUI.Text({
+		content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde quis tempora officia excepturi similique, a, veniam distinctio corrupti ad esse amet architecto suscipit optio earum laudantium illum fuga? Quia, enim! Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde quis tempora officia excepturi similique, a, veniam distinctio corrupti ad esse amet architecto suscipit optio earum laudantium illum fuga? Quia, enim!",
+		fontColor: params.darkColor,
+	  	fontSize: 0.15,
+	});
+	titleBlock.add(titleText);
+	contentBlock.add(contentText);
+	//btns
+	const btnsContainer = new ThreeMeshUI.Block({
+		height: 0.4,
+		width: params.width,
+		justifyContent: 'end',
+		alignContent: 'center',
+		contentDirection: 'row',
+		fontFamily: params.fontFamily,
+	  	fontTexture: params.fontTexture,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});
+
+	const prevBtnBlock = new ThreeMeshUI.Block({
+		height: 0.25,
+		width: 0.6,
+		alignContent: "center",
+		justifyContent: "center",
+		backgroundColor: params.darkColor,
+	}); 
+	const PrevText = new ThreeMeshUI.Text({
+		content: "Back",
+		fontColor: params.lightColor,
+	  	fontSize: 0.15,
+	}); 
+	PrevText.name = "prevBtn"; 
+	prevBtnBlock.setupState({
+		state: "selected",
+		attributes: selectedAttributes
+	});
+	prevBtnBlock.setupState({
+		state: "normal",
+		attributes: normalAttributes
+	});
+	prevBtnBlock.add(PrevText);
+	hoverObjectsList.push({
+		name: "prevBtn",
+		state: 'normal'
+	})
+
+	const nextBtnBlock = new ThreeMeshUI.Block({
+		height: 0.25,
+		width: 0.6,
+		alignContent: "center",
+		justifyContent: "center",
+		backgroundColor: params.darkColor,
+		margin: 0.1
+	});  
+	const NextText = new ThreeMeshUI.Text({
+		content: "Next",
+		fontColor: params.lightColor,
+	  	fontSize: 0.15,
+	});
+	NextText.name = "nextBtn"; 
+	nextBtnBlock.setupState({
+		state: "selected",
+		attributes: selectedAttributes
+	});
+	nextBtnBlock.setupState({
+		state: "normal",
+		attributes: normalAttributes
+	});
+	nextBtnBlock.add(NextText);
+	//nextBtnBlock.visible = false;
+	
+	btnsContainer.add(prevBtnBlock, nextBtnBlock);
+	container.add(btnsContainer);
+
+	popupGroup.position.set(0.0, 2.16, -2.6);
+	popupGroup.add(container);
+	scene.add(popupGroup);
+
+	//
+	/*
 	let textureLoader = new THREE.TextureLoader();
 
 	const infoGeometry = new THREE.BoxGeometry(60, 32, 0.01);
@@ -545,8 +664,8 @@ function createIntroPopup(){
 	btnNext.name = 'Next'; 						btnBack.name = 'Back';
 												btnBack.visible = false;
 	popupGroup.add(btnNext); 					popupGroup.add(btnBack);
-
-	scene.add(popupGroup);
+	
+	scene.add(popupGroup);*/
 }
 
 function createCorrectIncorrectPopup(){

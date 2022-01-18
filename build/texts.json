@@ -1,8 +1,0 @@
-popupData = `{
-    "introTitle" : "Message", 
-    "introText" : "Click the OK button to grab the Bovie and burn marks on the midline of the vertebral bodies (superior and inferior to the operative level). Click to confirm.",
-    "successTitle": "Message",
-    "successText": "The vertebral bodies are now marked at midline. These marks will serve as a reference for central, orthogonal orientation of instrumentation going forward.",
-    "unsuccessTitle": "Message",
-    "unsuccessText": " Incomplete, please try again. "
-}`

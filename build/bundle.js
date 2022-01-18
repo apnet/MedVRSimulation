@@ -54619,14 +54619,4239 @@
 
 	}
 
+	/**
+
+	Job: Handle everything related to a BoxComponent element dimensioning and positioning
+
+	Knows: Parents and children dimensions and positions
+
+	It's worth noting that in three-mesh-ui, it's the parent Block that computes
+	its children position. A Block can only have either only box components (Block)
+	as children, or only inline components (Text, InlineBlock).
+
+	*/
+	function BoxComponent( Base = class {} ) {
+
+	    return class BoxComponent extends Base {
+
+	        constructor( options ) {
+
+	            super( options );
+
+	            this.isBoxComponent = true;
+	            this.childrenPos = {};
+
+	        }
+
+
+	        /** Get width of this component minus its padding */
+	        getInnerWidth() {
+
+	            const DIRECTION = this.getContentDirection();
+
+	            switch ( DIRECTION ) {
+
+	            case 'row' :
+	            case 'row-reverse' :
+	                return this.width - (this.padding * 2 || 0) || this.getChildrenSideSum( 'width' );
+
+	            case 'column' :
+	            case 'column-reverse' :
+	                return this.getHighestChildSizeOn( 'width' )
+
+	            default :
+	                console.error(`Invalid contentDirection : ${ DIRECTION }`);
+	                break;
+
+	            }
+
+	        }
+
+	        /** Get height of this component minus its padding */
+	        getInnerHeight() {
+
+	            const DIRECTION = this.getContentDirection();
+
+	            switch ( DIRECTION ) {
+
+	            case 'row' :
+	            case 'row-reverse' :
+	                return this.getHighestChildSizeOn( 'height' );
+
+	            case 'column' :
+	            case 'column-reverse' :
+	                return this.height - (this.padding * 2 || 0) || this.getChildrenSideSum( 'height' );
+
+	            default :
+	                console.error(`Invalid contentDirection : ${ DIRECTION }`);
+	                break;
+
+	            }
+
+	        }
+
+	        /** Return the sum of all this component's children sides + their margin */
+	        getChildrenSideSum( dimension ) {
+
+	            return this.children.reduce((accu, child)=> {
+
+	                if ( !child.isBoxComponent ) return accu
+
+	                const margin = (child.margin * 2) || 0;
+
+	                const CHILD_SIZE = (dimension === "width") ?
+	                    ( child.getWidth() + margin ) :
+	                    ( child.getHeight() + margin );
+
+	                return accu + CHILD_SIZE;
+
+	            }, 0 );
+
+	        }
+
+	        /** Look in parent record what is the instructed position for this component, then set its position */
+	        setPosFromParentRecords() {
+	                
+	            if ( this.getUIParent() && this.getUIParent().childrenPos[ this.id ] ) {
+
+	                this.position.x = ( this.getUIParent().childrenPos[ this.id ].x );
+	                this.position.y = ( this.getUIParent().childrenPos[ this.id ].y );
+
+	            }
+
+	        }
+
+	        /** Position inner elements according to dimensions and layout parameters. */
+	        computeChildrenPosition() {
+
+	            if ( this.children.length > 0 ) {
+
+	                const DIRECTION = this.getContentDirection();
+	                let X_START, Y_START;
+
+	                switch ( DIRECTION ) {
+
+	                case 'row' :
+
+	                    // start position of the children positioning inside this component
+	                    X_START = this.getInnerWidth() / 2;
+
+	                    this.setChildrenXPos( -X_START );
+
+	                    this.alignChildrenOnY();
+
+	                    break;
+
+	                case 'row-reverse' :
+	                        
+	                    // start position of the children positioning inside this component
+	                    X_START = this.getInnerWidth() / 2;
+
+	                    this.setChildrenXPos( X_START );
+
+	                    this.alignChildrenOnY();
+
+	                    break;
+
+	                case 'column' :
+	                        
+	                    // start position of the children positioning inside this component
+	                    Y_START = this.getInnerHeight() / 2;
+
+	                    this.setChildrenYPos( Y_START );
+
+	                    this.alignChildrenOnX();
+
+	                    break;
+
+	                case 'column-reverse' :
+	                        
+	                    // start position of the children positioning inside this component
+	                    Y_START = this.getInnerHeight() / 2;
+
+	                    this.setChildrenYPos( -Y_START );
+
+	                    this.alignChildrenOnX();
+
+	                    break;
+
+	                }
+
+	            }
+
+	        }
+
+	        /** Set children X position according to this component dimension and attributes */
+	        setChildrenXPos( startPos ) {
+
+	            const JUSTIFICATION = this.getJustifyContent();
+
+	            if ( JUSTIFICATION !== 'center' && JUSTIFICATION !== 'start' && JUSTIFICATION !== 'end' ) {
+	                console.warn(`justifiyContent === '${ JUSTIFICATION }' is not supported`);
+	            }
+
+	            this.children.reduce( (accu, child)=> {
+
+	                if ( !child.isBoxComponent ) return accu
+
+	                const CHILD_ID = child.id;
+	                const CHILD_WIDTH = child.getWidth();
+	                const CHILD_MARGIN = child.margin || 0;
+
+	                accu += CHILD_MARGIN * -Math.sign( startPos );
+
+	                this.childrenPos[ CHILD_ID ] = {
+	                    x: accu + ((CHILD_WIDTH / 2) * -Math.sign( startPos )),
+	                    y: 0
+	                };
+
+	                return accu + (-Math.sign( startPos ) * (CHILD_WIDTH + CHILD_MARGIN))
+
+	            }, startPos );
+
+	            //
+
+	            if ( JUSTIFICATION === "end" || JUSTIFICATION === "center" ) {
+
+	                let offset = (startPos * 2) - (this.getChildrenSideSum('width') * Math.sign(startPos));
+
+	                if ( JUSTIFICATION === "center" ) offset /= 2;
+	                
+	                this.children.forEach( (child)=> {
+
+	                    if ( !child.isBoxComponent ) return
+
+	                    this.childrenPos[ child.id ].x -= offset;
+
+	                });
+
+	            }
+
+	        }
+
+	        /** Set children Y position according to this component dimension and attributes */
+	        setChildrenYPos( startPos ) {
+
+	            const JUSTIFICATION = this.getJustifyContent();
+
+	            this.children.reduce( (accu, child)=> {
+
+	                if ( !child.isBoxComponent ) return accu
+
+	                const CHILD_ID = child.id;
+	                const CHILD_HEIGHT = child.getHeight();
+	                const CHILD_MARGIN = child.margin || 0;
+
+	                accu += CHILD_MARGIN * -Math.sign( startPos );
+
+	                this.childrenPos[ CHILD_ID ] = {
+	                    x: 0,
+	                    y: accu + ((CHILD_HEIGHT / 2) * -Math.sign( startPos ))
+	                };
+
+	                return accu + (-Math.sign( startPos ) * (CHILD_HEIGHT + CHILD_MARGIN))
+
+	            }, startPos );
+
+	            //
+
+	            if ( JUSTIFICATION === "end" || JUSTIFICATION === "center" ) {
+
+	                let offset = (startPos * 2) - (this.getChildrenSideSum('height') * Math.sign(startPos));
+	                
+	                if ( JUSTIFICATION === "center" ) offset /= 2;
+
+	                this.children.forEach( (child)=> {
+
+	                    if ( !child.isBoxComponent ) return
+
+	                    this.childrenPos[ child.id ].y -= offset;
+
+	                });
+
+	            }
+
+	        }
+
+	        /** called if justifyContent is 'column' or 'column-reverse', it align the content horizontally */
+	        alignChildrenOnX() {
+
+	            const ALIGNMENT = this.getAlignContent();
+	            const X_TARGET = ( this.getWidth() / 2 ) - ( this.padding || 0 );
+
+	            if ( ALIGNMENT !== "center" && ALIGNMENT !== "right" && ALIGNMENT !== "left" ) {
+	                console.warn(`alignContent === '${ ALIGNMENT }' is not supported on this direction.`);
+	            }
+
+	            this.children.forEach( (child)=> {
+
+	                if ( !child.isBoxComponent ) return
+
+	                let offset;
+
+	                if ( ALIGNMENT === "right" ) {
+
+	                    offset = X_TARGET - ( child.getWidth() / 2 ) - ( child.margin || 0 ) ;
+
+	                } else if ( ALIGNMENT === "left" ) {
+
+	                    offset = - X_TARGET + ( child.getWidth() / 2 ) + ( child.margin || 0 ) ;
+
+	                }
+
+	                this.childrenPos[ child.id ].x = offset || 0;
+
+	            });
+
+	        }
+
+	        /** called if justifyContent is 'row' or 'row-reverse', it align the content vertically */
+	        alignChildrenOnY() {
+
+	            const ALIGNMENT = this.getAlignContent();
+	            const Y_TARGET = (this.getHeight() / 2) - (this.padding || 0);
+
+	            if ( ALIGNMENT !== "center" && ALIGNMENT !== "top" && ALIGNMENT !== "bottom" ) {
+	                console.warn(`alignContent === '${ ALIGNMENT }' is not supported on this direction.`);
+	            }
+
+	            this.children.forEach( (child)=> {
+
+	                if ( !child.isBoxComponent ) return
+
+	                let offset;
+
+	                if ( ALIGNMENT === "top" ) {
+
+	                    offset = Y_TARGET - (child.getHeight() / 2) - (child.margin || 0) ;
+
+	                } else if ( ALIGNMENT === "bottom" ) {
+
+	                    offset = -Y_TARGET + (child.getHeight() / 2) + (child.margin || 0) ;
+
+	                }
+
+	                this.childrenPos[ child.id ].y = offset || 0;
+
+	            });
+
+	        }
+
+	        /**
+	         * Returns the highest linear dimension among all the children of the passed component
+	         * MARGIN INCLUDED
+	         */
+	        getHighestChildSizeOn( direction ) {
+
+	            return this.children.reduce((accu, child)=> {
+
+	                if ( !child.isBoxComponent ) return accu
+
+	                const margin = child.margin || 0;
+	                const maxSize = direction === "width" ?
+	                    child.getWidth() + (margin * 2) :
+	                    child.getHeight() + (margin * 2) ;
+
+	                return Math.max(accu, maxSize)
+
+	            }, 0 );
+
+	        }
+
+	        /**
+	         * Get width of this element
+	         * With padding, without margin
+	         */
+	        getWidth() {
+	            return this.width || this.getInnerWidth() + ( this.padding * 2 || 0 );
+	        }
+
+	        /**
+	         * Get height of this element
+	         * With padding, without margin
+	         */
+	        getHeight() {
+	            return this.height || this.getInnerHeight() + ( this.padding * 2 || 0 );
+	        }
+
+	    }
+
+	}
+
+	/**
+
+	Job: Positioning inline elements according to their dimensions inside this component
+
+	Knows: This component dimensions, and its children dimensions
+
+	This module is used for Block composition (Object.assign). A Block is responsible
+	for the positioning of its inline elements. In order for it to know what is the
+	size of these inline components, parseParams must be called on its children first.
+
+	It's worth noting that a Text is not positioned as a whole, but letter per letter,
+	in order to create a line break when necessary. It's Text that merge the various letters
+	in its own updateLayout function.
+
+	*/
+	function InlineManager( Base = class {} ) {
+
+		return class InlineManager extends Base {
+
+	        /** Compute children .inlines objects position, according to their pre-computed dimensions */
+	        computeInlinesPosition() {
+
+	            // computed by BoxComponent
+	            const INNER_WIDTH = this.getWidth() - (this.padding * 2 || 0);
+
+	            // Will stock the characters of each line, so that we can
+	            // correct lines position before to merge
+	            const lines = [[]];
+
+	            this.children.filter( (child)=> {
+
+	                return child.isInline ? true : false
+
+	            })
+	                .reduce( (lastInlineOffset, inlineComponent)=> {
+
+	                    // Abort condition
+
+	                    if ( !inlineComponent.inlines ) return
+
+	                    //////////////////////////////////////////////////////////////
+	                    // Compute offset of each children according to its dimensions
+	                    //////////////////////////////////////////////////////////////
+
+	                    const letterSpacing = inlineComponent.isText ? inlineComponent.getLetterSpacing() * inlineComponent.getFontSize() : 0;
+
+	                    const currentInlineInfo = inlineComponent.inlines.reduce( (lastInlineOffset, inline, i, inlines)=> {
+
+	                        const kerning = inline.kerning ? inline.kerning : 0;
+	                        const xoffset = inline.xoffset ? inline.xoffset : 0;
+	                        const xadvance = inline.xadvance ? inline.xadvance : inline.width;
+
+	                        // Line break
+	                        // const xoffset = inline.xadvance - inline.width;
+	                        // const xoffset = 0;
+
+	                        const nextBreak = this.distanceToNextBreak( inlines, i , letterSpacing );
+
+	                        if (
+	                            lastInlineOffset + xadvance + xoffset + kerning > INNER_WIDTH ||
+	                            inline.lineBreak === "mandatory" ||
+	                            this.shouldFriendlyBreak( inlines[ i - 1 ], lastInlineOffset, nextBreak, INNER_WIDTH )
+	                        ) {
+
+	                            lines.push([ inline ]);
+
+	                            inline.offsetX = xoffset;
+
+	                            // Workaround : Sometimes, ThreeMeshUI linebreaks before a newline "\n"
+	                            //              and `lines.push([ inline ])` push the newline char "\n" itself as first char
+	                            //
+	                            // LetterSpacing feature was introducing a visual glitch
+	                            // by adding constant letterSpacing to those hidden chars
+	                            //
+	                            // So as workaround if the first char has a width of 0, do not add letterSpacing
+	                            if( inline.width > 0 ){
+
+	                                // Do not kern first letter of a line, its has not lefthanded peer char
+	                                // But still use the letterspacing
+	                                return xadvance + xoffset + letterSpacing;
+	                            }else {
+
+	                                // When line breaker here "\n" its width is 0
+	                                // Fix by setting width of 0
+	                                // as letterSpacing was still adding constant offset on empty char
+	                                return 0;
+	                            }
+
+	                        }
+
+	                        lines[ lines.length - 1 ].push( inline );
+
+	                        inline.offsetX = lastInlineOffset + xoffset + kerning;
+	                    
+	                        const result = lastInlineOffset + xadvance + kerning + letterSpacing;
+
+	                        return result;
+
+	                    }, lastInlineOffset );
+
+	                    //
+
+	                    return currentInlineInfo
+
+	                }, 0 );
+
+	            /////////////////////////////////////////////////////////////////
+	            // Position lines according to justifyContent and contentAlign
+	            /////////////////////////////////////////////////////////////////
+
+	            // got by BoxComponent
+	            const INNER_HEIGHT = this.getHeight() - (this.padding * 2 || 0);
+
+	            // got by MeshUIComponent
+	            const JUSTIFICATION = this.getJustifyContent();
+	            const ALIGNMENT = this.getAlignContent();
+	            const INTERLINE = this.getInterLine();
+
+	            // Compute lines dimensions
+
+	            lines.forEach( (line)=> {
+
+	                //
+
+	                line.lineHeight = line.reduce( (height, inline) => {
+
+	                    const charHeight = inline.lineHeight !== undefined ? inline.lineHeight : inline.height;
+
+	                    return Math.max( height, charHeight )
+
+	                }, 0 );
+
+	                //
+
+	                line.lineBase = line.reduce( (lineBase, inline) => {
+
+	                    const newLineBase = inline.lineBase !== undefined ? inline.lineBase : inline.height;
+
+	                    return Math.max( lineBase, newLineBase );
+
+	                }, 0 );
+
+	                //
+
+	                line.width = line.reduce( (width, inline)=> {
+
+	                    const kerning = inline.kerning ? inline.kerning : 0;
+	                    const xoffset = inline.xoffset ? inline.xoffset : 0;
+	                    const xadvance = inline.xadvance ? inline.xadvance : inline.width ;
+
+	                    return width + xadvance + xoffset + kerning;
+
+	                }, 0 );
+
+	            });
+
+	            // individual vertical offset
+
+	            let textHeight = lines.reduce( (offsetY, line, i, arr)=> {
+
+	                const charAlignement = line.lineHeight - line.lineBase;
+
+	                line.forEach( (inline)=> {
+
+	                    inline.offsetY = offsetY - line.lineHeight + charAlignement + arr[0].lineHeight;
+
+	                });
+
+	                return offsetY - line.lineHeight - INTERLINE;
+
+	            }, 0 ) + INTERLINE;
+
+	            //
+
+	            textHeight = Math.abs( textHeight );
+
+	            // Line vertical positioning
+
+	            const justificationOffset = (()=> {
+	                switch ( JUSTIFICATION ) {
+	                case 'start': return (INNER_HEIGHT / 2) - lines[0].lineHeight
+	                case 'end': return textHeight - lines[0].lineHeight - ( INNER_HEIGHT / 2 ) + (lines[ lines.length -1 ].lineHeight - lines[ lines.length -1 ].lineHeight) ;
+	                case 'center': return (textHeight / 2) - lines[0].lineHeight
+	                default: console.warn(`justifyContent: '${ JUSTIFICATION }' is not valid`);
+	                }
+	            })();
+
+	            // const justificationOffset = 0;
+
+	            //
+
+	            lines.forEach( (line)=> {
+
+	                line.forEach( (inline)=> {
+
+	                    inline.offsetY += justificationOffset;
+
+	                });
+
+	            });
+
+	            // Horizontal positioning
+
+	            lines.forEach( (line)=> {
+
+	                const alignmentOffset = (()=> {
+	                    switch ( ALIGNMENT ) {
+	                    case 'left': return -INNER_WIDTH / 2
+	                    case 'right': return -line.width + (INNER_WIDTH / 2)
+	                    case 'center': return -line.width / 2
+	                    default: console.warn(`alignContent: '${ ALIGNMENT }' is not valid`);
+	                    }
+	                })();
+
+	                line.forEach( (char)=> {
+
+	                    char.offsetX += alignmentOffset;
+
+	                });
+
+	            });
+
+	        }
+
+	        /**
+	         * get the distance in world coord to the next glyph defined
+	         * as break-line-safe ( like whitespace for instance )
+	         * @private
+	         */
+	        distanceToNextBreak( inlines, currentIdx, letterSpacing , accu ) {
+
+	            accu = accu || 0 ;
+
+	            // end of the text
+	            if ( !inlines[ currentIdx ] ) return accu
+
+	            const inline = inlines[ currentIdx ];
+	            const kerning = inline.kerning ? inline.kerning : 0;
+	            const xoffset = inline.xoffset ? inline.xoffset : 0;
+	            const xadvance = inline.xadvance ? inline.xadvance : inline.width ;
+
+	            // if inline.lineBreak is set, it is 'mandatory' or 'possible'
+	            if ( inline.lineBreak ) {
+
+	                return accu + xadvance
+
+	            // no line break is possible on this character
+	            } 
+
+	            return this.distanceToNextBreak(
+	                inlines,
+	                currentIdx + 1,
+	                letterSpacing,
+	                accu + xadvance + letterSpacing + xoffset + kerning
+	            );
+
+	            
+
+	        }
+
+	        /**
+	         * Test if we should line break here even if the current glyph is not out of boundary.
+	         * It might be necessary if the last glyph was break-line-friendly (whitespace, hyphen..)
+	         * and the distance to the next friendly glyph is out of boundary.
+	         */
+	        shouldFriendlyBreak( prevChar, lastInlineOffset, nextBreak, INNER_WIDTH ) {
+
+	            // We can't check if last glyph is break-line-friendly it does not exist
+	            if ( !prevChar || !prevChar.glyph ) return false
+
+	            // Next break-line-friendly glyph is inside boundary
+	            if ( lastInlineOffset + nextBreak < INNER_WIDTH ) return false
+
+	            // Characters to prioritize breaking line (eg: white space)
+	            const BREAK_ON = this.getBreakOn();
+
+	            // Previous glyph was break-line-friendly
+	            return BREAK_ON.indexOf( prevChar.glyph ) > -1
+
+	        }			 
+
+		}
+
+	}
+
+	const fileLoader = new FileLoader();
+	const requiredFontFamilies = [];
+	const fontFamilies = {};
+
+	const textureLoader$1 = new TextureLoader();
+	const requiredFontTextures = [];
+	const fontTextures = {};
+
+	const records = {};
+
+	/**
+
+	Called by MeshUIComponent after fontFamily was set
+	When done, it calls MeshUIComponent.update, to actually display
+	the text with the loaded font.
+
+	*/
+	function setFontFamily( component, fontFamily ) {
+
+		if ( typeof fontFamily === 'string' ) {
+
+			loadFontJSON( component, fontFamily );
+
+		} else {
+
+			// keep record of the font that this component use
+			if ( !records[ component.id ] ) records[ component.id ] = {component};
+
+			// Ensure the font json is processed
+			_buildFriendlyKerningValues(fontFamily);
+
+			records[ component.id ].json = fontFamily;
+
+			component._updateFontFamily( fontFamily );
+
+		}
+
+	}
+
+	/**
+
+	Called by MeshUIComponent after fontTexture was set
+	When done, it calls MeshUIComponent.update, to actually display
+	the text with the loaded font.
+
+	*/
+	function setFontTexture( component, url ) {
+
+		// if this font was never asked for, we load it
+		if ( requiredFontTextures.indexOf( url ) === -1 ) {
+
+			requiredFontTextures.push( url );
+
+			textureLoader$1.load( url, ( texture )=> {
+
+				fontTextures[ url ] = texture;
+
+				for ( const recordID of Object.keys(records) ) {
+
+					if ( url === records[ recordID ].textureURL ) {
+
+						// update all the components that were waiting for this font for an update
+						records[ recordID ].component._updateFontTexture( texture );
+
+					}
+
+				}
+
+			});
+
+		}
+
+		// keep record of the font that this component use
+		if ( !records[ component.id ] ) records[ component.id ] = {component};
+		
+		records[ component.id ].textureURL = url;
+
+		// update the component, only if the font is already requested and loaded
+		if ( fontTextures[ url ] ) {
+			component._updateFontTexture( fontTextures[ url ] );
+		}
+
+	}
+
+	/** used by Text to know if a warning must be thrown */
+	function getFontOf( component ) {
+
+		const record = records[ component.id ];
+
+		if ( !record && component.getUIParent() ) {
+
+			return getFontOf( component.getUIParent() );
+
+		} 
+
+		return record
+
+		;
+
+	}
+
+	/** Load JSON file at the url provided by the user at the component attribute 'fontFamily' */
+	function loadFontJSON( component, url ) {
+
+		// if this font was never asked for, we load it
+		if ( requiredFontFamilies.indexOf( url ) === -1 ) {
+
+			requiredFontFamilies.push( url );
+
+			fileLoader.load( url, ( text )=> {
+
+				// FileLoader import as  a JSON string
+				const font = JSON.parse( text );
+
+				// Ensure the font json is processed
+				_buildFriendlyKerningValues( font );
+
+				fontFamilies[ url ] = font;
+
+				for ( const recordID of Object.keys(records) ) {
+
+					if ( url === records[ recordID ].jsonURL ) {
+
+						// update all the components that were waiting for this font for an update
+						records[ recordID ].component._updateFontFamily( font );
+
+					}
+
+				}
+
+			});
+
+		}
+
+		// keep record of the font that this component use
+		if ( !records[ component.id ] ) records[ component.id ] = {component};
+
+		records[ component.id ].jsonURL = url;
+
+		// update the component, only if the font is already requested and loaded
+		if ( fontFamilies[ url ] ) {
+			component._updateFontFamily( fontFamilies[ url ] );
+		}
+
+	}
+
+	/**
+	 * From the original json font kernings array
+	 * First  : Reduce the number of values by ignoring any kerning defining an amount of 0
+	 * Second : Update the data structure of kernings from
+	 * 			{Array} : [{first: 97, second: 121, amount: 0},{first: 97, second: 122, amount: -1},...]
+	 * 			to
+	 * 			{Object}: {"ij":-2,"WA":-3,...}}
+	 *
+	 * @private
+	 */
+	function _buildFriendlyKerningValues( font ){
+
+		// As "font registering" can comes from different paths : addFont, loadFontJSON, setFontFamily
+		// Be sure we don't repeat this operation
+		if( font._kernings ) return;
+
+		const friendlyKernings = {};
+
+		for (let i = 0; i < font.kernings.length; i++) {
+
+			const kerning = font.kernings[i];
+
+			// ignore zero kerned glyph pair
+			if( kerning.amount === 0){
+				continue;
+			}
+
+			// Build and store the glyph paired characters "ij","WA", ... as keys, referecing their kerning amount
+			const glyphPair = String.fromCharCode(kerning.first,kerning.second);
+			friendlyKernings[glyphPair] = kerning.amount;
+		}
+
+		// update the font to keep it
+		font._kernings = friendlyKernings;
+
+	}
+
+	/*
+
+	This method is intended for adding manually loaded fonts. Method assumes font hasn't been loaded or requested yet. If it was,
+	font with specified name will be overwritten, but components using it won't be updated.
+
+	*/
+	function addFont(name, json, texture) {
+		requiredFontFamilies.push( name );
+		fontFamilies[ name ] = json;
+
+		// Ensure the font json is processed
+		_buildFriendlyKerningValues(json);
+
+		if ( texture ) {
+			requiredFontTextures.push(name);
+			fontTextures[ name ] = texture;
+		}
+	}
+
+	//
+
+	const FontLibrary = {
+		setFontFamily,
+		setFontTexture,
+		getFontOf,
+		addFont
+	};
+
+	/**
+	 * Job:
+	 * - recording components required updates
+	 * - trigger those updates when 'update' is called
+	 * 
+	 * This module is a bit special. It is, with FontLibrary, one of the only modules in the 'component'
+	 * directory not to be used in component composition (Object.assign).
+	 * 
+	 * When MeshUIComponent is instanciated, it calls UpdateManager.register().
+	 * 
+	 * Then when MeshUIComponent receives new attributes, it doesn't update the component right away.
+	 * Instead, it calls UpdateManager.requestUpdate(), so that the component is updated when the user
+	 * decides it (usually in the render loop).
+	 * 
+	 * This is best for performance, because when a UI is created, thousands of componants can
+	 * potentially be instantiated. If they called updates function on their ancestors right away,
+	 * a given component could be updated thousands of times in one frame, which is very ineficient.
+	 * 
+	 * Instead, redundant update request are moot, the component will update once when the use calls
+	 * update() in their render loop.
+	 */
+	class UpdateManager {
+
+	    /*
+	     * get called by MeshUIComponent when component.set has been used.
+	     * It registers this component and all its descendants for the different types of updates that were required.
+	     */
+	    static requestUpdate( component, updateParsing, updateLayout, updateInner ) {
+
+	        component.traverse( (child)=> {
+
+	            if ( !child.isUI ) return
+
+	            // request updates for all descendants of the passed components
+	            if ( !this.requestedUpdates[ child.id ] ) {
+
+	                this.requestedUpdates[ child.id ] = {
+	                    updateParsing,
+	                    updateLayout,
+	                    updateInner,
+	                    needCallback: ( updateParsing || updateLayout || updateInner )
+	                };
+
+	            } else {
+
+	                if (updateParsing) this.requestedUpdates[ child.id ].updateParsing = true;
+	                if (updateLayout) this.requestedUpdates[ child.id ].updateLayout = true;
+	                if (updateInner) this.requestedUpdates[ child.id ].updateInner = true;
+
+	            }
+
+	        });
+
+	    }
+
+	    /** Register a passed component for later updates */
+	    static register( component ) {
+
+	        if ( !this.components.includes(component) ) {
+
+	            this.components.push( component );
+
+	        }
+
+	    }
+
+	    /** Unregister a component (when it's deleted for instance) */
+	    static disposeOf( component ) {
+
+	        const idx = this.components.indexOf( component );
+
+	        if ( idx > -1 ) {
+
+	            this.components.splice( idx, 1 );
+
+	        }
+
+	    }
+
+	    /** Trigger all requested updates of registered components */
+	    static update() {
+
+	        if ( Object.keys( this.requestedUpdates ).length > 0 ) {
+
+	            const roots = this.components.filter( ( component ) => {
+
+	                return !component.getUIParent()
+
+	            } );
+
+	            roots.forEach( root => this.traverseParsing( root ) );
+	            roots.forEach( root => this.traverseUpdates( root ) );
+
+	        }
+
+	    }
+
+	    /**
+	     * Calls parseParams update of all components from parent to children
+	     * @private
+	     */
+	    static traverseParsing( component ) {
+
+	        const request = this.requestedUpdates[ component.id ];
+
+	        if ( request && request.updateParsing ) {
+
+	            component.parseParams();
+
+	            request.updateParsing = false;
+
+	        }
+
+	        component.getUIChildren().forEach( child => this.traverseParsing( child ) );
+
+	    }
+
+	    /**
+	     * Calls updateLayout and updateInner functions of components that need an update
+	     * @private
+	     */
+	    static traverseUpdates( component ) {
+
+	        const request = this.requestedUpdates[ component.id ];
+
+	        //
+
+	        if ( request && request.updateLayout ) {
+
+	            request.updateLayout = false;
+
+	            component.updateLayout();
+
+	        }
+
+	        //
+
+	        if ( request && request.updateInner ) {
+
+	            request.updateInner = false;
+
+	            component.updateInner();
+
+	        }
+
+	        //
+
+	        if ( request && request.needCallback ) {
+
+	            component.onAfterUpdate();
+
+	        }
+
+	        //
+
+	        delete this.requestedUpdates[ component.id ];
+
+	        //
+
+	        component.getUIChildren().forEach( ( childUI ) => {
+
+	            this.traverseUpdates( childUI );
+
+	        } );
+
+	    }
+
+	}
+
+	// TODO move these into the class (Webpack unfortunately doesn't understand
+	// `static` property syntax, despite browsers already supporting this)
+	UpdateManager.components = [];
+	UpdateManager.requestedUpdates = {};
+
+	/** List the default values of the lib components */
+	var Defaults = {
+		container: null,
+		fontFamily: null,
+		fontSize: 0.05,
+		fontKerning: "normal", // FontKerning would act like css : "none"|"normal"|"auto"("auto" not yet implemented)
+		offset: 0.01,
+		interLine: 0.01,
+		breakOn: '- ,.:?!',
+		contentDirection: "column",
+		alignContent: "center",
+		justifyContent: "start",
+		fontTexture: null,
+		textType: "MSDF",
+		fontColor: new Color( 0xffffff ),
+		fontOpacity: 1,
+		borderRadius: 0.01,
+		borderWidth: 0,
+		borderColor: new Color( 'black' ),
+		backgroundSize: "cover",
+		backgroundColor: new Color( 0x222222 ),
+		backgroundWhiteColor: new Color( 0xffffff ),
+		backgroundOpacity: 0.8,
+		backgroundOpaqueOpacity: 1.0,
+		backgroundTexture: DefaultBackgroundTexture(),
+		hiddenOverflow: false,
+		letterSpacing: 0
+	};
+
+	//
+
+	function DefaultBackgroundTexture() {
+
+		const ctx = document.createElement('canvas').getContext('2d');
+		ctx.canvas.width = 1;
+		ctx.canvas.height = 1;
+		ctx.fillStyle = '#ffffff';
+		ctx.fillRect(0, 0, 1, 1);
+		const texture = new CanvasTexture(ctx.canvas);
+		texture.isDefault = true;
+		return texture;
+
+	}
+
+	/**
+
+	Job:
+	- Set this component attributes and call updates accordingly
+	- Getting this component attribute, from itself or from its parents
+	- Managing this component's states
+
+	This is the core module of three-mesh-ui. Every component is composed with it.
+	It owns the principal public methods of a component : set, setupState and setState.
+
+	*/
+	function MeshUIComponent( Base = class {} ) {
+
+		return class MeshUIComponent extends Base {
+	        constructor( options ) {
+
+	            super( options );
+
+	            this.states = {};
+	            this.currentState = undefined;
+	            this.isUI = true;
+	            this.autoLayout = true;
+
+	        }
+
+	        /////////////
+	        /// GETTERS
+	        /////////////
+
+	        getClippingPlanes() {
+
+	            const planes = [];
+
+	            if ( this.parent && this.parent.isUI ) {
+
+	                if ( this.isBlock && this.parent.getHiddenOverflow() ) {
+
+	                    const yLimit = ( this.parent.getHeight() / 2 ) - ( this.parent.padding || 0 );
+	                    const xLimit = ( this.parent.getWidth() / 2 ) - ( this.parent.padding || 0 );
+
+	                    const newPlanes = [
+	                        new Plane( new Vector3( 0, 1, 0 ), yLimit ),
+	                        new Plane( new Vector3( 0, -1, 0 ), yLimit ),
+	                        new Plane( new Vector3( 1, 0, 0 ), xLimit ),
+	                        new Plane( new Vector3( -1, 0, 0 ), xLimit )
+	                    ];
+
+	                    newPlanes.forEach( plane => {
+
+	                        plane.applyMatrix4( this.parent.matrixWorld );
+
+	                    });
+
+	                    planes.push( ...newPlanes );
+
+	                }
+
+	                if ( this.parent.parent && this.parent.parent.isUI ) {
+
+	                    planes.push( ...this.parent.getClippingPlanes() );
+
+	                }
+
+	            }
+
+	            return planes;
+
+	        }
+
+	        //
+
+	        getUIChildren() {
+
+	            return this.children.filter( (child)=> {
+
+	                return child.isUI
+
+	            });
+
+	        }
+
+	        //
+
+	        getUIParent() {
+
+	            if ( this.parent && this.parent.isUI ) {
+
+	                return this.parent
+
+	            }
+
+	            return null
+
+
+
+	        }
+
+	        /** Get the highest parent of this component (the parent that has no parent on top of it) */
+	        getHighestParent() {
+
+	            if ( !this.getUIParent() ) {
+
+	                return this
+
+	            }
+
+	            return this.parent.getHighestParent();
+
+
+
+	        }
+
+	        /**
+	         * look for a property in this object, and if does not find it, find in parents or return default value
+	         * @private
+	         */
+	        _getProperty( propName ) {
+
+	            if ( this[ propName ] === undefined && this.getUIParent() ) {
+
+	                return this.parent._getProperty( propName )
+
+	            } else if ( this[ propName ] ) {
+
+	                return this[ propName ]
+
+	            }
+
+	            return Defaults[ propName ]
+
+	            ;
+
+	        }
+
+	        //
+
+	        getFontSize() {
+	            return this._getProperty( 'fontSize' );
+	        }
+
+	        getFontKerning() {
+	          return this._getProperty( 'fontKerning' );
+	        }
+
+	        getLetterSpacing() {
+	            return this._getProperty( 'letterSpacing' );
+	        }
+
+	        getFontTexture() {
+	            return this._getProperty( 'fontTexture' );
+	        }
+
+	        getFontFamily() {
+	            return this._getProperty( 'fontFamily' );
+	        }
+
+	        getBreakOn() {
+	            return this._getProperty( 'breakOn' );
+	        }
+
+	        getTextType() {
+	            return this._getProperty( 'textType' );
+	        }
+
+	        getFontColor() {
+	            return this._getProperty( 'fontColor' );
+	        }
+
+	        getFontOpacity() {
+	            return this._getProperty( 'fontOpacity' );
+	        }
+
+	        getBorderRadius() {
+	            return this._getProperty( 'borderRadius' );
+	        }
+
+	        getBorderWidth() {
+	            return this._getProperty( 'borderWidth' );
+	        }
+
+	        getBorderColor() {
+	            return this._getProperty( 'borderColor' );
+	        }
+
+	        getBorderOpacity() {
+	            return this._getProperty( 'borderOpacity' );
+	        }
+
+	        /// SPECIALS
+
+	        /** return the first parent with a 'threeOBJ' property */
+	        getContainer() {
+
+	            if ( !this.threeOBJ && this.parent ) {
+
+	                return this.parent.getContainer();
+
+	            } else if ( this.threeOBJ ) {
+
+	                return this
+
+	            }
+
+	            return Defaults.container
+
+
+
+	        }
+
+	        /** Get the number of UI parents above this elements (0 if no parent) */
+	        getParentsNumber( i ) {
+
+	            i = i || 0;
+
+	            if ( this.getUIParent() ) {
+
+	                return this.parent.getParentsNumber( i + 1 )
+
+	            }
+
+	            return i
+
+	            ;
+
+	        }
+
+	        ////////////////////////////////////
+	        /// GETTERS WITH NO PARENTS LOOKUP
+	        ////////////////////////////////////
+
+	        getBackgroundOpacity() {
+	            return ( !this.backgroundOpacity && this.backgroundOpacity !== 0 ) ?
+	                Defaults.backgroundOpacity : this.backgroundOpacity;
+	        }
+
+	        getBackgroundColor() {
+	            return this.backgroundColor || Defaults.backgroundColor;
+	        }
+
+	        getBackgroundTexture() {
+	            return this.backgroundTexture || Defaults.backgroundTexture;
+	        }
+
+	        getAlignContent() {
+	            return this.alignContent || Defaults.alignContent;
+	        }
+
+	        getContentDirection() {
+	            return this.contentDirection || Defaults.contentDirection;
+	        }
+
+	        getJustifyContent() {
+	            return this.justifyContent || Defaults.justifyContent;
+	        }
+
+	        getInterLine() {
+	            return (this.interLine === undefined) ? Defaults.interLine : this.interLine;
+	        }
+
+	        getOffset() {
+	            return (this.offset === undefined) ? Defaults.offset : this.offset;
+	        }
+
+	        getBackgroundSize() {
+	            return (this.backgroundSize === undefined) ? Defaults.backgroundSize : this.backgroundSize;
+	        }
+
+	        getHiddenOverflow() {
+	            return (this.hiddenOverflow === undefined) ? Defaults.hiddenOverflow : this.hiddenOverflow;
+	        }
+
+	        ///////////////
+	        ///  UPDATE
+	        ///////////////
+
+	        /**
+	         * When the user calls component.add, it registers for updates,
+	         * then call THREE.Object3D.add.
+	         */
+	        add() {
+
+	            for ( const id of Object.keys(arguments) ) {
+
+	                // An inline component relies on its parent for positioning
+	                if ( arguments[id].isInline ) this.update( null, true );
+
+	            }
+
+	            return super.add( ...arguments );
+
+	        }
+
+	        /**
+	         * When the user calls component.remove, it registers for updates,
+	         * then call THREE.Object3D.remove.
+	         */
+	        remove() {
+
+	            for ( const id of Object.keys(arguments) ) {
+
+	                // An inline component relies on its parent for positioning
+	                if ( arguments[id].isInline ) this.update( null, true );
+
+	            }
+
+	            return super.remove( ...arguments );
+
+	        }
+
+	        //
+
+	        update( updateParsing, updateLayout, updateInner ) {
+
+	            UpdateManager.requestUpdate( this, updateParsing, updateLayout, updateInner );
+
+	        }
+
+	        onAfterUpdate() {}
+
+	        /**
+	         * Called by FontLibrary when the font requested for the current component is ready.
+	         * Trigger an update for the component whose font is now available.
+	         * @private - "package protected"
+	         */
+	        _updateFontFamily( font ) {
+
+	            this.fontFamily = font;
+
+	            this.traverse( (child)=> {
+
+	                if ( child.isUI ) child.update( true, true, false );
+
+	            });
+
+	            this.getHighestParent().update( false, true, false );
+
+	        }
+
+	        /** @private - "package protected" */
+	        _updateFontTexture( texture ) {
+
+	            this.fontTexture = texture;
+
+	            this.getHighestParent().update( false, true, false );
+
+	        }
+
+	        /**
+	         * Set this component's passed parameters.
+	         * If necessary, take special actions.
+	         * Update this component unless otherwise specified.
+	         */
+	        set( options ) {
+
+	            let parsingNeedsUpdate, layoutNeedsUpdate, innerNeedsUpdate;
+
+	            // Register to the update manager, so that it knows when to update
+
+	            UpdateManager.register( this );
+
+	            // Abort if no option passed
+
+	            if ( !options || JSON.stringify(options) === JSON.stringify({}) ) return
+
+	            // Set this component parameters according to options, and trigger updates accordingly
+	            // The benefit of having two types of updates, is to put everthing that takes time
+	            // in one batch, and the rest in the other. This way, efficient animation is possible with
+	            // attribute from the light batch.
+
+	            for ( const prop of Object.keys(options) ) {
+
+	                switch ( prop ) {
+
+	                case "content" :
+	                case "fontSize" :
+	                case "fontKerning" :
+	                    if ( this.isText ) parsingNeedsUpdate = true;
+	                    layoutNeedsUpdate = true;
+	                    this[ prop ] = options[ prop ];
+	                    break;
+
+	                case "width" :
+	                case "height" :
+	                case "padding" :
+	                    if ( this.isInlineBlock ) parsingNeedsUpdate = true;
+	                    layoutNeedsUpdate = true;
+	                    this[ prop ] = options[ prop ];
+	                    break;
+
+	                case "letterSpacing" :
+	                case "interLine" :
+	                case "margin" :
+	                case "contentDirection" :
+	                case "justifyContent" :
+	                case "alignContent" :
+	                case "textType" :
+	                case "src" :
+	                    layoutNeedsUpdate = true;
+	                    this[ prop ] = options[ prop ];
+	                    break;
+
+	                case "fontColor" :
+	                case "fontOpacity" :
+	                case "offset" :
+	                case "backgroundColor" :
+	                case "backgroundOpacity" :
+	                case "backgroundTexture" :
+	                case "backgroundSize" :
+	                case "borderRadius" :
+	                case "borderWidth" :
+	                case "borderColor" :
+	                case "borderOpacity" :
+	                    innerNeedsUpdate = true;
+	                    this[ prop ] = options[ prop ];
+	                    break;
+
+	                case "hiddenOverflow" :
+	                    this[ prop ] = options[ prop ];
+	                    break
+
+	                }
+
+	            }
+
+	            // special cases, this.update() must be called only when some files finished loading
+
+	            if ( options.fontFamily ) {
+	                FontLibrary.setFontFamily( this, options.fontFamily );
+	                layoutNeedsUpdate = false;
+	            }
+
+	            if ( options.fontTexture ) {
+	                FontLibrary.setFontTexture( this, options.fontTexture );
+	                layoutNeedsUpdate = false;
+	            }
+
+	            // Call component update
+
+	            this.update( parsingNeedsUpdate, layoutNeedsUpdate, innerNeedsUpdate );
+
+	            if ( layoutNeedsUpdate ) this.getHighestParent().update( false, true, false );
+
+	        }
+
+	        /////////////////////
+	        // STATES MANAGEMENT
+	        /////////////////////
+
+	        /** Store a new state in this component, with linked attributes */
+	        setupState( options ) {
+
+	            this.states[ options.state ] = {
+	                attributes: options.attributes,
+	                onSet: options.onSet
+	            };
+
+	        }
+
+	        /** Set the attributes of a stored state of this component */
+	        setState( state ) {
+
+	            const savedState = this.states[ state ];
+
+	            if ( !savedState ) {
+	                console.warn(`state "${ state }" does not exist within this component`);
+	                return
+	            }
+
+	            if ( state === this.currentState ) return
+
+	            this.currentState = state;
+
+	            if ( savedState.onSet ) savedState.onSet();
+
+	            if ( savedState.attributes ) this.set( savedState.attributes );
+
+	        }
+
+	        /** Get completely rid of this component and its children, also unregister it for updates */
+	        clear() {
+
+	            this.traverse( (obj)=> {
+
+	                UpdateManager.disposeOf( obj );
+
+	                if ( obj.material ) obj.material.dispose();
+
+	                if ( obj.geometry ) obj.geometry.dispose();
+
+	            });
+
+	        }
+		};
+
+	}
+
+	/**
+
+	Job:
+	- Host the materials of a given component.
+	- Update a component's materials clipping planes
+	- When materials attributes are updated, update the material
+
+	Knows:
+	- Its component materials
+	- Its component ancestors clipping planes
+
+	*/
+	function MaterialManager( Base = class {} ) {
+
+		return class MaterialManager extends Base {
+
+	        getBackgroundUniforms() {
+
+	            let color, opacity;
+
+	            const texture = this.getBackgroundTexture();
+
+	            this.tSize.set(
+	                texture.image.width,
+	                texture.image.height
+	            );
+
+	            if ( texture.isDefault ) {
+
+	                color = this.getBackgroundColor();
+	                opacity = this.getBackgroundOpacity();
+
+	            } else {
+
+	                color = this.backgroundColor || Defaults.backgroundWhiteColor;
+
+	                opacity = ( !this.backgroundOpacity && this.backgroundOpacity !== 0 ) ?
+	                    Defaults.backgroundOpaqueOpacity :
+	                    this.backgroundOpacity;
+
+	            }
+
+	            const backgroundMapping = ( () => {
+	                switch ( this.getBackgroundSize() ) {
+	                    case 'stretch': return 0;
+	                    case 'contain': return 1;
+	                    case 'cover': return 2;
+	                }
+	            } )();
+
+	            return {
+	                texture,
+	                color,
+	                opacity,
+	                backgroundMapping,
+	                borderRadius: this.getBorderRadius(),
+	                borderWidth: this.getBorderWidth(),
+	                borderColor: this.getBorderColor(),
+	                borderOpacity: this.getBorderOpacity(),
+	                size: this.size,
+	                tSize: this.tSize
+	            }
+
+	        }
+
+	        /** Update existing backgroundMaterial uniforms */
+	        updateBackgroundMaterial() {
+
+	            if ( this.backgroundUniforms ) {
+	                const uniforms = this.getBackgroundUniforms();
+
+	                this.backgroundUniforms.u_texture.value = uniforms.texture;
+	                this.backgroundUniforms.u_color.value = uniforms.color;
+	                this.backgroundUniforms.u_opacity.value = uniforms.opacity;
+	                this.backgroundUniforms.u_backgroundMapping.value = uniforms.backgroundMapping;
+	                this.backgroundUniforms.u_size.value = uniforms.size;
+	                this.backgroundUniforms.u_tSize.value = uniforms.tSize;
+
+	                if (Array.isArray(uniforms.borderRadius)) {
+	                    this.backgroundUniforms.u_borderRadiusTopLeft.value = uniforms.borderRadius[0];
+	                    this.backgroundUniforms.u_borderRadiusTopRight.value = uniforms.borderRadius[1];
+	                    this.backgroundUniforms.u_borderRadiusBottomRight.value = uniforms.borderRadius[2];
+	                    this.backgroundUniforms.u_borderRadiusBottomLeft.value = uniforms.borderRadius[3];
+	                } else {
+	                    this.backgroundUniforms.u_borderRadiusTopLeft.value = uniforms.borderRadius;
+	                    this.backgroundUniforms.u_borderRadiusTopRight.value = uniforms.borderRadius;
+	                    this.backgroundUniforms.u_borderRadiusBottomRight.value = uniforms.borderRadius;
+	                    this.backgroundUniforms.u_borderRadiusBottomLeft.value = uniforms.borderRadius;
+	                }
+
+	                this.backgroundUniforms.u_borderWidth.value = uniforms.borderWidth;
+	                this.backgroundUniforms.u_borderColor.value = uniforms.borderColor;
+	                this.backgroundUniforms.u_borderOpacity.value = uniforms.borderOpacity;
+
+	            }
+
+	        }
+
+	        /** Update existing fontMaterial uniforms */
+	        updateTextMaterial() {
+
+	            if ( this.textUniforms ) {
+
+	                this.textUniforms.u_texture.value = this.getFontTexture();
+	                this.textUniforms.u_color.value = this.getFontColor();
+	                this.textUniforms.u_opacity.value = this.getFontOpacity();
+
+	            }
+
+	        }
+
+	        /**
+	         * Update a component's materials clipping planes.
+	         * Called every frame
+	         */
+	        updateClippingPlanes( value ) {
+
+	            const newClippingPlanes = value !== undefined ? value : this.getClippingPlanes();
+
+	            if ( JSON.stringify( newClippingPlanes ) !== JSON.stringify( this.clippingPlanes ) ) {
+
+	                this.clippingPlanes = newClippingPlanes;
+
+	                if ( this.fontMaterial ) this.fontMaterial.clippingPlanes = this.clippingPlanes;
+
+	                if ( this.backgroundMaterial ) this.backgroundMaterial.clippingPlanes = this.clippingPlanes;
+
+	            }
+
+	        }
+
+	        /** Called by Block, which needs the background material to create a mesh */
+	        getBackgroundMaterial() {
+
+	            const newUniforms = this.getBackgroundUniforms();
+
+	            if ( !this.backgroundMaterial || !this.backgroundUniforms ) {
+
+	                this.backgroundMaterial = this._makeBackgroundMaterial( newUniforms );
+
+	                return this.backgroundMaterial
+
+	            }
+
+	            let borderRadiusChanged;
+	            if (Array.isArray(newUniforms.borderRadius)) {
+	                borderRadiusChanged = (
+	                  newUniforms.borderRadius[0] !== this.backgroundUniforms.u_borderRadiusTopLeft.value ||
+	                  newUniforms.borderRadius[1] !== this.backgroundUniforms.u_borderRadiusTopRight.value ||
+	                  newUniforms.borderRadius[2] !== this.backgroundUniforms.u_borderRadiusBottomRight.value ||
+	                  newUniforms.borderRadius[3] !== this.backgroundUniforms.u_borderRadiusBottomLeft.value
+	                );
+	            } else {
+	                borderRadiusChanged = (
+	                  newUniforms.borderRadius !== this.backgroundUniforms.u_borderRadiusTopLeft.value ||
+	                  newUniforms.borderRadius !== this.backgroundUniforms.u_borderRadiusTopRight.value ||
+	                  newUniforms.borderRadius !== this.backgroundUniforms.u_borderRadiusBottomRight.value ||
+	                  newUniforms.borderRadius !== this.backgroundUniforms.u_borderRadiusBottomLeft.value
+	                );
+	            }
+
+	            if (
+	              newUniforms.texture !== this.backgroundUniforms.u_texture.value ||
+	              newUniforms.color !== this.backgroundUniforms.u_color.value ||
+	              newUniforms.opacity !== this.backgroundUniforms.u_opacity.value ||
+	              newUniforms.backgroundMapping !== this.backgroundUniforms.u_backgroundMapping.value ||
+	              borderRadiusChanged ||
+	              newUniforms.borderWidth !== this.backgroundUniforms.u_borderWidth.value ||
+	              newUniforms.borderColor !== this.backgroundUniforms.u_borderColor.value ||
+	              newUniforms.borderOpacity !== this.backgroundUniforms.u_borderOpacity.value ||
+	              newUniforms.size !== this.backgroundUniforms.u_size.value ||
+	              newUniforms.tSize !== this.backgroundUniforms.u_tSize.value
+	            ) {
+
+	                this.updateBackgroundMaterial();
+
+	            }
+
+	            return this.backgroundMaterial
+
+	        }
+
+	        /** Called by Text to get the font material */
+	        getFontMaterial() {
+
+	            const newUniforms = {
+	                'u_texture': this.getFontTexture(),
+	                'u_color': this.getFontColor(),
+	                'u_opacity': this.getFontOpacity()
+	            };
+
+	            if ( !this.fontMaterial || !this.textUniforms ) {
+
+	                this.fontMaterial = this._makeTextMaterial( newUniforms );
+
+	            } else if (
+	                newUniforms.u_texture !== this.textUniforms.u_texture.value ||
+	                newUniforms.u_color !== this.textUniforms.u_color.value ||
+	                newUniforms.u_opacity !== this.textUniforms.u_opacity.value
+	            ) {
+
+	                this.updateTextMaterial();
+
+	            }
+
+	            return this.fontMaterial
+
+	        }
+
+	        /** @private */
+	        _makeTextMaterial( materialOptions ) {
+
+	            this.textUniforms = {
+	                'u_texture': { value: materialOptions.u_texture },
+	                'u_color': { value: materialOptions.u_color },
+	                'u_opacity': { value: materialOptions.u_opacity }
+	            };
+
+	            return new ShaderMaterial({
+	                uniforms: this.textUniforms,
+	                transparent: true,
+	                clipping: true,
+	                vertexShader: textVertex,
+	                fragmentShader: textFragment,
+	                extensions: {
+	                    derivatives: true
+	                }
+	            })
+
+	        }
+
+	        /** @private */
+	        _makeBackgroundMaterial( materialOptions ) {
+
+	            this.backgroundUniforms = {
+	                'u_texture': { value: materialOptions.texture },
+	                'u_color': { value: materialOptions.color },
+	                'u_opacity': { value: materialOptions.opacity },
+	                'u_backgroundMapping': { value: materialOptions.backgroundMapping },
+	                'u_borderWidth': { value: materialOptions.borderWidth },
+	                'u_borderColor': { value: materialOptions.borderColor },
+	                'u_borderRadiusTopLeft': { value: 0 },
+	                'u_borderRadiusTopRight': { value: 0 },
+	                'u_borderRadiusBottomRight': { value: 0 },
+	                'u_borderRadiusBottomLeft': { value: 0 },
+	                'u_borderOpacity': { value: materialOptions.borderOpacity },
+	                'u_size': { value: materialOptions.size },
+	                'u_tSize': { value: materialOptions.tSize }
+	            };
+
+	            if (Array.isArray(materialOptions.borderRadius)) {
+	                this.backgroundUniforms['u_borderRadiusTopLeft'].values = materialOptions.borderRadius[0];
+	                this.backgroundUniforms['u_borderRadiusTopRight'].values = materialOptions.borderRadius[1];
+	                this.backgroundUniforms['u_borderRadiusBottomRight'].values = materialOptions.borderRadius[2];
+	                this.backgroundUniforms['u_borderRadiusBottomLeft'].values = materialOptions.borderRadius[3];
+	            } else {
+	                this.backgroundUniforms['u_borderRadiusTopLeft'].values = materialOptions.borderRadius;
+	                this.backgroundUniforms['u_borderRadiusTopRight'].values = materialOptions.borderRadius;
+	                this.backgroundUniforms['u_borderRadiusBottomRight'].values = materialOptions.borderRadius;
+	                this.backgroundUniforms['u_borderRadiusBottomLeft'].values = materialOptions.borderRadius;
+	            }
+
+	            return new ShaderMaterial({
+	                uniforms: this.backgroundUniforms,
+	                transparent: true,
+	                clipping: true,
+	                vertexShader: backgroundVertex,
+	                fragmentShader: backgroundFragment,
+	                extensions: {
+	                    derivatives: true
+	                }
+	            })
+
+	        }
+
+		}
+
+	}
+
+	////////////////
+	// Text shaders
+	////////////////
+
+	const textVertex = `
+	varying vec2 vUv;
+
+	#include <clipping_planes_pars_vertex>
+
+	void main() {
+
+		vUv = uv;
+		vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+		gl_Position = projectionMatrix * mvPosition;
+		gl_Position.z -= 0.00001;
+
+		#include <clipping_planes_vertex>
+
+	}
+`;
+
+	//
+
+	const textFragment = `
+	uniform sampler2D u_texture;
+	uniform vec3 u_color;
+	uniform float u_opacity;
+
+	varying vec2 vUv;
+
+	#include <clipping_planes_pars_fragment>
+
+	float median(float r, float g, float b) {
+		return max(min(r, g), min(max(r, g), b));
+	}
+
+	void main() {
+
+		vec3 textureSample = texture2D( u_texture, vUv ).rgb;
+		float sigDist = median( textureSample.r, textureSample.g, textureSample.b ) - 0.5;
+		float alpha = clamp( sigDist / fwidth( sigDist ) + 0.5, 0.0, 1.0 );
+		alpha = min( alpha, u_opacity );
+		
+		if( alpha < 0.02) discard;
+		
+		gl_FragColor = vec4( u_color, alpha );
+        // gl_FragColor = vec4( 1.0 );
+	
+		#include <clipping_planes_fragment>
+
+	}
+`;
+
+	//////////////////////
+	// Background shaders
+	//////////////////////
+
+	const backgroundVertex = `
+	varying vec2 vUv;
+
+	#include <clipping_planes_pars_vertex>
+
+	void main() {
+
+		vUv = uv;
+		vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+		gl_Position = projectionMatrix * mvPosition;
+
+		#include <clipping_planes_vertex>
+
+	}
+`;
+
+	//
+
+	const backgroundFragment = `
+	uniform sampler2D u_texture;
+	uniform vec3 u_color;
+	uniform float u_opacity;
+
+    uniform float u_borderRadiusTopLeft;
+    uniform float u_borderRadiusTopRight;
+    uniform float u_borderRadiusBottomLeft;
+    uniform float u_borderRadiusBottomRight;
+    uniform float u_borderWidth;
+    uniform vec3 u_borderColor;
+    uniform float u_borderOpacity;
+    uniform vec2 u_size;
+    uniform vec2 u_tSize;
+    uniform int u_backgroundMapping;
+
+	varying vec2 vUv;
+
+	#include <clipping_planes_pars_fragment>
+
+    float getEdgeDist() {
+        vec2 ndc = vec2( vUv.x * 2.0 - 1.0, vUv.y * 2.0 - 1.0 );
+        vec2 planeSpaceCoord = vec2( u_size.x * 0.5 * ndc.x, u_size.y * 0.5 * ndc.y );
+        vec2 corner = u_size * 0.5;
+        vec2 offsetCorner = corner - abs( planeSpaceCoord );
+        float innerRadDist = min( offsetCorner.x, offsetCorner.y ) * -1.0;
+        if (vUv.x < 0.5 && vUv.y >= 0.5) {
+            float roundedDist = length( max( abs( planeSpaceCoord ) - u_size * 0.5 + u_borderRadiusTopLeft, 0.0 ) ) - u_borderRadiusTopLeft;
+            float s = step( innerRadDist * -1.0, u_borderRadiusTopLeft );
+            return mix( innerRadDist, roundedDist, s );
+        }
+        if (vUv.x >= 0.5 && vUv.y >= 0.5) {
+            float roundedDist = length( max( abs( planeSpaceCoord ) - u_size * 0.5 + u_borderRadiusTopRight, 0.0 ) ) - u_borderRadiusTopRight;
+            float s = step( innerRadDist * -1.0, u_borderRadiusTopRight );
+            return mix( innerRadDist, roundedDist, s );
+        }
+        if (vUv.x >= 0.5 && vUv.y < 0.5) {
+            float roundedDist = length( max( abs( planeSpaceCoord ) - u_size * 0.5 + u_borderRadiusBottomRight, 0.0 ) ) - u_borderRadiusBottomRight;
+            float s = step( innerRadDist * -1.0, u_borderRadiusBottomRight );
+            return mix( innerRadDist, roundedDist, s );
+        }
+        if (vUv.x < 0.5 && vUv.y < 0.5) {
+            float roundedDist = length( max( abs( planeSpaceCoord ) - u_size * 0.5 + u_borderRadiusBottomLeft, 0.0 ) ) - u_borderRadiusBottomLeft;
+            float s = step( innerRadDist * -1.0, u_borderRadiusBottomLeft );
+            return mix( innerRadDist, roundedDist, s );
+        }
+    }
+
+    vec4 sampleTexture() {
+        float textureRatio = u_tSize.x / u_tSize.y;
+        float panelRatio = u_size.x / u_size.y;
+        vec2 uv = vUv;
+        if ( u_backgroundMapping == 1 ) { // contain
+            if ( textureRatio < panelRatio ) { // repeat on X
+                float newX = uv.x * ( panelRatio / textureRatio );
+                newX += 0.5 - 0.5 * ( panelRatio / textureRatio );
+                uv.x = newX;
+            } else { // repeat on Y
+                float newY = uv.y * ( textureRatio / panelRatio );
+                newY += 0.5 - 0.5 * ( textureRatio / panelRatio );
+                uv.y = newY;
+            }
+        } else if ( u_backgroundMapping == 2 ) { // cover
+            if ( textureRatio < panelRatio ) { // stretch on Y
+                float newY = uv.y * ( textureRatio / panelRatio );
+                newY += 0.5 - 0.5 * ( textureRatio / panelRatio );
+                uv.y = newY;
+            } else { // stretch on X
+                float newX = uv.x * ( panelRatio / textureRatio );
+                newX += 0.5 - 0.5 * ( panelRatio / textureRatio );
+                uv.x = newX;
+            }
+        }
+        return texture2D( u_texture, uv ).rgba;
+    }
+
+	void main() {
+        float edgeDist = getEdgeDist();
+        if ( edgeDist > 0.0 ) discard;
+		vec4 textureSample = sampleTexture();
+        float blendedOpacity = u_opacity * textureSample.a;
+        vec3 blendedColor = textureSample.rgb * u_color;
+        if ( edgeDist * -1.0 < u_borderWidth ) {
+        gl_FragColor = vec4( u_borderColor, u_borderOpacity );
+        } else {
+		gl_FragColor = vec4( blendedColor, blendedOpacity );
+		}
+		#include <clipping_planes_fragment>
+	}
+`;
+
+	/**
+	 * Returns a basic plane mesh.
+	 */
+	class Frame extends Mesh {
+
+	    constructor( material ) {
+
+	        const geometry = new PlaneGeometry();
+
+	        super( geometry, material );
+
+	        this.castShadow = true;
+	        this.receiveShadow = true;
+
+	        this.name = "MeshUI-Frame";
+
+	    }
+
+	}
+
+	let _Base = null;
+
+	/**
+	 * A function for applying multiple mixins more tersely (less verbose)
+	 * @param {Function[]} mixins - All args to this function should be mixins that take a class and return a class.
+	 */
+	function mix(...mixins) {
+
+	    // console.log('initial Base: ', _Base);
+
+	    let Base = _Base || class Default {};
+
+	    _Base = null;
+
+	    let i = mixins.length;
+	    let mixin;
+
+	    while ( --i >= 0 ) {
+
+	        mixin = mixins[ i ];
+	        Base = mixin(Base);
+
+	    }
+
+	    return Base;
+
+	}
+
+	mix.withBase = ( Base ) => {
+
+	    _Base = Base;
+
+	    return mix
+
+	};
+
+	/**
+
+	Job:
+	- Update a Block component
+	- Calls BoxComponent's API to position its children box components
+	- Calls InlineManager's API to position its children inline components
+	- Call creation and update functions of its background planes
+
+	*/
+	class Block extends mix.withBase( Object3D )(
+	    BoxComponent,
+	    InlineManager,
+	    MaterialManager,
+	    MeshUIComponent
+	) {
+
+	    constructor( options ) {
+
+	        super( options );
+
+	        this.isBlock = true;
+
+	        //
+
+	        this.size = new Vector2( 0, 0 );
+	        this.tSize = new Vector2( 1, 1 );
+
+	        this.frame = new Frame( this.getBackgroundMaterial() );
+
+	        // This is for hiddenOverflow to work
+	        this.frame.onBeforeRender = () => {
+
+	            if ( this.updateClippingPlanes ) {
+
+	                this.updateClippingPlanes();
+
+	            }
+
+	        };
+
+	        this.add( this.frame );
+
+	        // Lastly set the options parameters to this object, which will trigger an update
+	        
+	        this.set( options );
+
+	    }
+
+	    ////////////
+	    //  UPDATE
+	    ////////////
+
+	    parseParams() {}
+
+	    updateLayout() {
+
+	        // Get temporary dimension
+
+	        const WIDTH = this.getWidth();
+
+	        const HEIGHT = this.getHeight();
+
+	        if ( !WIDTH || !HEIGHT ) {
+	            console.warn( 'Block got no dimension from its parameters or from children parameters' );
+	            return
+	        }
+
+	        this.size.set( WIDTH, HEIGHT );
+	        this.frame.scale.set( WIDTH, HEIGHT, 1 );
+
+	        if ( this.frame ) this.updateBackgroundMaterial();
+
+	        this.frame.renderOrder = this.getParentsNumber();
+
+	        // Position this element according to earlier parent computation.
+	        // Delegate to BoxComponent.
+
+	        if ( this.autoLayout ) {
+
+	            this.setPosFromParentRecords();
+
+	        }
+
+	        // Position inner elements according to dimensions and layout parameters.
+	        // Delegate to BoxComponent.
+
+	        if ( this.children.find( child => child.isInline ) ) {
+
+	            this.computeInlinesPosition();
+
+	        }
+
+	        this.computeChildrenPosition();
+
+	        // We check if this block is the root component,
+	        // because most of the time the user wants to set the
+	        // root component's z position themselves
+	        if ( this.getUIParent() ) {
+
+	            this.position.z = this.getOffset();
+
+	        }
+
+	    }
+
+	    //
+
+	    updateInner() {
+
+	        // We check if this block is the root component,
+	        // because most of the time the user wants to set the
+	        // root component's z position themselves
+	        if ( this.getUIParent() ) {
+
+	            this.position.z = this.getOffset();
+
+	        }
+
+	        if ( this.frame ) this.updateBackgroundMaterial();
+	        
+	    }
+
+	}
+
+	/**
+
+	Job: nothing yet, but adding a isInline parameter to an inline component
+
+	Knows: parent dimensions
+
+	*/
+	function InlineComponent( Base = class {} ) {
+
+	    return class InlineComponent extends Base {
+
+	        constructor( options ) {
+
+	            super( options );
+
+	            this.isInline = true;
+
+	        }
+
+	    }
+	}
+
+	/**
+		 * @param  {Array<BufferGeometry>} geometries
+		 * @param  {Boolean} useGroups
+		 * @return {BufferGeometry}
+		 */
+	function mergeBufferGeometries( geometries, useGroups = false ) {
+
+		const isIndexed = geometries[ 0 ].index !== null;
+
+		const attributesUsed = new Set( Object.keys( geometries[ 0 ].attributes ) );
+		const morphAttributesUsed = new Set( Object.keys( geometries[ 0 ].morphAttributes ) );
+
+		const attributes = {};
+		const morphAttributes = {};
+
+		const morphTargetsRelative = geometries[ 0 ].morphTargetsRelative;
+
+		const mergedGeometry = new BufferGeometry();
+
+		let offset = 0;
+
+		for ( let i = 0; i < geometries.length; ++ i ) {
+
+			const geometry = geometries[ i ];
+			let attributesCount = 0;
+
+			// ensure that all geometries are indexed, or none
+
+			if ( isIndexed !== ( geometry.index !== null ) ) {
+
+				console.error( 'THREE.BufferGeometryUtils: .mergeBufferGeometries() failed with geometry at index ' + i + '. All geometries must have compatible attributes; make sure index attribute exists among all geometries, or in none of them.' );
+				return null;
+
+			}
+
+			// gather attributes, exit early if they're different
+
+			for ( const name in geometry.attributes ) {
+
+				if ( ! attributesUsed.has( name ) ) {
+
+					console.error( 'THREE.BufferGeometryUtils: .mergeBufferGeometries() failed with geometry at index ' + i + '. All geometries must have compatible attributes; make sure "' + name + '" attribute exists among all geometries, or in none of them.' );
+					return null;
+
+				}
+
+				if ( attributes[ name ] === undefined ) attributes[ name ] = [];
+
+				attributes[ name ].push( geometry.attributes[ name ] );
+
+				attributesCount ++;
+
+			}
+
+			// ensure geometries have the same number of attributes
+
+			if ( attributesCount !== attributesUsed.size ) {
+
+				console.error( 'THREE.BufferGeometryUtils: .mergeBufferGeometries() failed with geometry at index ' + i + '. Make sure all geometries have the same number of attributes.' );
+				return null;
+
+			}
+
+			// gather morph attributes, exit early if they're different
+
+			if ( morphTargetsRelative !== geometry.morphTargetsRelative ) {
+
+				console.error( 'THREE.BufferGeometryUtils: .mergeBufferGeometries() failed with geometry at index ' + i + '. .morphTargetsRelative must be consistent throughout all geometries.' );
+				return null;
+
+			}
+
+			for ( const name in geometry.morphAttributes ) {
+
+				if ( ! morphAttributesUsed.has( name ) ) {
+
+					console.error( 'THREE.BufferGeometryUtils: .mergeBufferGeometries() failed with geometry at index ' + i + '.  .morphAttributes must be consistent throughout all geometries.' );
+					return null;
+
+				}
+
+				if ( morphAttributes[ name ] === undefined ) morphAttributes[ name ] = [];
+
+				morphAttributes[ name ].push( geometry.morphAttributes[ name ] );
+
+			}
+
+			// gather .userData
+
+			mergedGeometry.userData.mergedUserData = mergedGeometry.userData.mergedUserData || [];
+			mergedGeometry.userData.mergedUserData.push( geometry.userData );
+
+			if ( useGroups ) {
+
+				let count;
+
+				if ( isIndexed ) {
+
+					count = geometry.index.count;
+
+				} else if ( geometry.attributes.position !== undefined ) {
+
+					count = geometry.attributes.position.count;
+
+				} else {
+
+					console.error( 'THREE.BufferGeometryUtils: .mergeBufferGeometries() failed with geometry at index ' + i + '. The geometry must have either an index or a position attribute' );
+					return null;
+
+				}
+
+				mergedGeometry.addGroup( offset, count, i );
+
+				offset += count;
+
+			}
+
+		}
+
+		// merge indices
+
+		if ( isIndexed ) {
+
+			let indexOffset = 0;
+			const mergedIndex = [];
+
+			for ( let i = 0; i < geometries.length; ++ i ) {
+
+				const index = geometries[ i ].index;
+
+				for ( let j = 0; j < index.count; ++ j ) {
+
+					mergedIndex.push( index.getX( j ) + indexOffset );
+
+				}
+
+				indexOffset += geometries[ i ].attributes.position.count;
+
+			}
+
+			mergedGeometry.setIndex( mergedIndex );
+
+		}
+
+		// merge attributes
+
+		for ( const name in attributes ) {
+
+			const mergedAttribute = mergeBufferAttributes( attributes[ name ] );
+
+			if ( ! mergedAttribute ) {
+
+				console.error( 'THREE.BufferGeometryUtils: .mergeBufferGeometries() failed while trying to merge the ' + name + ' attribute.' );
+				return null;
+
+			}
+
+			mergedGeometry.setAttribute( name, mergedAttribute );
+
+		}
+
+		// merge morph attributes
+
+		for ( const name in morphAttributes ) {
+
+			const numMorphTargets = morphAttributes[ name ][ 0 ].length;
+
+			if ( numMorphTargets === 0 ) break;
+
+			mergedGeometry.morphAttributes = mergedGeometry.morphAttributes || {};
+			mergedGeometry.morphAttributes[ name ] = [];
+
+			for ( let i = 0; i < numMorphTargets; ++ i ) {
+
+				const morphAttributesToMerge = [];
+
+				for ( let j = 0; j < morphAttributes[ name ].length; ++ j ) {
+
+					morphAttributesToMerge.push( morphAttributes[ name ][ j ][ i ] );
+
+				}
+
+				const mergedMorphAttribute = mergeBufferAttributes( morphAttributesToMerge );
+
+				if ( ! mergedMorphAttribute ) {
+
+					console.error( 'THREE.BufferGeometryUtils: .mergeBufferGeometries() failed while trying to merge the ' + name + ' morphAttribute.' );
+					return null;
+
+				}
+
+				mergedGeometry.morphAttributes[ name ].push( mergedMorphAttribute );
+
+			}
+
+		}
+
+		return mergedGeometry;
+
+	}
+
+	/**
+	 * @param {Array<BufferAttribute>} attributes
+	 * @return {BufferAttribute}
+	 */
+	function mergeBufferAttributes( attributes ) {
+
+		let TypedArray;
+		let itemSize;
+		let normalized;
+		let arrayLength = 0;
+
+		for ( let i = 0; i < attributes.length; ++ i ) {
+
+			const attribute = attributes[ i ];
+
+			if ( attribute.isInterleavedBufferAttribute ) {
+
+				console.error( 'THREE.BufferGeometryUtils: .mergeBufferAttributes() failed. InterleavedBufferAttributes are not supported.' );
+				return null;
+
+			}
+
+			if ( TypedArray === undefined ) TypedArray = attribute.array.constructor;
+			if ( TypedArray !== attribute.array.constructor ) {
+
+				console.error( 'THREE.BufferGeometryUtils: .mergeBufferAttributes() failed. BufferAttribute.array must be of consistent array types across matching attributes.' );
+				return null;
+
+			}
+
+			if ( itemSize === undefined ) itemSize = attribute.itemSize;
+			if ( itemSize !== attribute.itemSize ) {
+
+				console.error( 'THREE.BufferGeometryUtils: .mergeBufferAttributes() failed. BufferAttribute.itemSize must be consistent across matching attributes.' );
+				return null;
+
+			}
+
+			if ( normalized === undefined ) normalized = attribute.normalized;
+			if ( normalized !== attribute.normalized ) {
+
+				console.error( 'THREE.BufferGeometryUtils: .mergeBufferAttributes() failed. BufferAttribute.normalized must be consistent across matching attributes.' );
+				return null;
+
+			}
+
+			arrayLength += attribute.array.length;
+
+		}
+
+		const array = new TypedArray( arrayLength );
+		let offset = 0;
+
+		for ( let i = 0; i < attributes.length; ++ i ) {
+
+			array.set( attributes[ i ].array, offset );
+
+			offset += attributes[ i ].array.length;
+
+		}
+
+		return new BufferAttribute( array, itemSize, normalized );
+
+	}
+
+	/**
+	 * Job: create a plane geometry with the right UVs to map the MSDF texture on the wanted glyph.
+	 * 
+	 * Knows: dimension of the plane to create, specs of the font used, glyph requireed
+	 */
+	class MSDFGlyph extends PlaneGeometry {
+
+	    constructor( inline, font ) {
+
+	        const char = inline.glyph;
+	        const fontSize = inline.fontSize;
+
+	        super( fontSize, fontSize );
+
+	        // Misc glyphs
+	        if ( char.match(/\s/g) === null ) {
+
+	            if ( font.info.charset.indexOf( char ) === -1 ) console.error(`The character '${ char }' is not included in the font characters set.`);
+
+	            this.mapUVs( font, char );
+
+	            this.transformGeometry( font, fontSize, char, inline );
+
+	        // White spaces (we don't want our plane geometry to have a visual width nor a height)
+	        } else {
+
+	            this.nullifyUVs();
+
+	            this.scale( 0, 0, 1 );
+	            this.translate( 0, fontSize / 2, 0 );
+
+	        }
+
+	    }
+
+	    /**
+	     * Compute the right UVs that will map the MSDF texture so that the passed character
+	     * will appear centered in full size
+	     * @private
+	     */
+	    mapUVs( font, char ) {
+
+	        const charOBJ = font.chars.find( charOBJ => charOBJ.char === char );
+
+	        const common = font.common;
+
+	        const xMin = charOBJ.x / common.scaleW;
+
+	        const xMax = (charOBJ.x + charOBJ.width ) / common.scaleW;
+
+	        const yMin =  1 -((charOBJ.y + charOBJ.height ) / common.scaleH);
+
+	        const yMax = 1 - (charOBJ.y / common.scaleH);
+
+	        //
+
+	        const uvAttribute = this.attributes.uv;
+
+	        for ( let i = 0; i < uvAttribute.count; i ++ ) {
+
+	            let u = uvAttribute.getX( i );
+	            let v = uvAttribute.getY( i );
+
+	            [ u, v ] = (()=> {
+	                switch ( i ) {
+	                case 0 : return [ xMin, yMax ]
+	                case 1 : return [ xMax, yMax ]
+	                case 2 : return [ xMin, yMin ]
+	                case 3 : return [ xMax, yMin ]
+	                }
+	            })();
+
+	            uvAttribute.setXY( i, u, v );
+
+	        }
+
+	    }
+
+	    /** Set all UVs to 0, so that none of the glyphs on the texture will appear */
+	    nullifyUVs() {
+
+	        const uvAttribute = this.attributes.uv;
+
+	        for ( let i = 0; i < uvAttribute.count; i ++ ) {
+
+	            uvAttribute.setXY( i, 0, 0 );
+
+	        }
+
+	    }
+
+	    /** Gives the previously computed scale and offset to the geometry */
+	    transformGeometry( font, fontSize, char, inline ) {
+
+	        const charOBJ = font.chars.find( charOBJ => charOBJ.char === char );
+
+	        const common = font.common;
+
+	        const newHeight = charOBJ.height / common.lineHeight;
+	        const newWidth = (charOBJ.width * newHeight) / charOBJ.height;
+
+	        this.scale(
+	            newWidth,
+	            newHeight,
+	            1
+	        );
+
+	        //
+
+	        this.translate(
+	            inline.width / 2,
+	            ( inline.height / 2 ) - inline.anchor,
+	            0
+	        );
+
+	    }
+
+	}
+
+	/**
+
+	Job:
+	- Computing glyphs dimensions according to this component's font and content
+	- Create the text Mesh (call MSDFGlyph for each letter)
+
+	Knows:
+	- The Text component for which it creates Meshes
+	- The parameters of the text mesh it must return
+
+	*/
+
+	function getGlyphDimensions( options ) {
+
+		const FONT = options.font;
+
+		const FONT_SIZE = options.fontSize; 
+
+		const GLYPH = options.glyph;
+
+		const SCALE_MULT = FONT_SIZE / FONT.info.size;
+
+		//
+
+		const charOBJ = FONT.chars.find( charOBJ => charOBJ.char === GLYPH );
+
+		let width = charOBJ ? charOBJ.width * SCALE_MULT : FONT_SIZE / 3 ;
+
+		let height = charOBJ ? charOBJ.height * SCALE_MULT : 0 ;
+
+		// handle whitespaces and line breaks
+		if ( width === 0 )  width = FONT_SIZE;
+		if ( height === 0 )  height = FONT_SIZE * 0.7;
+
+		if ( GLYPH === '\n' ) width = 0;
+
+		let xadvance = charOBJ ? charOBJ.xadvance * SCALE_MULT : width;
+		let xoffset = charOBJ ? charOBJ.xoffset * SCALE_MULT : 0;
+
+		// world-space length between lowest point and the text cursor position
+		const anchor = charOBJ ? ((charOBJ.yoffset + charOBJ.height - FONT.common.base) * FONT_SIZE) / FONT.common.lineHeight : 0 ;
+
+		// const lineHeight = FONT.common.lineHeight * SCALE_MULT;
+
+		// console.log( lineHeight )
+
+		return {
+			// lineHeight,
+			width,
+			height,
+			anchor,
+			xadvance,
+			xoffset
+		}
+
+	}
+
+
+	/**
+	 * Try to find the kerning amount of a
+	 * @param font
+	 * @param {string} glyphPair
+	 * @returns {number}
+	 */
+	function getGlyphPairKerning( font, glyphPair ){
+		const KERNINGS = font._kernings;
+		return KERNINGS[glyphPair] ? KERNINGS[glyphPair] : 0;
+	}
+
+
+	//
+
+	/**
+	 * Creates a THREE.Plane geometry, with UVs carefully positioned to map a particular
+	 * glyph on the MSDF texture. Then creates a shaderMaterial with the MSDF shaders,
+	 * creates a THREE.Mesh, returns it.
+	 * @private
+	 */
+	function buildText() {
+
+	    const translatedGeom = [];
+
+	    this.inlines.forEach( (inline, i)=> {
+
+	        translatedGeom[ i ] = new MSDFGlyph( inline, this.getFontFamily() );
+
+	        translatedGeom[ i ].translate( inline.offsetX, inline.offsetY, 0 );
+
+	    });
+
+	    const mergedGeom = mergeBufferGeometries( translatedGeom );
+
+	    const mesh = new Mesh( mergedGeom, this.getFontMaterial() );
+
+	    return mesh
+
+	}
+
+	//
+
+	var MSDFText = {
+		getGlyphDimensions,
+		getGlyphPairKerning,
+		buildText
+	};
+
+	/**
+
+	Job:
+	- Routing the request for Text dimensions and Text creation depending on Text type.
+
+	Knows:
+	- this component's textType attribute
+
+	Note:
+	Only one Text type is natively supported by the library at the moment,
+	but the architecture allows you to easily stick in your custom Text type.
+	More information here :
+	https://github.com/felixmariotto/three-mesh-ui/wiki/Using-a-custom-text-type
+
+	*/
+	function TextManager( Base = class {} ) {
+
+	    return class TextManager extends Base {
+
+	        createText() {
+
+	            const component = this;
+
+	            const mesh = (() => {
+
+	                switch ( this.getTextType() ) {
+
+	                case 'MSDF' :
+	                    return MSDFText.buildText.call( this )
+
+	                default :
+	                    console.warn(`'${ this.getTextType() }' is not a supported text type.\nSee https://github.com/felixmariotto/three-mesh-ui/wiki/Using-a-custom-text-type`);
+	                    break
+
+	                }
+
+	            })();
+
+	            mesh.renderOrder = Infinity;
+
+	            // This is for hiddenOverflow to work
+	            mesh.onBeforeRender = function() {
+
+	                if ( component.updateClippingPlanes ) {
+
+	                    component.updateClippingPlanes();
+
+	                }
+
+	            };
+
+	            return mesh
+
+	        }
+
+	        /**
+	         * Called by Text to get the dimensions of a particular glyph,
+	         * in order for InlineManager to compute its position
+	         */
+	        getGlyphDimensions( options ) {
+
+	            switch ( options.textType ) {
+
+	            case 'MSDF' :
+
+	                return MSDFText.getGlyphDimensions( options )
+
+	            default :
+	                console.warn(`'${ options.textType }' is not a supported text type.\nSee https://github.com/felixmariotto/three-mesh-ui/wiki/Using-a-custom-text-type`);
+	                break
+
+	            }
+
+	        }
+
+
+	        /**
+	         * Called by Text to get the amount of kerning for pair of glyph
+	         * @param textType
+	         * @param font
+	         * @param glyphPair
+	         * @returns {number}
+	         */
+	        getGlyphPairKerning( textType, font, glyphPair ) {
+
+	            switch ( textType ) {
+
+	                case 'MSDF' :
+
+	                    return MSDFText.getGlyphPairKerning( font, glyphPair )
+
+	                default :
+	                    console.warn(`'${ textType }' is not a supported text type.\nSee https://github.com/felixmariotto/three-mesh-ui/wiki/Using-a-custom-text-type`);
+	                    break
+
+	            }
+
+	        }
+	    }
+
+	}
+
+	/** Recursively erase THE CHILDREN of the passed object */
+	function deepDelete( object3D ) {
+
+		object3D.children.forEach( (child)=> {
+
+			if ( child.children.length > 0 ) deepDelete( child );
+
+			object3D.remove( child );
+
+			UpdateManager.disposeOf( child );
+
+			if ( child.material ) child.material.dispose();
+
+			if ( child.geometry ) child.geometry.dispose();
+
+		});
+
+		object3D.children = [];
+
+	}
+
+	/**
+
+	Job:
+	- computing its own size according to user measurements or content measurement
+	- creating 'inlines' objects with info, so that the parent component can organise them in lines
+
+	Knows:
+	- Its text content (string)
+	- Font attributes ('font', 'fontSize'.. etc..)
+	- Parent block
+
+	*/
+	class Text extends mix.withBase( Object3D )(
+	    InlineComponent,
+	    TextManager,
+	    MaterialManager,
+	    MeshUIComponent
+	) {
+
+	    constructor( options ) {
+
+	        super( options );
+
+	        this.isText = true;
+
+	        this.set( options );
+
+	    }
+
+	    ///////////
+	    // UPDATES
+	    ///////////
+
+
+	    /**
+	     * Here we compute each glyph dimension, and we store it in this
+	     * component's inlines parameter. This way the parent Block will
+	     * compute each glyph position on updateLayout.
+	     */
+	    parseParams() {
+
+	        const content = this.content ;
+	        const font = this.getFontFamily();
+	        const fontSize = this.getFontSize();
+	        const breakChars = this.getBreakOn();
+	        const textType = this.getTextType();
+
+	        // Abort condition
+	        
+	        if ( !font || typeof font === 'string' ) {
+	            if ( !FontLibrary.getFontOf( this ) ) console.warn('no font was found');
+	            return
+	        }
+
+	        if ( !this.content ) {
+	            this.inlines = null;
+	            return
+	        }
+
+	        if ( !textType ) {
+	            console.error( `You must provide a 'textType' attribute so three-mesh-ui knows how to render your text.\n See https://github.com/felixmariotto/three-mesh-ui/wiki/Using-a-custom-text-type` );
+	            return
+	        }
+
+	        // Compute glyphs sizes
+
+	        const chars = Array.from ? Array.from( content ) : String( content ).split( '' );
+
+	        const SCALE_MULT = fontSize / font.info.size;
+	        const lineHeight = font.common.lineHeight * SCALE_MULT;
+	        const lineBase = font.common.base * SCALE_MULT;
+
+	        const glyphInfos = chars.map( (glyph)=> {
+
+	            // Get height, width, and anchor point of this glyph
+	            const dimensions = this.getGlyphDimensions({
+	                textType,
+	                glyph,
+	                font,
+	                fontSize
+	            });
+
+	            //
+
+	            let lineBreak = null ;
+
+	            if ( breakChars.includes( glyph ) || glyph.match(/\s/g) ) lineBreak = "possible" ;
+
+	            if ( glyph.match(/\n/g) ) lineBreak = "mandatory" ;
+
+	            //
+
+	            return {
+	                height: dimensions.height,
+	                width: dimensions.width,
+	                anchor: dimensions.anchor,
+	                xadvance: dimensions.xadvance,
+	                xoffset: dimensions.xoffset,
+	                lineBreak,
+	                glyph,
+	                fontSize,
+	                lineHeight,
+	                lineBase
+	            };
+
+	        });
+
+	        // apply kerning
+	        if( this.getFontKerning() !== 'none' ){
+
+	            // First character won't be kerned with its void lefthanded peer
+	            for (let i = 1; i < glyphInfos.length; i++) {
+
+	                const glyphInfo = glyphInfos[i];
+	                const glyphPair = glyphInfos[i-1].glyph+glyphInfos[i].glyph;
+
+	                // retrieve the kerning from the font
+	                const kerning = this.getGlyphPairKerning( textType, font, glyphPair);
+
+	                // compute the final kerning value according to requested fontSize
+	                glyphInfo['kerning'] = kerning * (fontSize/font.info.size);
+
+	            }
+	        }
+
+
+	        // Update 'inlines' property, so that the parent can compute each glyph position
+
+	        this.inlines = glyphInfos;
+
+	    }
+
+
+	    /**
+	     * Create text content
+	     * 
+	     * At this point, text.inlines should have been modified by the parent
+	     * component, to add xOffset and yOffset properties to each inlines.
+	     * This way, TextContent knows were to position each character.
+	     */
+	    updateLayout() {
+
+	        deepDelete( this );
+
+	        if ( this.inlines ) {
+
+	            // happening in TextManager
+	            this.textContent = this.createText();
+
+	            this.add( this.textContent );
+
+	        }
+
+	        this.position.z = this.getOffset();
+
+	    }
+
+	    updateInner() {
+
+	        this.position.z = this.getOffset();
+
+	        if ( this.textContent ) this.updateTextMaterial();
+
+	    }
+
+	}
+
+	/**
+	 * Job:
+	 * - computing its own size according to user measurements or content measurement
+	 * - creating an 'inlines' object with info, so that the parent component can organise it along with other inlines
+	 * 
+	 * Knows:
+	 * - Its measurements parameter
+	 * - Parent block
+	 */
+	class InlineBlock extends mix.withBase( Object3D )(
+	    InlineComponent,
+	    BoxComponent,
+	    InlineManager,
+	    MaterialManager,
+	    MeshUIComponent
+	) {
+
+	    constructor( options ) {
+
+	        super( options );
+
+	        this.isInlineBlock = true;
+
+	        //
+
+	        this.size = new Vector2( 1, 1 );
+	        this.tSize = new Vector2( 1, 1 );
+
+	        this.frame = new Frame( this.getBackgroundMaterial() );
+
+	        // This is for hiddenOverflow to work
+	        this.frame.onBeforeRender = () => {
+
+	            if ( this.updateClippingPlanes ) {
+
+	                this.updateClippingPlanes();
+
+	            }
+
+	        };
+
+	        this.add( this.frame );
+
+	         // Lastly set the options parameters to this object, which will trigger an update
+
+	        this.set( options );
+
+	    }
+
+	    ///////////
+	    // UPDATES
+	    ///////////
+
+	    parseParams() {
+
+	        // Get image dimensions
+
+	        if ( !this.width ) console.warn( 'inlineBlock has no width. Set to 0.3 by default' );
+	        if ( !this.height ) console.warn( 'inlineBlock has no height. Set to 0.3 by default' );
+
+	        this.inlines = [ {
+	            height: this.height || 0.3,
+	            width: this.width || 0.3,
+	            anchor: 0,
+	            lineBreak: "possible"
+	        } ];
+
+	    }
+
+	    //
+
+
+	    /**
+	     * Create text content
+	     * 
+	     * At this point, text.inlines should have been modified by the parent
+	     * component, to add xOffset and yOffset properties to each inlines.
+	     * This way, TextContent knows were to position each character.
+	     * 
+	     */
+	    updateLayout() {
+
+	        const WIDTH = this.getWidth();
+	        const HEIGHT = this.getHeight();
+
+	        if ( this.inlines ) {
+
+	            const options = this.inlines[0];
+
+	            // basic translation to put the plane's left bottom corner at the center of its space
+	            this.position.set( options.width / 2, options.height / 2, 0 );
+
+	            // translation required by inlineManager to position this component inline
+	            this.position.x += options.offsetX;
+	            this.position.y += options.offsetY;
+
+	        }
+
+	        this.size.set( WIDTH, HEIGHT );
+	        this.frame.scale.set( WIDTH, HEIGHT, 1 );
+
+	        if ( this.frame ) this.updateBackgroundMaterial();
+
+	        this.frame.renderOrder = this.getParentsNumber();
+
+	        // Position inner elements according to dimensions and layout parameters.
+	        // Delegate to BoxComponent.
+
+	        if ( this.children.find( child => child.isInline ) ) {
+
+	            this.computeInlinesPosition();
+
+	        }
+
+	        this.computeChildrenPosition();
+
+	        this.position.z = this.getOffset();
+
+	    }
+
+	    //
+
+	    updateInner() {
+
+	        this.position.z = this.getOffset();
+
+	        if ( this.frame ) this.updateBackgroundMaterial();
+
+	    }
+
+	}
+
+	/**
+
+	Contains key maps for the Keyboard component.
+	Most languages need a specific keyboard. Therefore, Keyboard takes a language attribute
+	and if not passed tries to detect the language. If not found, it uses the basic QZERTY layout.
+
+	*/
+	var keymaps = {
+
+		fr:
+		[
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: "a", upperCase: "A" }] },
+					{ width: 0.1, chars: [{ lowerCase: "z", upperCase: "Z" }] },
+					{ width: 0.1, chars: [{ lowerCase: "e", upperCase: "E" }] },
+					{ width: 0.1, chars: [{ lowerCase: "r", upperCase: "R" }] },
+					{ width: 0.1, chars: [{ lowerCase: "t", upperCase: "T" }] },
+					{ width: 0.1, chars: [{ lowerCase: "y", upperCase: "Y" }] },
+					{ width: 0.1, chars: [{ lowerCase: "u", upperCase: "U" }] },
+					{ width: 0.1, chars: [{ lowerCase: "i", upperCase: "I" }] },
+					{ width: 0.1, chars: [{ lowerCase: "o", upperCase: "O" }] },
+					{ width: 0.1, chars: [{ lowerCase: "p", upperCase: "P" }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: "q", upperCase: "Q" }] },
+					{ width: 0.1, chars: [{ lowerCase: "s", upperCase: "S" }] },
+					{ width: 0.1, chars: [{ lowerCase: "d", upperCase: "D" }] },
+					{ width: 0.1, chars: [{ lowerCase: "f", upperCase: "F" }] },
+					{ width: 0.1, chars: [{ lowerCase: "g", upperCase: "G" }] },
+					{ width: 0.1, chars: [{ lowerCase: "h", upperCase: "H" }] },
+					{ width: 0.1, chars: [{ lowerCase: "j", upperCase: "J" }] },
+					{ width: 0.1, chars: [{ lowerCase: "k", upperCase: "K" }] },
+					{ width: 0.1, chars: [{ lowerCase: "l", upperCase: "L" }] },
+					{ width: 0.1, chars: [{ lowerCase: "m", upperCase: "M" }] }
+				],
+
+				[
+					{ width: 0.2, command: 'shift', chars: [{ icon: "shift" }] },
+					{ width: 0.1, chars: [{ lowerCase: "w", upperCase: "W" }] },
+					{ width: 0.1, chars: [{ lowerCase: "x", upperCase: "X" }] },
+					{ width: 0.1, chars: [{ lowerCase: "c", upperCase: "C" }] },
+					{ width: 0.1, chars: [{ lowerCase: "v", upperCase: "V" }] },
+					{ width: 0.1, chars: [{ lowerCase: "b", upperCase: "B" }] },
+					{ width: 0.1, chars: [{ lowerCase: "n", upperCase: "N" }] },
+					{ width: 0.2, command: 'backspace', chars: [{ icon: "backspace" }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: ".?12" }] },
+					{ width: 0.1, chars: [{ lowerCase: "," }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: "space" }] },
+					{ width: 0.1, chars: [{ lowerCase: "." }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: "enter" }] }
+				]
+
+			],
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: "1" }] },
+					{ width: 0.1, chars: [{ lowerCase: "2" }] },
+					{ width: 0.1, chars: [{ lowerCase: "3" }] },
+					{ width: 0.1, chars: [{ lowerCase: "4" }] },
+					{ width: 0.1, chars: [{ lowerCase: "5" }] },
+					{ width: 0.1, chars: [{ lowerCase: "6" }] },
+					{ width: 0.1, chars: [{ lowerCase: "7" }] },
+					{ width: 0.1, chars: [{ lowerCase: "8" }] },
+					{ width: 0.1, chars: [{ lowerCase: "9" }] },
+					{ width: 0.1, chars: [{ lowerCase: "0" }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: "@" }] },
+					{ width: 0.1, chars: [{ lowerCase: "#" }] },
+					{ width: 0.1, chars: [{ lowerCase: "|" }] },
+					{ width: 0.1, chars: [{ lowerCase: "_" }] },
+					{ width: 0.1, chars: [{ lowerCase: "&" }] },
+					{ width: 0.1, chars: [{ lowerCase: "-" }] },
+					{ width: 0.1, chars: [{ lowerCase: "+" }] },
+					{ width: 0.1, chars: [{ lowerCase: "(" }] },
+					{ width: 0.1, chars: [{ lowerCase: ")" }] },
+					{ width: 0.1, chars: [{ lowerCase: "/" }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: "=" }] },
+					{ width: 0.1, chars: [{ lowerCase: "*" }] },
+					{ width: 0.1, chars: [{ lowerCase: '"' }] },
+					{ width: 0.1, chars: [{ lowerCase: "'" }] },
+					{ width: 0.1, chars: [{ lowerCase: ":" }] },
+					{ width: 0.1, chars: [{ lowerCase: ";" }] },
+					{ width: 0.1, chars: [{ lowerCase: "!" }] },
+					{ width: 0.1, chars: [{ lowerCase: "?" }] },
+					{ width: 0.2, command: 'backspace', chars: [{ icon: "backspace" }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: ".?12" }] },
+					{ width: 0.1, chars: [{ lowerCase: "," }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: "space" }] },
+					{ width: 0.1, chars: [{ lowerCase: "." }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: "enter" }] }
+				]
+
+			]
+
+		],
+
+		///////////////////////////////////////////////////////////
+		
+		eng:
+		[
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: 'q', upperCase: 'Q' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'w', upperCase: 'W' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'e', upperCase: 'E' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'r', upperCase: 'R' }] },
+					{ width: 0.1, chars: [{ lowerCase: 't', upperCase: 'T' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'y', upperCase: 'Y' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'u', upperCase: 'U' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'i', upperCase: 'I' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'o', upperCase: 'O' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'p', upperCase: 'P' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: 'a', upperCase: 'A' }] },
+					{ width: 0.1, chars: [{ lowerCase: 's', upperCase: 'S' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'd', upperCase: 'D' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'f', upperCase: 'F' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'g', upperCase: 'G' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'h', upperCase: 'H' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'j', upperCase: 'J' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'k', upperCase: 'K' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'l', upperCase: 'L' }] }
+				],
+
+				[
+					{ width: 0.15, command: 'shift', chars: [{ icon: 'shift' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'z', upperCase: 'Z' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'x', upperCase: 'X' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'c', upperCase: 'C' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'v', upperCase: 'V' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'b', upperCase: 'B' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'n', upperCase: 'N' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'm', upperCase: 'M' }] },
+					{ width: 0.15, command: 'backspace', chars: [{ icon: 'backspace' }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: '.?12' }] },
+					{ width: 0.1, chars: [{ lowerCase: ',' }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: 'space' }] },
+					{ width: 0.1, chars: [{ lowerCase: '.' }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: 'enter' }] }
+				]
+
+			],
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '1' }] },
+					{ width: 0.1, chars: [{ lowerCase: '2' }] },
+					{ width: 0.1, chars: [{ lowerCase: '3' }] },
+					{ width: 0.1, chars: [{ lowerCase: '4' }] },
+					{ width: 0.1, chars: [{ lowerCase: '5' }] },
+					{ width: 0.1, chars: [{ lowerCase: '6' }] },
+					{ width: 0.1, chars: [{ lowerCase: '7' }] },
+					{ width: 0.1, chars: [{ lowerCase: '8' }] },
+					{ width: 0.1, chars: [{ lowerCase: '9' }] },
+					{ width: 0.1, chars: [{ lowerCase: '0' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '@' }] },
+					{ width: 0.1, chars: [{ lowerCase: '#' }] },
+					{ width: 0.1, chars: [{ lowerCase: '|' }] },
+					{ width: 0.1, chars: [{ lowerCase: '_' }] },
+					{ width: 0.1, chars: [{ lowerCase: '&' }] },
+					{ width: 0.1, chars: [{ lowerCase: '-' }] },
+					{ width: 0.1, chars: [{ lowerCase: '+' }] },
+					{ width: 0.1, chars: [{ lowerCase: '(' }] },
+					{ width: 0.1, chars: [{ lowerCase: ')' }] },
+					{ width: 0.1, chars: [{ lowerCase: '/' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '=' }] },
+					{ width: 0.1, chars: [{ lowerCase: '*' }] },
+					{ width: 0.1, chars: [{ lowerCase: '"' }] },
+					{ width: 0.1, chars: [{ lowerCase: "'" }] },
+					{ width: 0.1, chars: [{ lowerCase: ':' }] },
+					{ width: 0.1, chars: [{ lowerCase: ';' }] },
+					{ width: 0.1, chars: [{ lowerCase: '!' }] },
+					{ width: 0.1, chars: [{ lowerCase: '?' }] },
+					{ width: 0.2, command: 'backspace', chars: [{ icon: 'backspace' }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: '.?12' }] },
+					{ width: 0.1, chars: [{ lowerCase: ',' }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: 'space' }] },
+					{ width: 0.1, chars: [{ lowerCase: '.' }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: 'enter' }] }
+				]
+
+			]
+
+		],
+
+		////////////////////////////////////////////////////////////
+		
+		ru:
+		[
+
+			[
+
+				[
+					{ width: 1/12, chars: [{ lowerCase: "й", upperCase: "Й" }, { lowerCase: "q", upperCase: "Q" }] },
+					{ width: 1/12, chars: [{ lowerCase: "ц", upperCase: "Ц" }, { lowerCase: "w", upperCase: "W" }] },
+					{ width: 1/12, chars: [{ lowerCase: "у", upperCase: "У" }, { lowerCase: "e", upperCase: "E" }] },
+					{ width: 1/12, chars: [{ lowerCase: "к", upperCase: "К" }, { lowerCase: "r", upperCase: "R" }] },
+					{ width: 1/12, chars: [{ lowerCase: "е", upperCase: "Е" }, { lowerCase: "t", upperCase: "T" }] },
+					{ width: 1/12, chars: [{ lowerCase: "н", upperCase: "Н" }, { lowerCase: "y", upperCase: "Y" }] },
+					{ width: 1/12, chars: [{ lowerCase: "г", upperCase: "Г" }, { lowerCase: "u", upperCase: "U" }] },
+					{ width: 1/12, chars: [{ lowerCase: "ш", upperCase: "Ш" }, { lowerCase: "i", upperCase: "I" }] },
+					{ width: 1/12, chars: [{ lowerCase: "щ", upperCase: "Щ" }, { lowerCase: "o", upperCase: "O" }] },
+					{ width: 1/12, chars: [{ lowerCase: "з", upperCase: "З" }, { lowerCase: "p", upperCase: "P" }] },
+					{ width: 1/12, chars: [{ lowerCase: "х", upperCase: "Х" }, { lowerCase: "{", upperCase: "[" }] },
+					{ width: 1/12, chars: [{ lowerCase: "ъ", upperCase: "Ъ" }, { lowerCase: "}", upperCase: "]" }] }
+				],
+
+				[
+					{ width: 1/12, chars: [{ lowerCase: "ф", upperCase: "Ф" }, { lowerCase: "a", upperCase: "A" }] },
+					{ width: 1/12, chars: [{ lowerCase: "ы", upperCase: "Ы" }, { lowerCase: "s", upperCase: "S" }] },
+					{ width: 1/12, chars: [{ lowerCase: "в", upperCase: "В" }, { lowerCase: "d", upperCase: "D" }] },
+					{ width: 1/12, chars: [{ lowerCase: "а", upperCase: "А" }, { lowerCase: "f", upperCase: "F" }] },
+					{ width: 1/12, chars: [{ lowerCase: "п", upperCase: "П" }, { lowerCase: "g", upperCase: "G" }] },
+					{ width: 1/12, chars: [{ lowerCase: "р", upperCase: "Р" }, { lowerCase: "h", upperCase: "H" }] },
+					{ width: 1/12, chars: [{ lowerCase: "о", upperCase: "О" }, { lowerCase: "j", upperCase: "J" }] },
+					{ width: 1/12, chars: [{ lowerCase: "л", upperCase: "Л" }, { lowerCase: "k", upperCase: "K" }] },
+					{ width: 1/12, chars: [{ lowerCase: "д", upperCase: "Д" }, { lowerCase: "l", upperCase: "L" }] },
+					{ width: 1/12, chars: [{ lowerCase: "ж", upperCase: "Ж" }, { lowerCase: ":", upperCase: ";" }] },
+					{ width: 1/12, chars: [{ lowerCase: "э", upperCase: "Э" }, { lowerCase: '"', upperCase: "'" }] },
+					{ width: 1/12, chars: [{ lowerCase: "ё", upperCase: "Ё" }, { lowerCase: "|", upperCase: "\\" }] }
+				],
+
+				[
+					{ width: 1.5/12, command: 'shift', chars: [{ icon: "shift" }] },
+					{ width: 1/12, chars: [{ lowerCase: "я", upperCase: "Я" }, { lowerCase: "z", upperCase: "Z" }] },
+					{ width: 1/12, chars: [{ lowerCase: "ч", upperCase: "Ч" }, { lowerCase: "x", upperCase: "X" }] },
+					{ width: 1/12, chars: [{ lowerCase: "с", upperCase: "С" }, { lowerCase: "c", upperCase: "C" }] },
+					{ width: 1/12, chars: [{ lowerCase: "м", upperCase: "М" }, { lowerCase: "v", upperCase: "V" }] },
+					{ width: 1/12, chars: [{ lowerCase: "и", upperCase: "И" }, { lowerCase: "b", upperCase: "B" }] },
+					{ width: 1/12, chars: [{ lowerCase: "т", upperCase: "Т" }, { lowerCase: "n", upperCase: "N" }] },
+					{ width: 1/12, chars: [{ lowerCase: "ь", upperCase: "Ь" }, { lowerCase: "m", upperCase: "M" }] },
+					{ width: 1/12, chars: [{ lowerCase: "б", upperCase: "Б" }, { lowerCase: ",", upperCase: "" }] },
+					{ width: 1/12, chars: [{ lowerCase: "ю", upperCase: "Ю" }, { lowerCase: ".", upperCase: "" }] },
+					{ width: 1.5/12, command: 'backspace', chars: [{ icon: "backspace" }] }
+				],
+
+				[
+					{ width: 0.15, command: 'switch-set', chars: [{ lowerCase: "eng" }] },
+					{ width: 0.15, command: 'switch', chars: [{ lowerCase: ".?12" }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: "space" }] },
+					{ width: 0.1, chars: [{ lowerCase: "?" }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: "enter" }] }
+				]
+
+			],
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: "1" }] },
+					{ width: 0.1, chars: [{ lowerCase: "2" }] },
+					{ width: 0.1, chars: [{ lowerCase: "3" }] },
+					{ width: 0.1, chars: [{ lowerCase: "4" }] },
+					{ width: 0.1, chars: [{ lowerCase: "5" }] },
+					{ width: 0.1, chars: [{ lowerCase: "6" }] },
+					{ width: 0.1, chars: [{ lowerCase: "7" }] },
+					{ width: 0.1, chars: [{ lowerCase: "8" }] },
+					{ width: 0.1, chars: [{ lowerCase: "9" }] },
+					{ width: 0.1, chars: [{ lowerCase: "0" }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: "@" }] },
+					{ width: 0.1, chars: [{ lowerCase: "#" }] },
+					{ width: 0.1, chars: [{ lowerCase: "|" }] },
+					{ width: 0.1, chars: [{ lowerCase: "_" }] },
+					{ width: 0.1, chars: [{ lowerCase: "&" }] },
+					{ width: 0.1, chars: [{ lowerCase: "-" }] },
+					{ width: 0.1, chars: [{ lowerCase: "+" }] },
+					{ width: 0.1, chars: [{ lowerCase: "(" }] },
+					{ width: 0.1, chars: [{ lowerCase: ")" }] },
+					{ width: 0.1, chars: [{ lowerCase: "/" }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: "=" }] },
+					{ width: 0.1, chars: [{ lowerCase: "*" }] },
+					{ width: 0.1, chars: [{ lowerCase: '"' }] },
+					{ width: 0.1, chars: [{ lowerCase: "'" }] },
+					{ width: 0.1, chars: [{ lowerCase: ":" }] },
+					{ width: 0.1, chars: [{ lowerCase: ";" }] },
+					{ width: 0.1, chars: [{ lowerCase: "!" }] },
+					{ width: 0.1, chars: [{ lowerCase: "?" }] },
+					{ width: 0.2, command: 'backspace', chars: [{ icon: "backspace" }] }
+				],
+
+				[
+					{ width: 0.3, command: 'switch', chars: [{ lowerCase: "АБВ" }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: "space" }] },
+					{ width: 0.1, chars: [{ lowerCase: "." }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: "enter" }] }
+				]
+
+			]
+
+		],
+
+		/////////////////////////////////////////////////////////
+
+		de:
+		[
+
+			[
+
+				[
+					{ width: 1/11, chars: [{ lowerCase: 'q', upperCase: 'Q' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'w', upperCase: 'W' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'e', upperCase: 'E' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'r', upperCase: 'R' }] },
+					{ width: 1/11, chars: [{ lowerCase: 't', upperCase: 'T' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'z', upperCase: 'Z' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'u', upperCase: 'U' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'i', upperCase: 'I' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'o', upperCase: 'O' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'p', upperCase: 'P' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'ü', upperCase: 'Ü' }] }
+				],
+
+				[
+					{ width: 1/11, chars: [{ lowerCase: 'a', upperCase: 'A' }] },
+					{ width: 1/11, chars: [{ lowerCase: 's', upperCase: 'S' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'd', upperCase: 'D' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'f', upperCase: 'F' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'g', upperCase: 'G' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'h', upperCase: 'H' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'j', upperCase: 'J' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'k', upperCase: 'K' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'l', upperCase: 'L' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'ö', upperCase: 'Ö' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'ä', upperCase: 'Ä' }] }
+				],
+
+				[
+					{ width: 2/11, command: 'shift', chars: [{ icon: 'shift' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'y', upperCase: 'Y' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'x', upperCase: 'X' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'c', upperCase: 'C' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'v', upperCase: 'V' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'b', upperCase: 'B' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'n', upperCase: 'N' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'm', upperCase: 'M' }] },
+					{ width: 2/11, command: 'backspace', chars: [{ icon: 'backspace' }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: '.?12' }] },
+					{ width: 0.1, chars: [{ lowerCase: ',' }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: 'space' }] },
+					{ width: 0.1, chars: [{ lowerCase: '.' }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: 'enter' }] }
+				]
+
+			],
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '1' }] },
+					{ width: 0.1, chars: [{ lowerCase: '2' }] },
+					{ width: 0.1, chars: [{ lowerCase: '3' }] },
+					{ width: 0.1, chars: [{ lowerCase: '4' }] },
+					{ width: 0.1, chars: [{ lowerCase: '5' }] },
+					{ width: 0.1, chars: [{ lowerCase: '6' }] },
+					{ width: 0.1, chars: [{ lowerCase: '7' }] },
+					{ width: 0.1, chars: [{ lowerCase: '8' }] },
+					{ width: 0.1, chars: [{ lowerCase: '9' }] },
+					{ width: 0.1, chars: [{ lowerCase: '0' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '@' }] },
+					{ width: 0.1, chars: [{ lowerCase: '#' }] },
+					{ width: 0.1, chars: [{ lowerCase: '|' }] },
+					{ width: 0.1, chars: [{ lowerCase: '_' }] },
+					{ width: 0.1, chars: [{ lowerCase: '&' }] },
+					{ width: 0.1, chars: [{ lowerCase: '-' }] },
+					{ width: 0.1, chars: [{ lowerCase: '+' }] },
+					{ width: 0.1, chars: [{ lowerCase: '(' }] },
+					{ width: 0.1, chars: [{ lowerCase: ')' }] },
+					{ width: 0.1, chars: [{ lowerCase: '/' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '=' }] },
+					{ width: 0.1, chars: [{ lowerCase: '*' }] },
+					{ width: 0.1, chars: [{ lowerCase: '"' }] },
+					{ width: 0.1, chars: [{ lowerCase: "'" }] },
+					{ width: 0.1, chars: [{ lowerCase: ':' }] },
+					{ width: 0.1, chars: [{ lowerCase: ';' }] },
+					{ width: 0.1, chars: [{ lowerCase: '!' }] },
+					{ width: 0.1, chars: [{ lowerCase: '?' }] },
+					{ width: 0.2, command: 'backspace', chars: [{ icon: 'backspace' }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: '.?12' }] },
+					{ width: 0.1, chars: [{ lowerCase: ',' }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: 'space' }] },
+					{ width: 0.1, chars: [{ lowerCase: '.' }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: 'enter' }] }
+				]
+
+			]
+
+		],
+
+		///////////////////////////////////////////////////////////
+		
+		es:
+		[
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: 'q', upperCase: 'Q' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'w', upperCase: 'W' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'e', upperCase: 'E' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'r', upperCase: 'R' }] },
+					{ width: 0.1, chars: [{ lowerCase: 't', upperCase: 'T' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'y', upperCase: 'Y' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'u', upperCase: 'U' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'i', upperCase: 'I' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'o', upperCase: 'O' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'p', upperCase: 'P' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: 'a', upperCase: 'A' }] },
+					{ width: 0.1, chars: [{ lowerCase: 's', upperCase: 'S' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'd', upperCase: 'D' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'f', upperCase: 'F' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'g', upperCase: 'G' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'h', upperCase: 'H' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'j', upperCase: 'J' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'k', upperCase: 'K' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'l', upperCase: 'L' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ñ', upperCase: 'Ñ' }] }
+				],
+
+				[
+					{ width: 0.15, command: 'shift', chars: [{ icon: 'shift' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'z', upperCase: 'Z' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'x', upperCase: 'X' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'c', upperCase: 'C' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'v', upperCase: 'V' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'b', upperCase: 'B' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'n', upperCase: 'N' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'm', upperCase: 'M' }] },
+					{ width: 0.15, command: 'backspace', chars: [{ icon: 'backspace' }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: '.?12' }] },
+					{ width: 0.1, chars: [{ lowerCase: ',' }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: 'space' }] },
+					{ width: 0.1, chars: [{ lowerCase: '.' }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: 'enter' }] }
+				]
+
+			],
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '1' }] },
+					{ width: 0.1, chars: [{ lowerCase: '2' }] },
+					{ width: 0.1, chars: [{ lowerCase: '3' }] },
+					{ width: 0.1, chars: [{ lowerCase: '4' }] },
+					{ width: 0.1, chars: [{ lowerCase: '5' }] },
+					{ width: 0.1, chars: [{ lowerCase: '6' }] },
+					{ width: 0.1, chars: [{ lowerCase: '7' }] },
+					{ width: 0.1, chars: [{ lowerCase: '8' }] },
+					{ width: 0.1, chars: [{ lowerCase: '9' }] },
+					{ width: 0.1, chars: [{ lowerCase: '0' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '@' }] },
+					{ width: 0.1, chars: [{ lowerCase: '#' }] },
+					{ width: 0.1, chars: [{ lowerCase: '|' }] },
+					{ width: 0.1, chars: [{ lowerCase: '_' }] },
+					{ width: 0.1, chars: [{ lowerCase: '&' }] },
+					{ width: 0.1, chars: [{ lowerCase: '-' }] },
+					{ width: 0.1, chars: [{ lowerCase: '+' }] },
+					{ width: 0.1, chars: [{ lowerCase: '(' }] },
+					{ width: 0.1, chars: [{ lowerCase: ')' }] },
+					{ width: 0.1, chars: [{ lowerCase: '/' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '=' }] },
+					{ width: 0.1, chars: [{ lowerCase: '*' }] },
+					{ width: 0.1, chars: [{ lowerCase: '"' }] },
+					{ width: 0.1, chars: [{ lowerCase: "'" }] },
+					{ width: 0.1, chars: [{ lowerCase: ':' }] },
+					{ width: 0.1, chars: [{ lowerCase: ';' }] },
+					{ width: 0.1, chars: [{ lowerCase: '!' }] },
+					{ width: 0.1, chars: [{ lowerCase: '?' }] },
+					{ width: 0.2, command: 'backspace', chars: [{ icon: 'backspace' }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: '.?12' }] },
+					{ width: 0.1, chars: [{ lowerCase: ',' }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: 'space' }] },
+					{ width: 0.1, chars: [{ lowerCase: '.' }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: 'enter' }] }
+				]
+
+			]
+
+		],
+
+		//////////////////////////////////////////////////////////////////////
+
+		el:
+		[
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: ';', upperCase: ':' }, { lowerCase: 'q', upperCase: 'Q' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ς', upperCase: 'ς' }, { lowerCase: 'w', upperCase: 'W' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ε', upperCase: 'Ε' }, { lowerCase: 'e', upperCase: 'E' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ρ', upperCase: 'Ρ' }, { lowerCase: 'r', upperCase: 'R' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'τ', upperCase: 'Τ' }, { lowerCase: 't', upperCase: 'T' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'υ', upperCase: 'Υ' }, { lowerCase: 'y', upperCase: 'Y' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'θ', upperCase: 'Θ' }, { lowerCase: 'u', upperCase: 'U' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ι', upperCase: 'Ι' }, { lowerCase: 'i', upperCase: 'I' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ο', upperCase: 'Ο' }, { lowerCase: 'o', upperCase: 'O' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'π', upperCase: 'Π' }, { lowerCase: 'p', upperCase: 'P' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: 'α', upperCase: 'Α' }, { lowerCase: 'a', upperCase: 'A' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'σ', upperCase: 'Σ' }, { lowerCase: 's', upperCase: 'S' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'δ', upperCase: 'Δ' }, { lowerCase: 'd', upperCase: 'D' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'φ', upperCase: 'Φ' }, { lowerCase: 'f', upperCase: 'F' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'γ', upperCase: 'Γ' }, { lowerCase: 'g', upperCase: 'G' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'η', upperCase: 'Η' }, { lowerCase: 'h', upperCase: 'H' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ξ', upperCase: 'Ξ' }, { lowerCase: 'j', upperCase: 'J' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'κ', upperCase: 'Κ' }, { lowerCase: 'k', upperCase: 'K' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'λ', upperCase: 'Λ' }, { lowerCase: 'l', upperCase: 'L' }] }
+				],
+
+				[
+					{ width: 0.15, command: 'shift', chars: [{ icon: 'shift' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ζ', upperCase: 'Ζ' }, { lowerCase: 'z', upperCase: 'Z' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'χ', upperCase: 'Χ' }, { lowerCase: 'x', upperCase: 'X' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ψ', upperCase: 'Ψ' }, { lowerCase: 'c', upperCase: 'C' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ω', upperCase: 'Ω' }, { lowerCase: 'v', upperCase: 'V' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'β', upperCase: 'Β' }, { lowerCase: 'b', upperCase: 'B' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'ν', upperCase: 'Ν' }, { lowerCase: 'n', upperCase: 'N' }] },
+					{ width: 0.1, chars: [{ lowerCase: 'μ', upperCase: 'Μ' }, { lowerCase: 'm', upperCase: 'M' }] },
+					{ width: 0.15, command: 'backspace', chars: [{ icon: 'backspace' }] }
+				],
+
+				[
+					{ width: 0.15, command: 'switch-set', chars: [{ lowerCase: "eng" }] },
+					{ width: 0.15, command: 'switch', chars: [{ lowerCase: ".?12" }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: "space" }] },
+					{ width: 0.1, chars: [{ lowerCase: "?" }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: "enter" }] }
+				]
+
+			],
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '1' }] },
+					{ width: 0.1, chars: [{ lowerCase: '2' }] },
+					{ width: 0.1, chars: [{ lowerCase: '3' }] },
+					{ width: 0.1, chars: [{ lowerCase: '4' }] },
+					{ width: 0.1, chars: [{ lowerCase: '5' }] },
+					{ width: 0.1, chars: [{ lowerCase: '6' }] },
+					{ width: 0.1, chars: [{ lowerCase: '7' }] },
+					{ width: 0.1, chars: [{ lowerCase: '8' }] },
+					{ width: 0.1, chars: [{ lowerCase: '9' }] },
+					{ width: 0.1, chars: [{ lowerCase: '0' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '@' }] },
+					{ width: 0.1, chars: [{ lowerCase: '#' }] },
+					{ width: 0.1, chars: [{ lowerCase: '|' }] },
+					{ width: 0.1, chars: [{ lowerCase: '_' }] },
+					{ width: 0.1, chars: [{ lowerCase: '&' }] },
+					{ width: 0.1, chars: [{ lowerCase: '-' }] },
+					{ width: 0.1, chars: [{ lowerCase: '+' }] },
+					{ width: 0.1, chars: [{ lowerCase: '(' }] },
+					{ width: 0.1, chars: [{ lowerCase: ')' }] },
+					{ width: 0.1, chars: [{ lowerCase: '/' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '=' }] },
+					{ width: 0.1, chars: [{ lowerCase: '*' }] },
+					{ width: 0.1, chars: [{ lowerCase: '"' }] },
+					{ width: 0.1, chars: [{ lowerCase: "'" }] },
+					{ width: 0.1, chars: [{ lowerCase: ':' }] },
+					{ width: 0.1, chars: [{ lowerCase: ';' }] },
+					{ width: 0.1, chars: [{ lowerCase: '!' }] },
+					{ width: 0.1, chars: [{ lowerCase: '?' }] },
+					{ width: 0.2, command: 'backspace', chars: [{ icon: 'backspace' }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: '.?12' }] },
+					{ width: 0.1, chars: [{ lowerCase: ',' }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: 'space' }] },
+					{ width: 0.1, chars: [{ lowerCase: '.' }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: 'enter' }] }
+				]
+
+			]
+
+		],
+
+		////////////////////////////////////////////////////////////////////////////////
+
+		nord:
+		[
+
+			[
+
+				[
+					{ width: 1/11, chars: [{ lowerCase: 'q', upperCase: 'Q' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'w', upperCase: 'W' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'e', upperCase: 'E' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'r', upperCase: 'R' }] },
+					{ width: 1/11, chars: [{ lowerCase: 't', upperCase: 'T' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'y', upperCase: 'Y' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'u', upperCase: 'U' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'i', upperCase: 'I' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'o', upperCase: 'O' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'p', upperCase: 'P' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'å', upperCase: 'Å' }] }
+				],
+
+				[
+					{ width: 1/11, chars: [{ lowerCase: 'a', upperCase: 'A' }] },
+					{ width: 1/11, chars: [{ lowerCase: 's', upperCase: 'S' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'd', upperCase: 'D' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'f', upperCase: 'F' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'g', upperCase: 'G' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'h', upperCase: 'H' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'j', upperCase: 'J' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'k', upperCase: 'K' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'l', upperCase: 'L' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'æ', upperCase: 'Æ' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'ø', upperCase: 'Ø' }] }
+				],
+
+				[
+					{ width: 2/11, command: 'shift', chars: [{ icon: 'shift' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'z', upperCase: 'Z' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'x', upperCase: 'X' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'c', upperCase: 'C' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'v', upperCase: 'V' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'b', upperCase: 'B' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'n', upperCase: 'N' }] },
+					{ width: 1/11, chars: [{ lowerCase: 'm', upperCase: 'M' }] },
+					{ width: 2/11, command: 'backspace', chars: [{ icon: 'backspace' }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: '.?12' }] },
+					{ width: 0.1, chars: [{ lowerCase: ',' }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: 'space' }] },
+					{ width: 0.1, chars: [{ lowerCase: '.' }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: 'enter' }] }
+				]
+
+			],
+
+			[
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '1' }] },
+					{ width: 0.1, chars: [{ lowerCase: '2' }] },
+					{ width: 0.1, chars: [{ lowerCase: '3' }] },
+					{ width: 0.1, chars: [{ lowerCase: '4' }] },
+					{ width: 0.1, chars: [{ lowerCase: '5' }] },
+					{ width: 0.1, chars: [{ lowerCase: '6' }] },
+					{ width: 0.1, chars: [{ lowerCase: '7' }] },
+					{ width: 0.1, chars: [{ lowerCase: '8' }] },
+					{ width: 0.1, chars: [{ lowerCase: '9' }] },
+					{ width: 0.1, chars: [{ lowerCase: '0' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '@' }] },
+					{ width: 0.1, chars: [{ lowerCase: '#' }] },
+					{ width: 0.1, chars: [{ lowerCase: '|' }] },
+					{ width: 0.1, chars: [{ lowerCase: '_' }] },
+					{ width: 0.1, chars: [{ lowerCase: '&' }] },
+					{ width: 0.1, chars: [{ lowerCase: '-' }] },
+					{ width: 0.1, chars: [{ lowerCase: '+' }] },
+					{ width: 0.1, chars: [{ lowerCase: '(' }] },
+					{ width: 0.1, chars: [{ lowerCase: ')' }] },
+					{ width: 0.1, chars: [{ lowerCase: '/' }] }
+				],
+
+				[
+					{ width: 0.1, chars: [{ lowerCase: '=' }] },
+					{ width: 0.1, chars: [{ lowerCase: '*' }] },
+					{ width: 0.1, chars: [{ lowerCase: '"' }] },
+					{ width: 0.1, chars: [{ lowerCase: "'" }] },
+					{ width: 0.1, chars: [{ lowerCase: ':' }] },
+					{ width: 0.1, chars: [{ lowerCase: ';' }] },
+					{ width: 0.1, chars: [{ lowerCase: '!' }] },
+					{ width: 0.1, chars: [{ lowerCase: '?' }] },
+					{ width: 0.2, command: 'backspace', chars: [{ icon: 'backspace' }] }
+				],
+
+				[
+					{ width: 0.2, command: 'switch', chars: [{ lowerCase: '.?12' }] },
+					{ width: 0.1, chars: [{ lowerCase: ',' }] },
+					{ width: 0.4, command: 'space', chars: [{ icon: 'space' }] },
+					{ width: 0.1, chars: [{ lowerCase: '.' }] },
+					{ width: 0.2, command: 'enter', chars: [{ icon: 'enter' }] }
+				]
+
+			]
+
+		]
+
+	};
+
+	//
+
+	const textureLoader = new TextureLoader();
+
+	//
+
+	/**
+	 * Job: high-level component that returns a keyboard
+	 */
+	class Keyboard extends mix.withBase( Object3D )( BoxComponent, MeshUIComponent ) {
+
+	    constructor( options ) {
+
+	        // DEFAULTS
+
+	        if ( !options ) options = {};
+	        if ( !options.width ) options.width = 1;
+	        if ( !options.height ) options.height = 0.4;
+	        if ( !options.margin ) options.margin = 0.003;
+	        if ( !options.padding ) options.padding = 0.01;
+
+	        //
+
+	        super( options );
+
+	        this.currentPanel = 0;
+
+	        this.isLowerCase = true;
+
+	        this.charsetCount = 1;
+
+	        //////////
+	        // KEYMAP
+	        //////////
+
+	        // ../utils/Keymaps contains information about various keyboard layouts
+	        // We select one depending on the user's browser language if
+	        // there is no options.language
+
+	        let keymap;
+
+	        if ( options.language || navigator.language ) {
+
+	            switch ( options.language || navigator.language  ) {
+
+	            case 'fr' :
+	            case "fr-CH" :
+	            case "fr-CA" :
+	                keymap = keymaps.fr;
+	                break
+
+	            case 'ru' :
+	                this.charsetCount = 2;
+	                keymap = keymaps.ru;
+	                break
+
+	            case "de" :
+	            case "de-DE" :
+	            case "de-AT" :
+	            case "de-LI" :
+	            case "de-CH" :
+	                keymap = keymaps.de;
+	                break
+
+	            case "es" :
+	            case "es-419" :
+	            case "es-AR" :
+	            case "es-CL" :
+	            case "es-CO" :
+	            case "es-ES" :
+	            case "es-CR" :
+	            case "es-US" :
+	            case "es-HN" :
+	            case "es-MX" :
+	            case "es-PE" :
+	            case "es-UY" :
+	            case "es-VE" :
+	                keymap = keymaps.es;
+	                break
+
+	            case "el" :
+	                this.charsetCount = 2;
+	                keymap = keymaps.el;
+	                break
+
+	            case "nord" :
+	                keymap = keymaps.nord;
+	                break
+
+	            default :
+	                keymap = keymaps.eng;
+	                break
+
+	            }
+
+	        } else {
+
+	            keymap = keymaps.eng;
+
+	        }
+
+	        ////////////////////
+	        // BLOCKS CREATION
+	        ////////////////////
+
+	        // PANELS
+
+	        this.keys = [];
+
+	        this.panels = keymap.map( ( panel ) => {
+
+	            const lineHeight = (options.height / panel.length) - (options.margin * 2);
+
+	            const panelBlock = new Block({
+	                width: options.width + (options.padding * 2),
+	                height: options.height + (options.padding * 2),
+	                offset: 0,
+	                padding: options.padding,
+	                fontFamily: options.fontFamily,
+	                fontTexture: options.fontTexture,
+	                backgroundColor: options.backgroundColor,
+	                backgroundOpacity: options.backgroundOpacity
+	            });
+
+	            panelBlock.charset = 0;
+
+	            panelBlock.add( ...panel.map( ( line ) => {
+
+	                const lineBlock = new Block({
+	                    width: options.width,
+	                    height: lineHeight,
+	                    margin: options.margin,
+	                    contentDirection: 'row',
+	                    justifyContent: 'center'
+	                });
+
+	                lineBlock.frame.visible = false;
+
+	                const keys = [];
+
+	                line.forEach( ( keyItem ) => {
+
+	                    const key = new Block({
+	                        width: (options.width * keyItem.width) - (options.margin * 2),
+	                        height: lineHeight,
+	                        margin: options.margin,
+	                        justifyContent: 'center',
+	                        offset: 0
+	                    });
+
+	                    const char = keyItem.chars[ panelBlock.charset ].lowerCase || keyItem.chars[ panelBlock.charset ].icon || "undif";
+
+	                    if (
+	                        (char === "enter" && options.enterTexture) ||
+	                        (char === "shift" && options.shiftTexture) ||
+	                        (char === "backspace" && options.backspaceTexture)
+	                    ) {
+
+	                        const url = (() => {
+	                            switch( char ) {
+	                            case "backspace": return options.backspaceTexture
+	                            case "enter": return options.enterTexture
+	                            case "shift": return options.shiftTexture
+	                            default: console.warn('There is no icon image for this key');
+	                            }
+	                        })();
+
+	                        textureLoader.load(url , ( texture ) => {
+
+	                            key.add(
+	                                new InlineBlock({
+	                                    width: key.width * 0.65,
+	                                    height: key.height * 0.65,
+	                                    backgroundSize: 'contain',
+	                                    backgroundTexture: texture
+	                                })
+	                            );
+
+	                        });
+	                        
+	                    } else {
+
+	                        key.add(
+	                            new Text({
+	                                content: char,
+	                                offset: 0
+	                            })
+	                        );
+
+	                    }
+
+	                    key.type = "Key";
+
+	                    key.info = keyItem;
+	                    key.info.input = char;
+	                    key.panel = panelBlock;
+
+	                    // line's keys
+	                    keys.push( key );
+
+	                    // keyboard's keys
+	                    this.keys.push( key );
+
+	                });
+
+	                lineBlock.add( ...keys );
+
+	                return lineBlock
+
+	            }));
+
+	            return panelBlock
+
+	        });
+
+	        this.add( this.panels[ 0 ] );
+
+	        // Lastly set the options parameters to this object, which will trigger an update
+	        this.set( options );
+
+	    }
+
+	    /**
+	     * Used to switch to an entirely different panel of this keyboard,
+	     * with potentially a completely different layout
+	     */
+	    setNextPanel() {
+
+	        this.panels.forEach( ( panel ) => {
+
+	            this.remove( panel );
+
+	        });
+
+	        this.currentPanel = (this.currentPanel + 1) % (this.panels.length);
+
+	        this.add( this.panels[ this.currentPanel ] );
+
+	        this.update( true, true, true );
+
+	    }
+
+	    /*
+	     * Used to change the keys charset. Some layout support this,
+	     * like the Russian or Greek keyboard, to be able to switch to
+	     * English layout when necessary
+	     */
+	    setNextCharset() {
+
+	        this.panels[ this.currentPanel ].charset = ( this.panels[ this.currentPanel ].charset + 1) % this.charsetCount;
+
+	        this.keys.forEach( ( key ) => {
+
+	            // Here we sort the keys, we only keep the ones that are part of the current panel.
+
+	            const isInCurrentPanel = this.panels[ this.currentPanel ].getObjectById( key.id );
+
+	            if ( !isInCurrentPanel ) return
+
+	            //
+
+	            const char = key.info.chars[ key.panel.charset ] || key.info.chars[ 0 ];
+
+	            const newContent = this.isLowerCase || !char.upperCase ? char.lowerCase : char.upperCase;
+
+	            const textComponent = key.children.find( child => child.isText );
+
+	            if ( !textComponent ) return
+
+	            key.info.input = newContent;
+
+	            textComponent.set({
+	                content: newContent
+	            });
+
+	            textComponent.update( true, true, true );
+
+	        });
+
+	    }
+
+	    /** Toggle case for characters that support it. */
+	    toggleCase() {
+
+	        this.isLowerCase = !this.isLowerCase;
+
+	        this.keys.forEach( ( key ) => {
+
+	            const char = key.info.chars[ key.panel.charset ] || key.info.chars[ 0 ];
+
+	            const newContent = this.isLowerCase || !char.upperCase ? char.lowerCase : char.upperCase;
+
+	            const textComponent = key.children.find( child => child.isText );
+
+	            if ( !textComponent ) return
+
+	            key.info.input = newContent;
+
+	            textComponent.set({
+	                content: newContent
+	            });
+
+	            textComponent.update( true, true, true );
+
+	        });
+
+	    }
+
+	    ////////////
+	    //  UPDATE
+	    ////////////
+
+	    parseParams() {}
+	    updateLayout() {}
+	    updateInner() {}
+
+	}
+
+	/* global global */
+
+	const update = () => UpdateManager.update();
+
+	const ThreeMeshUI = {
+		Block,
+		Text,
+		InlineBlock,
+		Keyboard,
+		FontLibrary,
+		update,
+	};
+
+	if (typeof global !== 'undefined') global.ThreeMeshUI = ThreeMeshUI;
+
 	let camera, scene, renderer;
 	let controller1, controller2;
 	let controllerGrip1, controllerGrip2;
 	let pickHelper;
 	let PPE_DATA;
 
-	let hoverObjectsList = ['Close', 'btn-1', 'btn-2', 'btn-3', 'btn-4', 'Back', 'Next', 'Ok'];  
-	let lastChooseObj = [undefined, undefined, undefined, undefined, undefined];
+	let hoverObjectsList = [];  
 	let rightChoose = ['btn-2', 'btn-1', 'btn-2', 'btn-2','','','','','btn-1'];
 
 	let objectsParams = {
@@ -54689,12 +58914,20 @@
 	};
 
 	class App {
+		async start(){
+			await fetch('../build/ppe.json', {
+				method: 'GET',
+				headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'}
+			})
+				.then(async (response) => {
+					if (response.ok){
+						PPE_DATA = await response.json();
+						console.log('PPE_DATA', PPE_DATA);
+						this.init();
+					}
+				});
+		}
 		init() {
-			getJSON();
-			setTimeout(() => {
-				console.log(PPE_DATA);
-			}, 5000);
-			
 			scene = new Scene();
 			scene.background = new Color( 0x505050 );
 			camera = new PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -54803,18 +59036,6 @@
 		}
 	}
 
-	async function getJSON(){
-		await fetch('../build/ppe.json', {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'}
-		})
-			.then(async (response) => {
-				if (response.ok){
-					PPE_DATA = await response.json();
-				}
-			});
-	}
-
 	class ControllerPickHelper extends EventDispatcher {
 	    constructor(scene) {
 	      super();
@@ -54847,7 +59068,7 @@
 
 			//find intersects
 	        const intersections = this.raycaster.intersectObjects(scene.children, true);
-			//console.log(intersections)
+			console.log(intersections);
 			intersections.forEach(intersect => {
 				if (intersect != undefined && intersect.object.type == 'Mesh') { 
 					//close popup
@@ -54929,45 +59150,33 @@
 		//update - for hover
 	    update(scene) {
 	      this.reset();
-		  let isChoose = [false, false, false, false, false];
-		  let index = 0;
+
+		  hoverObjectsList.forEach(el => {
+			  if (el.state === 'selected'){
+				scene.getObjectByName(el.name).parent.setState('normal');
+				el.state = "normal";
+			  }
+		  });
 
 	      for (const {controller, line} of this.controllers) {
 	        this.tempMatrix.identity().extractRotation(controller.matrixWorld);
 	        this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
 	        this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(this.tempMatrix);
 
-	        const intersections = this.raycaster.intersectObjects(scene.children);
+	        const intersections = this.raycaster.intersectObjects(scene.children, true);
 			line.scale.z = 20;
-			
 			//hover
 			intersections.forEach(intersect => {
-				if (intersect != undefined && intersect.object.type == 'Mesh') {		
+				if (intersect != undefined) {
 					hoverObjectsList.forEach(el => {
-						if (intersect.object.name == el){
-							lastChooseObj.forEach((element) => {
-								if (element != undefined){
-									element.material.color.setHex(0xffffff);
-									element = undefined;
-								}
-							});
-							lastChooseObj[index] = intersect.object;
-							isChoose[index] = true;
-							isChoose.map((i) => { if (i != index) return false});
-							line.scale.z = intersect.distance;
-							intersect.object.material.color.setHex(0xcccccc);
+						if (intersect.object.parent.name == el.name){
+							scene.getObjectByName(el.name).parent.setState('selected');
+							el.state = "selected";
 						}
 					});
 				}
 			});
-			index++;
 	      }
-
-		  for (index = 0; index < 5; index++)
-			if (!isChoose[index] && lastChooseObj[index] != undefined){
-				lastChooseObj[index].material.color.setHex(0xffffff);
-				lastChooseObj[index] = undefined;
-			}
 	    }
 	  }
 
@@ -54998,10 +59207,12 @@
 	}
 
 	function animate() {	
+		//ThreeMeshUI.update();
 		renderer.setAnimationLoop( render );
 	}
 
 	function render() {
+		ThreeMeshUI.update();
 		pickHelper.update(scene);
 		renderer.render( scene, camera );
 	}
@@ -55119,18 +59330,148 @@
 	}
 
 	function createIntroPopup(){
+		const params = {
+			popupName: "introGroup",
+			fontFamily: "./assets/Roboto-msdf.json",
+		  	fontTexture: "./assets/Roboto-msdf.png",
+			darkColor: new Color(0x3e3e3e),
+			lightColor: new Color(0xe2e2e2),
+			width: 4.0,
+		};
+		const selectedAttributes = {
+			backgroundColor: new Color( 0x777777 ),
+			fontColor: new Color( 0x222222 )
+		};
+		const normalAttributes = {
+			backgroundColor: params.darkColor,
+			fontColor: params.lightColor
+		};
+
 		let popupGroup = new Group();
 		popupGroup.name = "introGroup";
-		let textureLoader = new TextureLoader();
 
-		const infoGeometry = new BoxGeometry(60, 32, 0.01);
-		const infoMaterial = new MeshBasicMaterial( { 
+		const container = new ThreeMeshUI.Block({
+			//height: 3.0,
+			width: params.width,
+			fontFamily: params.fontFamily,
+		  	fontTexture: params.fontTexture,
+			backgroundColor: params.lightColor,
+			backgroundOpacity: 1,
+		});
+		const titleBlock = new ThreeMeshUI.Block({
+			height: 0.28,
+			width: params.width,
+			alignContent: "left",
+			justifyContent: "start",
+			padding: 0.1,
+			backgroundColor: params.darkColor,
+		  });  
+		const contentBlock = new ThreeMeshUI.Block({
+			height: 2.5,
+			width: params.width,
+			alignContent: "left",
+			justifyContent: "start",
+			padding: 0.1,
+			backgroundColor: params.lightColor,
+			backgroundOpacity: 1,
+		  });  
+		container.add(titleBlock, contentBlock);
+		const titleText = new ThreeMeshUI.Text({
+			content: "Info",
+			fontColor: params.lightColor,
+		  	fontSize: 0.125,
+		});
+		const contentText = new ThreeMeshUI.Text({
+			content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde quis tempora officia excepturi similique, a, veniam distinctio corrupti ad esse amet architecto suscipit optio earum laudantium illum fuga? Quia, enim! Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde quis tempora officia excepturi similique, a, veniam distinctio corrupti ad esse amet architecto suscipit optio earum laudantium illum fuga? Quia, enim!",
+			fontColor: params.darkColor,
+		  	fontSize: 0.15,
+		});
+		titleBlock.add(titleText);
+		contentBlock.add(contentText);
+		//btns
+		const btnsContainer = new ThreeMeshUI.Block({
+			height: 0.4,
+			width: params.width,
+			justifyContent: 'end',
+			alignContent: 'center',
+			contentDirection: 'row',
+			fontFamily: params.fontFamily,
+		  	fontTexture: params.fontTexture,
+			backgroundColor: params.lightColor,
+			backgroundOpacity: 1,
+		});
+
+		const prevBtnBlock = new ThreeMeshUI.Block({
+			height: 0.25,
+			width: 0.6,
+			alignContent: "center",
+			justifyContent: "center",
+			backgroundColor: params.darkColor,
+		}); 
+		const PrevText = new ThreeMeshUI.Text({
+			content: "Back",
+			fontColor: params.lightColor,
+		  	fontSize: 0.15,
+		}); 
+		PrevText.name = "prevBtn"; 
+		prevBtnBlock.setupState({
+			state: "selected",
+			attributes: selectedAttributes
+		});
+		prevBtnBlock.setupState({
+			state: "normal",
+			attributes: normalAttributes
+		});
+		prevBtnBlock.add(PrevText);
+		hoverObjectsList.push({
+			name: "prevBtn",
+			state: 'normal'
+		});
+
+		const nextBtnBlock = new ThreeMeshUI.Block({
+			height: 0.25,
+			width: 0.6,
+			alignContent: "center",
+			justifyContent: "center",
+			backgroundColor: params.darkColor,
+			margin: 0.1
+		});  
+		const NextText = new ThreeMeshUI.Text({
+			content: "Next",
+			fontColor: params.lightColor,
+		  	fontSize: 0.15,
+		});
+		NextText.name = "nextBtn"; 
+		nextBtnBlock.setupState({
+			state: "selected",
+			attributes: selectedAttributes
+		});
+		nextBtnBlock.setupState({
+			state: "normal",
+			attributes: normalAttributes
+		});
+		nextBtnBlock.add(NextText);
+		nextBtnBlock.visible = false;
+		
+		btnsContainer.add(prevBtnBlock, nextBtnBlock);
+		container.add(btnsContainer);
+
+		popupGroup.position.set(0.0, 2.16, -2.6);
+		popupGroup.add(container);
+		scene.add(popupGroup);
+
+		//
+		/*
+		let textureLoader = new THREE.TextureLoader();
+
+		const infoGeometry = new THREE.BoxGeometry(60, 32, 0.01);
+		const infoMaterial = new THREE.MeshBasicMaterial( { 
 			transparent: true,
 			map: textureLoader.load('./assets/img/introPopup-6.png', function (texture) {
-				texture.minFilter = LinearFilter;
+				texture.minFilter = THREE.LinearFilter;
 			}),
 		} );
-		let info = new Mesh(infoGeometry, infoMaterial);
+		let info = new THREE.Mesh(infoGeometry, infoMaterial);
 		info.position.set(0.0, 2.16, -2.6);
 		info.scale.set(0.08, 0.08, 0.08);
 		info.name = 'introHero';
@@ -55139,30 +59480,30 @@
 
 		//btns
 		//info btns
-		const btnBackGeometry = new BoxGeometry(6, 2.7, 0.05);
-		const btnNextGeometry = new BoxGeometry(6, 2.7, 0.05);
-		const btnBackMaterial = new MeshBasicMaterial( { 
+		const btnBackGeometry = new THREE.BoxGeometry(6, 2.7, 0.05);
+		const btnNextGeometry = new THREE.BoxGeometry(6, 2.7, 0.05);
+		const btnBackMaterial = new THREE.MeshBasicMaterial( { 
 			transparent: true,
 			map: textureLoader.load('./assets/img/Back.png', function (texture) {
-				texture.minFilter = LinearFilter;
+				texture.minFilter = THREE.LinearFilter;
 			}),
 		} );
-		const btnNextMaterial = new MeshBasicMaterial( { 
+		const btnNextMaterial = new THREE.MeshBasicMaterial( { 
 			transparent: true,
 			map: textureLoader.load('./assets/img/Next.png', function (texture) {
-				texture.minFilter = LinearFilter;
+				texture.minFilter = THREE.LinearFilter;
 			}),
 		} );
-		let btnNext = new Mesh(btnNextGeometry, btnNextMaterial);
-		let btnBack = new Mesh( btnBackGeometry, btnBackMaterial);
+		let btnNext = new THREE.Mesh(btnNextGeometry, btnNextMaterial);
+		let btnBack = new THREE.Mesh( btnBackGeometry, btnBackMaterial);
 		btnNext.rotation.set(0, 0, 0.0); 			btnBack.rotation.set(0, 0, 0.0);
 		btnNext.position.set(2.0, 1.07, -2.6);		btnBack.position.set(1.45, 1.07, -2.6);
 		btnNext.scale.set(0.08, 0.08, 0.08); 		btnBack.scale.set(0.08, 0.08, 0.08);
 		btnNext.name = 'Next'; 						btnBack.name = 'Back';
 													btnBack.visible = false;
 		popupGroup.add(btnNext); 					popupGroup.add(btnBack);
-
-		scene.add(popupGroup);
+		
+		scene.add(popupGroup);*/
 	}
 
 	function createCorrectIncorrectPopup(){
@@ -55416,6 +59757,6 @@
 	}
 
 	const app = new App();
-	app.init();
+	app.start();
 
 }));
