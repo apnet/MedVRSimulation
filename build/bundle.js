@@ -58851,8 +58851,17 @@
 	let pickHelper;
 	let PPE_DATA;
 
+	let IntroObjects = { 
+		"IntroContainerName": "introGroup",
+		"titleTextObj": null,
+		"contentTextObj": null,
+		"contentContainerObj": null,
+		"prevBtnObjName": "prevBtn",
+		"nextBtnObjName": "nextBtn",
+	};
+	let simulationStep = 0;
+
 	let hoverObjectsList = [];  
-	let rightChoose = ['btn-2', 'btn-1', 'btn-2', 'btn-2','','','','','btn-1'];
 
 	let objectsParams = {
 		modelPath: './assets/models/',
@@ -59032,6 +59041,7 @@
 
 			pickHelper = new ControllerPickHelper(scene);
 
+			showCurrentSimulationStep();
 			animate();
 		}
 	}
@@ -59071,6 +59081,11 @@
 			console.log(intersections);
 			intersections.forEach(intersect => {
 				if (intersect != undefined && intersect.object.type == 'Mesh') { 
+					if (intersect.object.parent.name == 'nextBtn'){
+						simulationStep ++;
+						showCurrentSimulationStep();
+					}
+					/*
 					//close popup
 					if (intersect.object.name == 'Close'){
 						showCloseWindow(false);
@@ -59117,6 +59132,7 @@
 							refreshBtnContent();
 						}
 					}
+					*/
 				}
 			});
 	      };
@@ -59207,7 +59223,6 @@
 	}
 
 	function animate() {	
-		//ThreeMeshUI.update();
 		renderer.setAnimationLoop( render );
 	}
 
@@ -59215,15 +59230,6 @@
 		ThreeMeshUI.update();
 		pickHelper.update(scene);
 		renderer.render( scene, camera );
-	}
-
-	function getObjectId(objName){
-		let elementId = -1;
-		objectsParams.interactiveObjectList.forEach(element => {
-			if (element.objName == objName)
-				elementId = element.id;
-		});
-		return elementId;
 	}
 
 	function addObject(fileName, position, glowPosition, scale, glowScale, objName, visible = true){
@@ -59264,71 +59270,6 @@
 		return Obj;
 	}
 
-	function createGlow() {
-		//glowing obj
-		var glowMaterial = new ShaderMaterial( 
-		{
-			uniforms: 
-			{ 
-				"base":   { type: "f", value: 0.0 },
-				"p":   { type: "f", value: 0.0 },
-				glowColor: { type: "c", value: new Color(0x0000FF) },
-				viewVector: { type: "v3", value: camera.position }
-			},
-			vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
-			fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
-			side: BackSide,
-			blending: AdditiveBlending,
-			transparent: true
-		}   );
-
-		scene.getObjectByName("BodyGlow").children[0].children.forEach(element => {
-			element.material = glowMaterial;
-		});
-		scene.getObjectByName("BodyGlow").visible = true;
-		objectsParams.interactiveObjectList.forEach(element => {
-			let name = element.objName + 'Glow';
-			scene.getObjectByName(name).children[0].children.forEach(element => {
-				element.material = glowMaterial;
-			});
-		});
-	}
-
-	function showSuccessPopup(){
-		let popupGroup = new Group();
-		popupGroup.name = "successPopup";
-		let textureLoader = new TextureLoader();
-		const infoGeometry = new BoxGeometry(25, 10, 0.01);
-		const infoMaterial = new MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/successPopup.png', function (texture) {
-				texture.minFilter = LinearFilter;
-			}),
-		} );
-		let info = new Mesh(infoGeometry, infoMaterial);
-		info.rotation.set(0, 0, 0.0);
-		info.position.set(0.0, 2.5, -2.6);
-		info.scale.set(0.08, 0.08, 0.08);
-		info.name = 'bg';
-		popupGroup.add(info);
-		//info btns
-		const btnOKGeometry = new BoxGeometry(6, 1.6, 0.05);
-		const btnOkMaterial = new MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/ok.png', function (texture) {
-				texture.minFilter = LinearFilter;
-			}),
-		} );
-		let btnOk = new Mesh(btnOKGeometry, btnOkMaterial);
-		btnOk.rotation.set(0, 0, 0.0); 	
-		btnOk.position.set(0.0, 2.25, -2.6);
-		btnOk.scale.set(0.08, 0.08, 0.08); 
-		btnOk.name = 'Ok'; 
-		popupGroup.add(btnOk); 
-		
-		scene.add(popupGroup); 
-	}
-
 	function createIntroPopup(){
 		const params = {
 			popupName: "introGroup",
@@ -59336,7 +59277,9 @@
 		  	fontTexture: "./assets/Roboto-msdf.png",
 			darkColor: new Color(0x3e3e3e),
 			lightColor: new Color(0xe2e2e2),
-			width: 4.0,
+			width: 5.0,
+			titleFontSize: 0.125,
+			textFontSize: 0.125,
 		};
 		const selectedAttributes = {
 			backgroundColor: new Color( 0x777777 ),
@@ -59366,8 +59309,8 @@
 			padding: 0.1,
 			backgroundColor: params.darkColor,
 		  });  
-		const contentBlock = new ThreeMeshUI.Block({
-			height: 2.5,
+		IntroObjects.contentContainerObj = new ThreeMeshUI.Block({
+			height: 3.0,
 			width: params.width,
 			alignContent: "left",
 			justifyContent: "start",
@@ -59375,19 +59318,19 @@
 			backgroundColor: params.lightColor,
 			backgroundOpacity: 1,
 		  });  
-		container.add(titleBlock, contentBlock);
-		const titleText = new ThreeMeshUI.Text({
-			content: "Info",
+		container.add(titleBlock, IntroObjects.contentContainerObj);
+		IntroObjects.titleTextObj = new ThreeMeshUI.Text({
+			content: "",
 			fontColor: params.lightColor,
-		  	fontSize: 0.125,
+		  	fontSize: params.titleFontSize,
 		});
-		const contentText = new ThreeMeshUI.Text({
-			content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde quis tempora officia excepturi similique, a, veniam distinctio corrupti ad esse amet architecto suscipit optio earum laudantium illum fuga? Quia, enim! Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde quis tempora officia excepturi similique, a, veniam distinctio corrupti ad esse amet architecto suscipit optio earum laudantium illum fuga? Quia, enim!",
+		IntroObjects.contentTextObj = new ThreeMeshUI.Text({
+			content: "",
 			fontColor: params.darkColor,
-		  	fontSize: 0.15,
+		  	fontSize: params.textFontSize,
 		});
-		titleBlock.add(titleText);
-		contentBlock.add(contentText);
+		titleBlock.add(IntroObjects.titleTextObj);
+		IntroObjects.contentContainerObj.add(IntroObjects.contentTextObj);
 		//btns
 		const btnsContainer = new ThreeMeshUI.Block({
 			height: 0.4,
@@ -59411,7 +59354,7 @@
 		const PrevText = new ThreeMeshUI.Text({
 			content: "Back",
 			fontColor: params.lightColor,
-		  	fontSize: 0.15,
+		  	fontSize: params.textFontSize,
 		}); 
 		PrevText.name = "prevBtn"; 
 		prevBtnBlock.setupState({
@@ -59439,7 +59382,7 @@
 		const NextText = new ThreeMeshUI.Text({
 			content: "Next",
 			fontColor: params.lightColor,
-		  	fontSize: 0.15,
+		  	fontSize: params.textFontSize,
 		});
 		NextText.name = "nextBtn"; 
 		nextBtnBlock.setupState({
@@ -59451,59 +59394,18 @@
 			attributes: normalAttributes
 		});
 		nextBtnBlock.add(NextText);
-		nextBtnBlock.visible = false;
+		hoverObjectsList.push({
+			name: "nextBtn",
+			state: 'normal'
+		});
 		
 		btnsContainer.add(prevBtnBlock, nextBtnBlock);
 		container.add(btnsContainer);
 
 		popupGroup.position.set(0.0, 2.16, -2.6);
 		popupGroup.add(container);
+		popupGroup.visible = false;
 		scene.add(popupGroup);
-
-		//
-		/*
-		let textureLoader = new THREE.TextureLoader();
-
-		const infoGeometry = new THREE.BoxGeometry(60, 32, 0.01);
-		const infoMaterial = new THREE.MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/introPopup-6.png', function (texture) {
-				texture.minFilter = THREE.LinearFilter;
-			}),
-		} );
-		let info = new THREE.Mesh(infoGeometry, infoMaterial);
-		info.position.set(0.0, 2.16, -2.6);
-		info.scale.set(0.08, 0.08, 0.08);
-		info.name = 'introHero';
-		info.visible = true;
-		popupGroup.add(info);
-
-		//btns
-		//info btns
-		const btnBackGeometry = new THREE.BoxGeometry(6, 2.7, 0.05);
-		const btnNextGeometry = new THREE.BoxGeometry(6, 2.7, 0.05);
-		const btnBackMaterial = new THREE.MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/Back.png', function (texture) {
-				texture.minFilter = THREE.LinearFilter;
-			}),
-		} );
-		const btnNextMaterial = new THREE.MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/Next.png', function (texture) {
-				texture.minFilter = THREE.LinearFilter;
-			}),
-		} );
-		let btnNext = new THREE.Mesh(btnNextGeometry, btnNextMaterial);
-		let btnBack = new THREE.Mesh( btnBackGeometry, btnBackMaterial);
-		btnNext.rotation.set(0, 0, 0.0); 			btnBack.rotation.set(0, 0, 0.0);
-		btnNext.position.set(2.0, 1.07, -2.6);		btnBack.position.set(1.45, 1.07, -2.6);
-		btnNext.scale.set(0.08, 0.08, 0.08); 		btnBack.scale.set(0.08, 0.08, 0.08);
-		btnNext.name = 'Next'; 						btnBack.name = 'Back';
-													btnBack.visible = false;
-		popupGroup.add(btnNext); 					popupGroup.add(btnBack);
-		
-		scene.add(popupGroup);*/
 	}
 
 	function createCorrectIncorrectPopup(){
@@ -59634,126 +59536,25 @@
 
 		scene.add(window);
 	}
-	function showCloseWindow(isShow = true){
-		scene.getObjectByName('window').visible = isShow;
-		objectsParams.isPopupShown = isShow;
-	}
-	function showCorrectIncorrectPopup(isCorrect){
-		scene.getObjectByName('window').visible = false;
 
-		let name = isCorrect ? 'correct' : 'incorrect';
-		scene.getObjectByName(name).visible = true;
-		setTimeout(() => {
-			scene.getObjectByName(name).visible = false;
-			objectsParams.isPopupShown = false;
-		}, 2000);
-	}
-
-	function refreshBtnContent(){
-		let textureLoader = new TextureLoader();
-		let stepN = objectsParams.availableObjectIndex + 1;
-
-		if (stepN == 2){
-			scene.getObjectByName('bg').scale.y = 0.062;
-			scene.getObjectByName('btn-4').scale.y = 0.08;
-			scene.getObjectByName('btn-4').position.y = 0.29;
+	function showCurrentSimulationStep(){
+		if (PPE_DATA.vrSim.sim[simulationStep].type.includes('intro')){
+			IntroObjects.titleTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].title});
+			scene.getObjectByName(IntroObjects.prevBtnObjName).parent.visible = PPE_DATA.vrSim.sim[simulationStep].prevBtnVisibility;
+			scene.getObjectByName(IntroObjects.nextBtnObjName).parent.visible = PPE_DATA.vrSim.sim[simulationStep].nextBtnVisibility;
+			scene.getObjectByName(IntroObjects.IntroContainerName).visible = true;
+			IntroObjects.contentContainerObj.set({ backgroundTexture: null });
+			
+			if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-text"){
+				IntroObjects.contentTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].content});
+			}
+			if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-img"){
+				const loader = new TextureLoader();  
+				loader.load(PPE_DATA.vrSim.sim[simulationStep].content, (texture) => {
+					IntroObjects.contentContainerObj.set({ backgroundTexture: texture });
+				}); 
+			}
 		}
-		if (objectsParams.availableObjectIndex == 4){
-			//go to step 9
-			stepN = 9;
-			scene.getObjectByName('btn-4').visible = false;
-			scene.getObjectByName('bg').scale.y = 0.052;
-			scene.getObjectByName('bg').position.y = 0.86;
-			objectsParams.interactiveObjectList.forEach(element => {
-				let name = element.objName + 'Glow';
-				scene.getObjectByName(name).visible = true;
-			});
-			scene.getObjectByName('BodyGlow').visible = false;
-		}
-
-		if (objectsParams.availableObjectIndex == 9){
-			setTimeout(() => {
-				showSuccessPopup();
-			}, 3000);
-		}
-
-		let iMax = stepN < 9 ? 5 : 4;
-
-		for (let i = 1; i < iMax; i++) {
-			let map = textureLoader.load(`./assets/img/step${stepN}/${i}.png`, function (texture) {
-				texture.minFilter = LinearFilter;
-			});
-			scene.getObjectByName(`btn-${i}`).material.map = map;
-			scene.getObjectByName(`btn-${i}`).material.needsUpdate = true;			
-		}
-	}
-
-	function refreshIntroContent(isForward){
-		let textureLoader = new TextureLoader();
-		let deltaStep = isForward ? 1 : -1;
-		let step = objectsParams.availableObjectIndex + deltaStep;
-
-		scene.getObjectByName('Back').visible = step > -6 ? true : false;
-		
-		if (step != -2 && step < 0){
-			let map = textureLoader.load(`./assets/img/introPopup${step}.png`, function (texture) {
-				texture.minFilter = LinearFilter;
-			});
-			scene.getObjectByName(`introHero`).material.map = map;
-			scene.getObjectByName(`introHero`).material.needsUpdate = true;
-		}
-
-		if (step == -1 || step == -3){
-			const video = document.getElementById('video');
-			video.pause();
-		}
-
-		if (step == -2){//video
-			//scene.getObjectByName('Back').visible = false;
-			//scene.getObjectByName('Next').visible = false;
-
-			const video = document.getElementById('video');
-			let videoTexture = new VideoTexture( video );		
-			videoTexture.flipY = true;
-
-			scene.getObjectByName(`introHero`).material.map = videoTexture;
-			video.play();
-		}
-
-		scene.getObjectByName(`introHero`).scale.x = step == -1 ? 0.06 : 0.08;
-		scene.getObjectByName(`Next`).position.x = step == -1 ? 1.45 : 2.0;
-		scene.getObjectByName(`Back`).position.x = step == -1 ? 0.9 : 1.45;
-
-		if (step == 0){
-			scene.getObjectByName(`introGroup`).visible = false;
-			setTimeout(() => {
-				createGlow();
-			}, 1000);
-		}
-	}
-
-	function restartSimulation(){
-		let textureLoader = new TextureLoader();
-
-		objectsParams.availableObjectIndex = 0;
-		scene.getObjectByName('btn-4').visible = true;
-		scene.getObjectByName('btn-4').scale.y = 0.14;
-		scene.getObjectByName('btn-4').position.y = 0.21;
-		scene.getObjectByName('bg').scale.y = 0.08;
-		scene.getObjectByName('bg').position.y = 0.7;
-		objectsParams.interactiveObjectList.forEach(element => {
-			scene.getObjectByName(element.objName).position.copy(element.position);
-		});
-
-		for (let i = 1; i < 5; i++) {
-			let map = textureLoader.load(`./assets/img/step1/${i}.png`, function (texture) {
-				texture.minFilter = LinearFilter;
-			});
-			scene.getObjectByName(`btn-${i}`).material.map = map;
-			scene.getObjectByName(`btn-${i}`).material.needsUpdate = true;			
-		}
-
-		scene.remove(scene.getObjectByName('successPopup'));
 	}
 
 	const app = new App();

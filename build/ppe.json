@@ -6079,10 +6079,58 @@
 	"Security": null,
 	"Research": null,
 	"Translation": null,
-	"3d_vr_sim":{
+	"vrSim":{
 		"successPopupText": "",
 		"correctPopupText": "",
 		"incorrectPopupText": "",
-		"sim": []
+		"sim": [
+			{
+				"id": 0,
+				"type": "intro-text",
+				"title": "Introduction",
+				"content": "The following learning experience is intended for hospital healthcare workers involved in the assessment and care of individuals with suspected or confirmed COVID-19. This guidance is specific to COVID-19 and based on current CDC guidelines and Infection Prevention best practices. Your organization may have additional recommendations or protocols beyond that which is required by the CDC. \n As you move through this interactive module, please keep in mind: \n Personal Protective Equipment (PPE) is just one control in protecting workers from workplace hazards. \n Only clinical staff who are trained and competent in the use of this PPE should be allowed to enter the patients room. \n Healthcare workers must be familiar with local and institutional operational guidelines for the safe care of patients with suspected or confirmed COVID-19. \n Hospitals need to identify areas to safely don and doff PPE. \n When possible, the donning and doffing process should be supervised by a trained observer. A Trained Observer is a member of the staff who is also trained and competent in the use of the PPE whose sole responsibility is to guide health care providers as they don (put on) and doff (take off) personal protective equipment, or PPE.",
+				"prevBtnVisibility": false,
+				"nextBtnVisibility": true
+			},
+			{
+				"id": 1,
+				"type": "intro-img",
+				"title": "Sponsors",
+				"content": "./assets/img/sponsors.png",
+				"prevBtnVisibility": "true",
+				"nextBtnVisibility": "true"
+			},
+			{
+				"id": 2,
+				"type": "intro-text",
+				"title": "Warning",
+				"content": "eTrainetc, LLC and their Partners and Sponsors do Not Engage in Practice of Medicine. eTrainetc, LLC does not, nor does it intend to, engage in the performance or delivery of medical or hospital services or other types of healthcare. \n eTrainetcs offerings under this module should not, in any case, be deemed or understood as a recommendation, endorsement, guarantee or warranty of the professional services of Learners or any providers who render healthcare services. Nothing herein shall be construed to imply that eTrainetc, or any of eTrainetc’s subsidiaries, officers, directors, employees, partners or agents are engaged in the practice of medicine or other professions related thereto. All matters related to such field shall be the exclusive province of you the customer (organization using this module) and its staff, agents and employees.",
+				"prevBtnVisibility": "true",
+				"nextBtnVisibility": "true"
+			},
+			{
+				"id": 3,
+				"type": "intro-text",
+				"title": "Learning Objectives",
+				"content": "Micro-Simulation on the CDC recommended guidelines for Donning and Doffing of PPE. \n This is a 10-minute module that offers a video review of the proper procedure for donning and doffing personal protective equipment (PPE) followed by a micro-simulation case for the medical professional to don and doff PPE in a virtual environment. eTrainetc, LLC’s (eTrain) unique module tests knowledge and confidence and provides necessary recommendations for improvement to the learner. This module is based on best practices. \n MicroSim Learning Objectives: \n - Understand the basis for PPE use \n - Demonstrate proper donning and doffing sequence for COVID-19 respiratory enhanced PPE \n - Use the knowledge gained in the eMicroSim to safely assess and care of individuals with suspected or confirmed COVID-19",
+				"prevBtnVisibility": "true",
+				"nextBtnVisibility": "true"
+			},
+			{
+				"id": 4,
+				"type": "intro-video",
+				"content": "",
+				"prevBtnVisibility": "true",
+				"nextBtnVisibility": "true"
+			},
+			{
+				"id": 5,
+				"type": "intro-text",
+				"title": "Info",
+				"content": "John Jones is a previously healthy 65-year-old Caucasian male who was admitted for observation for acute respiratory symptoms. \n He has a dry cough, mild fever, and difficulty breathig. Mr. Jones flu test was negative and results from a COVID-19 lab test are still pending. \n Mr. Jones is resting comfortably as you prepare to visit his patient room on morning rounds. \n Now it is your turn to practice donning PPE. Click the highlighted objects within the eMicroSim environment and then select from the list of pop-up items to make decisions.",
+				"prevBtnVisibility": "true",
+				"nextBtnVisibility": "true"
+			}
+		]
 	}
 }

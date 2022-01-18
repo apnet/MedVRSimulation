@@ -10,8 +10,17 @@ let controllerGrip1, controllerGrip2;
 let pickHelper;
 let PPE_DATA;
 
+let IntroObjects = { 
+	"IntroContainerName": "introGroup",
+	"titleTextObj": null,
+	"contentTextObj": null,
+	"contentContainerObj": null,
+	"prevBtnObjName": "prevBtn",
+	"nextBtnObjName": "nextBtn",
+};
+let simulationStep = 0;
+
 let hoverObjectsList = [];  
-let lastChooseObj = [undefined, undefined, undefined, undefined, undefined];
 let rightChoose = ['btn-2', 'btn-1', 'btn-2', 'btn-2','','','','','btn-1']
 
 let objectsParams = {
@@ -192,6 +201,7 @@ class App {
 
 		pickHelper = new ControllerPickHelper(scene);
 
+		showCurrentSimulationStep();
 		animate();
 	}
 }
@@ -231,6 +241,11 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 		console.log(intersections)
 		intersections.forEach(intersect => {
 			if (intersect != undefined && intersect.object.type == 'Mesh') { 
+				if (intersect.object.parent.name == 'nextBtn'){
+					simulationStep ++;
+					showCurrentSimulationStep();
+				}
+				/*
 				//close popup
 				if (intersect.object.name == 'Close'){
 					showCloseWindow(false);
@@ -277,6 +292,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 						refreshBtnContent();
 					}
 				}
+				*/
 			}
 		});
       };
@@ -369,7 +385,6 @@ function buildController( data, name ) {
 }
 
 function animate() {	
-	//ThreeMeshUI.update();
 	renderer.setAnimationLoop( render );
 }
 
@@ -498,7 +513,9 @@ function createIntroPopup(){
 	  	fontTexture: "./assets/Roboto-msdf.png",
 		darkColor: new THREE.Color(0x3e3e3e),
 		lightColor: new THREE.Color(0xe2e2e2),
-		width: 4.0,
+		width: 5.0,
+		titleFontSize: 0.125,
+		textFontSize: 0.125,
 	}
 	const selectedAttributes = {
 		backgroundColor: new THREE.Color( 0x777777 ),
@@ -528,8 +545,8 @@ function createIntroPopup(){
 		padding: 0.1,
 		backgroundColor: params.darkColor,
 	  });  
-	const contentBlock = new ThreeMeshUI.Block({
-		height: 2.5,
+	IntroObjects.contentContainerObj = new ThreeMeshUI.Block({
+		height: 3.0,
 		width: params.width,
 		alignContent: "left",
 		justifyContent: "start",
@@ -537,19 +554,19 @@ function createIntroPopup(){
 		backgroundColor: params.lightColor,
 		backgroundOpacity: 1,
 	  });  
-	container.add(titleBlock, contentBlock);
-	const titleText = new ThreeMeshUI.Text({
-		content: "Info",
+	container.add(titleBlock, IntroObjects.contentContainerObj);
+	IntroObjects.titleTextObj = new ThreeMeshUI.Text({
+		content: "",
 		fontColor: params.lightColor,
-	  	fontSize: 0.125,
+	  	fontSize: params.titleFontSize,
 	});
-	const contentText = new ThreeMeshUI.Text({
-		content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde quis tempora officia excepturi similique, a, veniam distinctio corrupti ad esse amet architecto suscipit optio earum laudantium illum fuga? Quia, enim! Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde quis tempora officia excepturi similique, a, veniam distinctio corrupti ad esse amet architecto suscipit optio earum laudantium illum fuga? Quia, enim!",
+	IntroObjects.contentTextObj = new ThreeMeshUI.Text({
+		content: "",
 		fontColor: params.darkColor,
-	  	fontSize: 0.15,
+	  	fontSize: params.textFontSize,
 	});
-	titleBlock.add(titleText);
-	contentBlock.add(contentText);
+	titleBlock.add(IntroObjects.titleTextObj);
+	IntroObjects.contentContainerObj.add(IntroObjects.contentTextObj);
 	//btns
 	const btnsContainer = new ThreeMeshUI.Block({
 		height: 0.4,
@@ -573,7 +590,7 @@ function createIntroPopup(){
 	const PrevText = new ThreeMeshUI.Text({
 		content: "Back",
 		fontColor: params.lightColor,
-	  	fontSize: 0.15,
+	  	fontSize: params.textFontSize,
 	}); 
 	PrevText.name = "prevBtn"; 
 	prevBtnBlock.setupState({
@@ -601,7 +618,7 @@ function createIntroPopup(){
 	const NextText = new ThreeMeshUI.Text({
 		content: "Next",
 		fontColor: params.lightColor,
-	  	fontSize: 0.15,
+	  	fontSize: params.textFontSize,
 	});
 	NextText.name = "nextBtn"; 
 	nextBtnBlock.setupState({
@@ -613,59 +630,18 @@ function createIntroPopup(){
 		attributes: normalAttributes
 	});
 	nextBtnBlock.add(NextText);
-	//nextBtnBlock.visible = false;
+	hoverObjectsList.push({
+		name: "nextBtn",
+		state: 'normal'
+	})
 	
 	btnsContainer.add(prevBtnBlock, nextBtnBlock);
 	container.add(btnsContainer);
 
 	popupGroup.position.set(0.0, 2.16, -2.6);
 	popupGroup.add(container);
+	popupGroup.visible = false;
 	scene.add(popupGroup);
-
-	//
-	/*
-	let textureLoader = new THREE.TextureLoader();
-
-	const infoGeometry = new THREE.BoxGeometry(60, 32, 0.01);
-	const infoMaterial = new THREE.MeshBasicMaterial( { 
-		transparent: true,
-		map: textureLoader.load('./assets/img/introPopup-6.png', function (texture) {
-			texture.minFilter = THREE.LinearFilter;
-		}),
-	} );
-	let info = new THREE.Mesh(infoGeometry, infoMaterial);
-	info.position.set(0.0, 2.16, -2.6);
-	info.scale.set(0.08, 0.08, 0.08);
-	info.name = 'introHero';
-	info.visible = true;
-	popupGroup.add(info);
-
-	//btns
-	//info btns
-	const btnBackGeometry = new THREE.BoxGeometry(6, 2.7, 0.05);
-	const btnNextGeometry = new THREE.BoxGeometry(6, 2.7, 0.05);
-	const btnBackMaterial = new THREE.MeshBasicMaterial( { 
-		transparent: true,
-		map: textureLoader.load('./assets/img/Back.png', function (texture) {
-			texture.minFilter = THREE.LinearFilter;
-		}),
-	} );
-	const btnNextMaterial = new THREE.MeshBasicMaterial( { 
-		transparent: true,
-		map: textureLoader.load('./assets/img/Next.png', function (texture) {
-			texture.minFilter = THREE.LinearFilter;
-		}),
-	} );
-	let btnNext = new THREE.Mesh(btnNextGeometry, btnNextMaterial);
-	let btnBack = new THREE.Mesh( btnBackGeometry, btnBackMaterial);
-	btnNext.rotation.set(0, 0, 0.0); 			btnBack.rotation.set(0, 0, 0.0);
-	btnNext.position.set(2.0, 1.07, -2.6);		btnBack.position.set(1.45, 1.07, -2.6);
-	btnNext.scale.set(0.08, 0.08, 0.08); 		btnBack.scale.set(0.08, 0.08, 0.08);
-	btnNext.name = 'Next'; 						btnBack.name = 'Back';
-												btnBack.visible = false;
-	popupGroup.add(btnNext); 					popupGroup.add(btnBack);
-	
-	scene.add(popupGroup);*/
 }
 
 function createCorrectIncorrectPopup(){
@@ -916,6 +892,26 @@ function restartSimulation(){
 	}
 
 	scene.remove(scene.getObjectByName('successPopup'));
+}
+
+function showCurrentSimulationStep(){
+	if (PPE_DATA.vrSim.sim[simulationStep].type.includes('intro')){
+		IntroObjects.titleTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].title});
+		scene.getObjectByName(IntroObjects.prevBtnObjName).parent.visible = PPE_DATA.vrSim.sim[simulationStep].prevBtnVisibility;
+		scene.getObjectByName(IntroObjects.nextBtnObjName).parent.visible = PPE_DATA.vrSim.sim[simulationStep].nextBtnVisibility;
+		scene.getObjectByName(IntroObjects.IntroContainerName).visible = true;
+		IntroObjects.contentContainerObj.set({ backgroundTexture: null });
+		
+		if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-text"){
+			IntroObjects.contentTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].content});
+		}
+		if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-img"){
+			const loader = new THREE.TextureLoader();  
+			loader.load(PPE_DATA.vrSim.sim[simulationStep].content, (texture) => {
+				IntroObjects.contentContainerObj.set({ backgroundTexture: texture });
+			}); 
+		}
+	}
 }
 
 export default App;
