@@ -59548,9 +59548,18 @@
 			
 			if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-img"){
 				const loader = new TextureLoader();  
-				loader.load(PPE_DATA.vrSim.sim[simulationStep].content, (texture) => {
+				loader.load(PPE_DATA.vrSim.sim[simulationStep].img, (texture) => {
 					IntroObjects.contentContainerObj.set({ backgroundTexture: texture });
 				}); 
+			}
+			if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-video"){
+				const video = document.getElementById('video');
+				let videoTexture = new VideoTexture( video );		
+				videoTexture.flipY = true;
+
+				IntroObjects.contentContainerObj.material = videoTexture;
+				//scene.getObjectByName(`introHero`).material.map = videoTexture;
+				video.play();
 			}
 		}
 	}

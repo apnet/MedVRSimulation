@@ -14,7 +14,7 @@ let IntroObjects = {
 	"IntroContainerName": "introGroup",
 	"titleTextObj": null,
 	"contentTextObj": null,
-	"contentContainerObj": null,
+	"videoContainerObjName": "introHero",
 	"prevBtnObjName": "prevBtn",
 	"nextBtnObjName": "nextBtn",
 };
@@ -528,6 +528,13 @@ function createIntroPopup(){
 
 	let popupGroup = new THREE.Group();
 	popupGroup.name = "introGroup";
+	
+	let info = new THREE.Mesh(infoGeometry, infoMaterial);
+	info.position.set(0.0, 2.16, -2.6);
+	info.scale.set(0.08, 0.08, 0.08);
+	info.name = IntroObjects.videoContainerObjName;
+	info.visible = true;
+	popupGroup.add(info);
 
 	const container = new ThreeMeshUI.Block({
 		//height: 3.0,
@@ -908,6 +915,15 @@ function showCurrentSimulationStep(){
 			loader.load(PPE_DATA.vrSim.sim[simulationStep].img, (texture) => {
 				IntroObjects.contentContainerObj.set({ backgroundTexture: texture });
 			}); 
+		}
+		if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-video"){
+			const video = document.getElementById('video');
+			let videoTexture = new THREE.VideoTexture( video );		
+			videoTexture.flipY = true;
+
+			IntroObjects.contentContainerObj.material = videoTexture;
+			//scene.getObjectByName(`introHero`).material.map = videoTexture;
+			video.play();
 		}
 	}
 }

@@ -6121,6 +6121,7 @@
 				"id": 4,
 				"type": "intro-video",
 				"content": "",
+				"video": "",
 				"prevBtnVisibility": "true",
 				"nextBtnVisibility": "true"
 			},
