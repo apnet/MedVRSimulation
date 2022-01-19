@@ -6132,6 +6132,18 @@
 				"content": "John Jones is a previously healthy 65-year-old Caucasian male who was admitted for observation for acute respiratory symptoms. \n\n He has a dry cough, mild fever, and difficulty breathig. Mr. Jones flu test was negative and results from a COVID-19 lab test are still pending. \n\n Mr. Jones is resting comfortably as you prepare to visit his patient room on morning rounds. \n\n Now it is your turn to practice donning PPE. Click the highlighted objects within the eMicroSim environment and then select from the list of pop-up items to make decisions.",
 				"prevBtnVisibility": "true",
 				"nextBtnVisibility": "true"
+			},
+			{
+				"id": 6,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Enter Mr. Jones patient room",
+				"btnText2": "Put on gloves and enter Mr.Jones patient room",
+				"btnText3": "Remove anything that might puncture PPE",
+				"btnText4": "Continue to other patients on rounds until Mr. Jones COVID-19 test results are available",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "btn-2"
 			}
 		]
 	}

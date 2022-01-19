@@ -58924,7 +58924,7 @@
 
 	class App {
 		async start(){
-			await fetch('../build/ppe.json', {
+			await fetch('./build/ppe.json', {
 				method: 'GET',
 				headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'}
 			})
@@ -58985,7 +58985,7 @@
 			});
 
 			//window with btns
-			createWindow();
+			createQuizzWindow();
 			createCorrectIncorrectPopup();
 			createIntroPopup();
 
@@ -59276,7 +59276,6 @@
 
 	function createIntroPopup(){
 		const params = {
-			popupName: "introGroup",
 			fontFamily: "./assets/Roboto-msdf.json",
 		  	fontTexture: "./assets/Roboto-msdf.png",
 			darkColor: new Color(0x3e3e3e),
@@ -59295,7 +59294,7 @@
 		};
 
 		let popupGroup = new Group();
-		popupGroup.name = "introGroup";
+		popupGroup.name = IntroObjects.IntroContainerName;
 
 		const textureLoader = new TextureLoader();  
 		const infoGeometry = new BoxGeometry(60, 32, 0.01);
@@ -59464,100 +59463,101 @@
 		scene.add(popupGroup);
 	}
 
-	function createWindow(){
-		let window = new Group();
-		window.name = 'window';
-		let textureLoader = new TextureLoader();
-		//container
-		const infoGeometry = new BoxGeometry(25, 20, 0.01);
-		const infoMaterial = new MeshBasicMaterial( { color: 0xffffff	} );
-		let info = new Mesh(infoGeometry, infoMaterial);
-		info.position.set(0.0, 0.7, -2.6);
-		info.scale.set(0.08, 0.08, 0.08);
-		info.name = 'bg';
-		window.add(info);
-		//title
-		const titleGeometry = new BoxGeometry(24, 2.5, 0.05);
-		let titleMaterial = new MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/title.png', function (texture) {
-				texture.minFilter = LinearFilter;
-			}),
-		} );
-		let title = new Mesh(titleGeometry, titleMaterial);
-		title.position.set(0, 1.34, -2.5);
-		title.scale.set(0.08, 0.08, 0.08); 	
-		title.name = 'title'; 	
-		window.add(title);
-		//close
-		const btnCloseGeometry = new BoxGeometry(2, 2, 0.05);
-		const btnCloseMaterial = new MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/close.png', function (texture) {
-				texture.minFilter = LinearFilter;
-			}),
-		} );
-		let btnClose = new Mesh( btnCloseGeometry, btnCloseMaterial);
-		btnClose.position.set(0.85, 1.34, -2.49);
-		btnClose.scale.set(0.05, 0.05, 0.05);
-		btnClose.name = 'Close';
-		window.add(btnClose);
-		//btn 1
-		const btnGeometry = new BoxGeometry(22, 2.5, 0.05);
-		let btnMaterial = new MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/step1/1.png', function (texture) {
-				texture.minFilter = LinearFilter;
-			}),
-		} );
-		let btn = new Mesh(btnGeometry, btnMaterial);
-		btn.position.set(0, 1.05, -2.5);
-		btn.scale.set(0.08, 0.08, 0.08); 	
-		btn.name = 'btn-1'; 	
-		window.add(btn);
-		//btn 2
-		btnMaterial = new MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/step1/2.png', function (texture) {
-				texture.minFilter = LinearFilter;
-			}),
-		} );
-		btn = new Mesh(btnGeometry, btnMaterial);
-		btn.position.set(0, 0.8, -2.5);
-		btn.scale.set(0.08, 0.08, 0.08); 	
-		btn.name = 'btn-2'; 	
-		window.add(btn);
-		//btn 3
-		btnMaterial = new MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/step1/3.png', function (texture) {
-				texture.minFilter = LinearFilter;
-			}),
-		} );
-		btn = new Mesh(btnGeometry, btnMaterial);
-		btn.position.set(0, 0.54, -2.5);
-		btn.scale.set(0.08, 0.08, 0.08); 	
-		btn.name = 'btn-3'; 	
-		window.add(btn);
-		//btn 4
-		btnMaterial = new MeshBasicMaterial( { 
-			transparent: true,
-			map: textureLoader.load('./assets/img/step1/4.png', function (texture) {
-				texture.minFilter = LinearFilter;
-			}),
-		} );
-		btn = new Mesh(btnGeometry, btnMaterial);
-		btn.position.set(0, 0.21, -2.5);
-		btn.scale.set(0.08, 0.14, 0.08); 	
-		btn.name = 'btn-4'; 	
-		window.add(btn);
-		window.visible = false;
-		window.position.y = 1.9;
+	function createQuizzWindow(){
+		const params = {
+			fontFamily: "./assets/Roboto-msdf.json",
+		  	fontTexture: "./assets/Roboto-msdf.png",
+			darkColor: new Color(0x3e3e3e),
+			lightColor: new Color(0xe2e2e2),
+			width: 3.0,
+			titleFontSize: 0.125,
+			textFontSize: 0.125,
+		};
+		const selectedAttributes = {
+			backgroundColor: new Color( 0x777777 ),
+			fontColor: new Color( 0x222222 )
+		};
+		const normalAttributes = {
+			backgroundColor: params.darkColor,
+			fontColor: params.lightColor
+		};
 
-		scene.add(window);
+		let popupGroup = new Group();
+		popupGroup.name = 'quizz-window';
+
+		const container = new ThreeMeshUI.Block({
+			//height: 3.0,
+			width: params.width,
+			fontFamily: params.fontFamily,
+		  	fontTexture: params.fontTexture,
+			backgroundColor: params.lightColor,
+			backgroundOpacity: 1,
+		});
+		const titleBlock = new ThreeMeshUI.Block({
+			height: 0.28,
+			width: params.width,
+			alignContent: "left",
+			justifyContent: "start",
+			padding: 0.1,
+			backgroundColor: params.darkColor,
+		  });  
+		const contentBlock = new ThreeMeshUI.Block({
+			height: 2.0,
+			width: params.width,
+			alignContent: "left",
+			justifyContent: "start",
+			padding: 0.25,
+			backgroundColor: params.lightColor,
+			backgroundOpacity: 1,
+		  });  
+		container.add(titleBlock, contentBlock);
+		const titleText = new ThreeMeshUI.Text({
+			content: "",
+			fontColor: params.lightColor,
+		  	fontSize: params.titleFontSize,
+		});
+		titleBlock.add(titleText);
+
+		['1','2','3','4'].forEach((i) => {
+			const btnBlock = new ThreeMeshUI.Block({
+				height: 0.3,
+				width: 0.6,
+				alignContent: "center",
+				justifyContent: "center",
+				backgroundColor: params.darkColor,
+				borderRadius: 0.03,
+				margin: 0.05
+			}); 
+			const btnText = new ThreeMeshUI.Text({
+				content: "fff \n ghg",
+				fontColor: params.lightColor,
+				fontSize: params.textFontSize,
+			}); 
+			btnText.name = `quizz-btn-${i}`; 
+			btnBlock.setupState({
+				state: "selected",
+				attributes: selectedAttributes
+			});
+			btnBlock.setupState({
+				state: "normal",
+				attributes: normalAttributes
+			});
+			btnBlock.add(btnText);
+			hoverObjectsList.push({
+				name: `btn-${i}`,
+				state: 'normal'
+			});
+			contentBlock.add(btnBlock);
+		});
+
+		popupGroup.add(container);
+		popupGroup.position.set(0.0, 2.16, -2.6);
+		popupGroup.visible = true;
+		scene.add(popupGroup);
 	}
 
 	function showCurrentSimulationStep(){
+		scene.getObjectByName(IntroObjects.IntroContainerName).visible = false;
 		if (PPE_DATA.vrSim.sim[simulationStep].type.includes('intro')){
 			//intro container
 			scene.getObjectByName(IntroObjects.IntroContainerName).visible = true;
