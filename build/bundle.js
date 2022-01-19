@@ -58855,7 +58855,7 @@
 		"IntroContainerName": "introGroup",
 		"titleTextObj": null,
 		"contentTextObj": null,
-		"contentContainerObj": null,
+		"mediaContainerObjName": "introHero",
 		"prevBtnObjName": "prevBtn",
 		"nextBtnObjName": "nextBtn",
 	};
@@ -59085,6 +59085,10 @@
 						simulationStep ++;
 						showCurrentSimulationStep();
 					}
+					if (intersect.object.parent.name == 'prevBtn'){
+						simulationStep --;
+						showCurrentSimulationStep();
+					}
 					/*
 					//close popup
 					if (intersect.object.name == 'Close'){
@@ -59292,6 +59296,22 @@
 
 		let popupGroup = new Group();
 		popupGroup.name = "introGroup";
+
+		const textureLoader = new TextureLoader();  
+		const infoGeometry = new BoxGeometry(60, 32, 0.01);
+		const infoMaterial = new MeshBasicMaterial( { 
+			transparent: true,
+			map: textureLoader.load('./assets/img/introPopup-6.png', function (texture) {
+				texture.minFilter = LinearFilter;
+			}),
+		} );
+		
+		let info = new Mesh(infoGeometry, infoMaterial);
+		info.position.set(0.0, 0.04, 0.01);
+		info.scale.set(0.0832, 0.095, 0.08);
+		info.name = IntroObjects.mediaContainerObjName;
+		info.visible = false;
+		popupGroup.add(info);
 
 		const container = new ThreeMeshUI.Block({
 			//height: 3.0,
@@ -59539,26 +59559,36 @@
 
 	function showCurrentSimulationStep(){
 		if (PPE_DATA.vrSim.sim[simulationStep].type.includes('intro')){
+			//intro container
+			scene.getObjectByName(IntroObjects.IntroContainerName).visible = true;
+			//title
 			IntroObjects.titleTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].title});
+			//btns
 			scene.getObjectByName(IntroObjects.prevBtnObjName).parent.visible = PPE_DATA.vrSim.sim[simulationStep].prevBtnVisibility;
 			scene.getObjectByName(IntroObjects.nextBtnObjName).parent.visible = PPE_DATA.vrSim.sim[simulationStep].nextBtnVisibility;
-			scene.getObjectByName(IntroObjects.IntroContainerName).visible = true;
-			IntroObjects.contentContainerObj.set({ backgroundTexture: null });
+			//media mesh
+			document.getElementById('video').pause();
+			scene.getObjectByName(IntroObjects.mediaContainerObjName).material.map = null;
+			scene.getObjectByName(IntroObjects.mediaContainerObjName).visible = false;
+			//content text
 			IntroObjects.contentTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].content});
 			
 			if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-img"){
 				const loader = new TextureLoader();  
-				loader.load(PPE_DATA.vrSim.sim[simulationStep].img, (texture) => {
-					IntroObjects.contentContainerObj.set({ backgroundTexture: texture });
-				}); 
+				let map = loader.load(PPE_DATA.vrSim.sim[simulationStep].img, function (texture) {
+					texture.minFilter = LinearFilter;
+				});
+				scene.getObjectByName(IntroObjects.mediaContainerObjName).visible = true;
+				scene.getObjectByName(IntroObjects.mediaContainerObjName).material.map = map;
+				scene.getObjectByName(IntroObjects.mediaContainerObjName).material.needsUpdate = true;
 			}
 			if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-video"){
+				scene.getObjectByName(IntroObjects.mediaContainerObjName).visible = true;
 				const video = document.getElementById('video');
 				let videoTexture = new VideoTexture( video );		
 				videoTexture.flipY = true;
 
-				IntroObjects.contentContainerObj.material = videoTexture;
-				//scene.getObjectByName(`introHero`).material.map = videoTexture;
+				scene.getObjectByName(IntroObjects.mediaContainerObjName).material.map = videoTexture;
 				video.play();
 			}
 		}

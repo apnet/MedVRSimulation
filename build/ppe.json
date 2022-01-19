@@ -6105,7 +6105,7 @@
 				"id": 2,
 				"type": "intro-text",
 				"title": "Warning",
-				"content": "eTrainetc, LLC and their Partners and Sponsors do Not Engage in Practice of Medicine. eTrainetc, LLC does not, nor does it intend to, engage in the performance or delivery of medical or hospital services or other types of healthcare. \n eTrainetcs offerings under this module should not, in any case, be deemed or understood as a recommendation, endorsement, guarantee or warranty of the professional services of Learners or any providers who render healthcare services. Nothing herein shall be construed to imply that eTrainetc, or any of eTrainetcs subsidiaries, officers, directors, employees, partners or agents are engaged in the practice of medicine or other professions related thereto. All matters related to such field shall be the exclusive province of you the customer (organization using this module) and its staff, agents and employees.",
+				"content": "eTrainetc, LLC and their Partners and Sponsors do Not Engage in Practice of Medicine. eTrainetc, LLC does not, nor does it intend to, engage in the performance or delivery of medical or hospital services or other types of healthcare. \n\n eTrainetcs offerings under this module should not, in any case, be deemed or understood as a recommendation, endorsement, guarantee or warranty of the professional services of Learners or any providers who render healthcare services. Nothing herein shall be construed to imply that eTrainetc, or any of eTrainetcs subsidiaries, officers, directors, employees, partners or agents are engaged in the practice of medicine or other professions related thereto. All matters related to such field shall be the exclusive province of you the customer (organization using this module) and its staff, agents and employees.",
 				"prevBtnVisibility": "true",
 				"nextBtnVisibility": "true"
 			},
@@ -6129,7 +6129,7 @@
 				"id": 5,
 				"type": "intro-text",
 				"title": "Info",
-				"content": "John Jones is a previously healthy 65-year-old Caucasian male who was admitted for observation for acute respiratory symptoms. \n He has a dry cough, mild fever, and difficulty breathig. Mr. Jones flu test was negative and results from a COVID-19 lab test are still pending. \n Mr. Jones is resting comfortably as you prepare to visit his patient room on morning rounds. \n Now it is your turn to practice donning PPE. Click the highlighted objects within the eMicroSim environment and then select from the list of pop-up items to make decisions.",
+				"content": "John Jones is a previously healthy 65-year-old Caucasian male who was admitted for observation for acute respiratory symptoms. \n\n He has a dry cough, mild fever, and difficulty breathig. Mr. Jones flu test was negative and results from a COVID-19 lab test are still pending. \n\n Mr. Jones is resting comfortably as you prepare to visit his patient room on morning rounds. \n\n Now it is your turn to practice donning PPE. Click the highlighted objects within the eMicroSim environment and then select from the list of pop-up items to make decisions.",
 				"prevBtnVisibility": "true",
 				"nextBtnVisibility": "true"
 			}
