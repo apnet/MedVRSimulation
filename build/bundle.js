@@ -59544,10 +59544,8 @@
 			scene.getObjectByName(IntroObjects.nextBtnObjName).parent.visible = PPE_DATA.vrSim.sim[simulationStep].nextBtnVisibility;
 			scene.getObjectByName(IntroObjects.IntroContainerName).visible = true;
 			IntroObjects.contentContainerObj.set({ backgroundTexture: null });
+			IntroObjects.contentTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].content});
 			
-			if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-text"){
-				IntroObjects.contentTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].content});
-			}
 			if (PPE_DATA.vrSim.sim[simulationStep].type === "intro-img"){
 				const loader = new TextureLoader();  
 				loader.load(PPE_DATA.vrSim.sim[simulationStep].content, (texture) => {
