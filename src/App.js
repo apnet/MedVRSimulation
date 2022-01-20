@@ -18,10 +18,26 @@ let IntroObjects = {
 	"prevBtnObjName": "prevBtn",
 	"nextBtnObjName": "nextBtn",
 };
-let simulationStep = 0;
+let QuizzObjects = { 
+	"QuizzContainerName": "quizz-window",
+	"titleTextObj": null,
+	"btnTextObj": [null, null, null, null],
+	"correctHighlightedObjName": null,
+	"correctQuizzBtnName": null
+};
+let correctIncorrectObjects = {
+	"containerName": "correctGroup",
+	"titleTextObj": null,
+	"contentTextObj": null
+}
+let putOnObjects = {
+	correctObjectName : '',
+	interactiveObject : []
+}
 
+let simulationStep = 0;
 let hoverObjectsList = [];  
-let rightChoose = ['btn-2', 'btn-1', 'btn-2', 'btn-2','','','','','btn-1']
+let stepSimType = "";
 
 let objectsParams = {
 	modelPath: './assets/models/',
@@ -142,8 +158,10 @@ class App {
 						element.glowScale,
 						element.objName
 			);
-		});
-
+		});	
+		setTimeout(() => {
+			createGlow();
+		}, 7000);
 		//window with btns
 		createQuizzWindow();
 		createCorrectIncorrectPopup();
@@ -238,16 +256,57 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 
 		//find intersects
         const intersections = this.raycaster.intersectObjects(scene.children, true);
-		console.log(intersections)
+		//console.log(intersections)
+		const isQuizzVisible = scene.getObjectByName(QuizzObjects.QuizzContainerName).visible;
 		intersections.forEach(intersect => {
 			if (intersect != undefined && intersect.object.type == 'Mesh') { 
-				if (intersect.object.parent.name == 'nextBtn'){
-					simulationStep ++;
-					showCurrentSimulationStep();
+				if (stepSimType.includes('intro')){
+					if (intersect.object.parent.name === 'nextBtn'){
+						simulationStep ++;
+						showCurrentSimulationStep();
+					}						
+					if (intersect.object.parent.name === 'prevBtn'){
+						simulationStep --;
+						showCurrentSimulationStep();
+					}
 				}
-				if (intersect.object.parent.name == 'prevBtn'){
-					simulationStep --;
-					showCurrentSimulationStep();
+				if (stepSimType === 'quizz'){
+					if (intersect.object.parent.name === QuizzObjects.correctHighlightedObjName &&
+						!isQuizzVisible){
+						scene.getObjectByName(QuizzObjects.QuizzContainerName).visible = true;
+					}
+					if (intersect.object.parent.name.includes('quizz-btn') && isQuizzVisible){
+						if (intersect.object.parent.name === QuizzObjects.correctQuizzBtnName)
+							correctIncorrectObjects.contentTextObj.set({content: 'Correct'});
+						else correctIncorrectObjects.contentTextObj.set({content: 'Incorrect'});
+						scene.getObjectByName(QuizzObjects.QuizzContainerName).visible = false;
+						scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
+						setTimeout(() => {
+							scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
+							simulationStep++;
+							showCurrentSimulationStep();
+						}, 2000);
+					}
+				}
+				if (stepSimType === 'put-on'){
+					if (intersect.object.parent.name == putOnObjects.correctObjectName){
+						scene.getObjectByName(putOnObjects.correctObjectName).position.copy(objectsParams.body.position);
+						scene.getObjectByName(putOnObjects.correctObjectName + "Glow").visible = false;
+						correctIncorrectObjects.contentTextObj.set({content: 'Correct'});
+						scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
+						setTimeout(() => {
+							scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
+							simulationStep++;
+							showCurrentSimulationStep();
+						}, 2000);
+					}
+					putOnObjects.interactiveObject.forEach(() => {
+						correctIncorrectObjects.contentTextObj.set({content: 'Incorrect'});
+						scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
+						setTimeout(() => {
+							scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
+						}, 2000);
+					});
 				}
 				/*
 				//close popup
@@ -256,14 +315,6 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 				}
 				if (intersect.object.name == 'Ok'){
 					restartSimulation();
-				}
-				if (intersect.object.name == 'Next' && objectsParams.availableObjectIndex < 0){
-					refreshIntroContent(true);
-					objectsParams.availableObjectIndex++;
-				}
-				if (intersect.object.name == 'Back' && objectsParams.availableObjectIndex < 0 && objectsParams.availableObjectIndex > -6){
-					refreshIntroContent(false);
-					objectsParams.availableObjectIndex--;
 				}
 				if (intersect.object.parent != undefined){
 					//is click on body					
@@ -464,13 +515,21 @@ function createGlow() {
 	scene.getObjectByName("BodyGlow").children[0].children.forEach(element => {
 		element.material = glowMaterial;
 	});
-	scene.getObjectByName("BodyGlow").visible = true;
+	
 	objectsParams.interactiveObjectList.forEach(element => {
 		let name = element.objName + 'Glow';
 		scene.getObjectByName(name).children[0].children.forEach(element => {
 			element.material = glowMaterial;
 		});
 	});
+}
+
+function doGlowObjectsInvisible(){
+	scene.getObjectByName("BodyGlow").visible = false;
+	objectsParams.interactiveObjectList.forEach(element => {
+		let name = element.objName + 'Glow';
+		scene.getObjectByName(name).visible = false;
+	})
 }
 
 function showSuccessPopup(){
@@ -662,37 +721,60 @@ function createIntroPopup(){
 }
 
 function createCorrectIncorrectPopup(){
+	const params = {
+		fontFamily: "./assets/Roboto-msdf.json",
+	  	fontTexture: "./assets/Roboto-msdf.png",
+		darkColor: new THREE.Color(0x3e3e3e),
+		lightColor: new THREE.Color(0xe2e2e2),
+		width: 3.0,
+		titleFontSize: 0.125,
+		textFontSize: 0.1,
+	}
+
 	let popupGroup = new THREE.Group();
-	popupGroup.name = "correctGroup";
-	let textureLoader = new THREE.TextureLoader();
+	popupGroup.name = correctIncorrectObjects.containerName;
 
-	const infoGeometry = new THREE.BoxGeometry(20, 5, 0.01);
-	const infoMaterial1 = new THREE.MeshBasicMaterial( { 
-		transparent: true,
-		map: textureLoader.load('./assets/img/incorrectPopup.png', function (texture) {
-			texture.minFilter = THREE.LinearFilter;
-		}),
-	} );
-	const infoMaterial2 = new THREE.MeshBasicMaterial( { 
-		transparent: true,
-		map: textureLoader.load('./assets/img/correctPopup.png', function (texture) {
-			texture.minFilter = THREE.LinearFilter;
-		}),
-	} );
-	let info = new THREE.Mesh(infoGeometry, infoMaterial1);
-	info.position.set(0.0, 0.9, -2.6);
-	info.scale.set(0.08, 0.08, 0.08);
-	info.name = 'incorrect';
-	info.visible = false;
-	popupGroup.add(info);
+	const container = new ThreeMeshUI.Block({
+		width: params.width,
+		fontFamily: params.fontFamily,
+	  	fontTexture: params.fontTexture,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});
+	const titleBlock = new ThreeMeshUI.Block({
+		height: 0.28,
+		width: params.width,
+		alignContent: "left",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.darkColor,
+	  });  
+	const contentBlock = new ThreeMeshUI.Block({
+		height: 0.5,
+		width: params.width,
+		alignContent: "left",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	  });  
+	container.add(titleBlock, contentBlock);
+	correctIncorrectObjects.titleTextObj = new ThreeMeshUI.Text({
+		content: "Info",
+		fontColor: params.lightColor,
+	  	fontSize: params.titleFontSize,
+	});
+	titleBlock.add(correctIncorrectObjects.titleTextObj);
+	correctIncorrectObjects.contentTextObj = new ThreeMeshUI.Text({
+		content: "Correct/Incorrect",
+		fontColor: params.darkColor,
+	  	fontSize: params.titleFontSize,
+	});
+	contentBlock.add(correctIncorrectObjects.contentTextObj);
 
-	info = new THREE.Mesh(infoGeometry, infoMaterial2);
-	info.position.set(0.0, 0.9, -2.6);
-	info.scale.set(0.08, 0.08, 0.08);
-	info.name = 'correct';
-	info.visible = false;
-	popupGroup.add(info);
-	popupGroup.position.y = 1.9;
+	popupGroup.add(container)
+	popupGroup.position.set(0.0, 2.6, -2.6);
+	popupGroup.visible = false;
 	
 	scene.add(popupGroup);
 }
@@ -705,7 +787,7 @@ function createQuizzWindow(){
 		lightColor: new THREE.Color(0xe2e2e2),
 		width: 3.0,
 		titleFontSize: 0.125,
-		textFontSize: 0.125,
+		textFontSize: 0.1,
 	}
 	const selectedAttributes = {
 		backgroundColor: new THREE.Color( 0x777777 ),
@@ -717,7 +799,7 @@ function createQuizzWindow(){
 	};
 
 	let popupGroup = new THREE.Group();
-	popupGroup.name = 'quizz-window';
+	popupGroup.name = QuizzObjects.QuizzContainerName;
 
 	const container = new ThreeMeshUI.Block({
 		//height: 3.0,
@@ -734,40 +816,40 @@ function createQuizzWindow(){
 		justifyContent: "start",
 		padding: 0.1,
 		backgroundColor: params.darkColor,
-	  });  
+	});  
 	const contentBlock = new ThreeMeshUI.Block({
-		height: 2.0,
+		height: 2.5,
 		width: params.width,
 		alignContent: "left",
 		justifyContent: "start",
-		padding: 0.25,
+		padding: 0.1,
 		backgroundColor: params.lightColor,
 		backgroundOpacity: 1,
-	  });  
+	});  
 	container.add(titleBlock, contentBlock);
-	const titleText = new ThreeMeshUI.Text({
+	QuizzObjects.titleTextObj = new ThreeMeshUI.Text({
 		content: "",
 		fontColor: params.lightColor,
 	  	fontSize: params.titleFontSize,
 	});
-	titleBlock.add(titleText);
+	titleBlock.add(QuizzObjects.titleTextObj);
 
 	['1','2','3','4'].forEach((i) => {
 		const btnBlock = new ThreeMeshUI.Block({
-			height: 0.3,
-			width: 0.6,
+			height: 0.4,
+			width: 2.7,
 			alignContent: "center",
 			justifyContent: "center",
 			backgroundColor: params.darkColor,
 			borderRadius: 0.03,
 			margin: 0.05
 		}); 
-		const btnText = new ThreeMeshUI.Text({
-			content: "fff \n ghg",
+		QuizzObjects.btnTextObj[i-1] = new ThreeMeshUI.Text({
+			content: "",
 			fontColor: params.lightColor,
 			fontSize: params.textFontSize,
 		}); 
-		btnText.name = `quizz-btn-${i}`; 
+		QuizzObjects.btnTextObj[i-1].name = `quizz-btn-${i}`; 
 		btnBlock.setupState({
 			state: "selected",
 			attributes: selectedAttributes
@@ -776,9 +858,9 @@ function createQuizzWindow(){
 			state: "normal",
 			attributes: normalAttributes
 		});
-		btnBlock.add(btnText);
+		btnBlock.add(QuizzObjects.btnTextObj[i-1]);
 		hoverObjectsList.push({
-			name: `btn-${i}`,
+			name: `quizz-btn-${i}`,
 			state: 'normal'
 		})
 		contentBlock.add(btnBlock);
@@ -786,105 +868,8 @@ function createQuizzWindow(){
 
 	popupGroup.add(container);
 	popupGroup.position.set(0.0, 2.16, -2.6);
-	popupGroup.visible = true;
+	popupGroup.false = true;
 	scene.add(popupGroup);
-}
-function showCloseWindow(isShow = true){
-	scene.getObjectByName('window').visible = isShow;
-	objectsParams.isPopupShown = isShow;
-}
-function showCorrectIncorrectPopup(isCorrect){
-	scene.getObjectByName('window').visible = false;
-
-	let name = isCorrect ? 'correct' : 'incorrect';
-	scene.getObjectByName(name).visible = true;
-	setTimeout(() => {
-		scene.getObjectByName(name).visible = false;
-		objectsParams.isPopupShown = false;
-	}, 2000);
-}
-
-function refreshBtnContent(){
-	let textureLoader = new THREE.TextureLoader();
-	let stepN = objectsParams.availableObjectIndex + 1;
-
-	if (stepN == 2){
-		scene.getObjectByName('bg').scale.y = 0.062;
-		scene.getObjectByName('btn-4').scale.y = 0.08;
-		scene.getObjectByName('btn-4').position.y = 0.29;
-	}
-	if (objectsParams.availableObjectIndex == 4){
-		//go to step 9
-		stepN = 9;
-		scene.getObjectByName('btn-4').visible = false;
-		scene.getObjectByName('bg').scale.y = 0.052;
-		scene.getObjectByName('bg').position.y = 0.86;
-		objectsParams.interactiveObjectList.forEach(element => {
-			let name = element.objName + 'Glow';
-			scene.getObjectByName(name).visible = true;
-		});
-		scene.getObjectByName('BodyGlow').visible = false;
-	}
-
-	if (objectsParams.availableObjectIndex == 9){
-		setTimeout(() => {
-			showSuccessPopup();
-		}, 3000);
-	}
-
-	let iMax = stepN < 9 ? 5 : 4;
-
-	for (let i = 1; i < iMax; i++) {
-		let map = textureLoader.load(`./assets/img/step${stepN}/${i}.png`, function (texture) {
-			texture.minFilter = THREE.LinearFilter;
-		});
-		scene.getObjectByName(`btn-${i}`).material.map = map;
-		scene.getObjectByName(`btn-${i}`).material.needsUpdate = true;			
-	}
-}
-
-function refreshIntroContent(isForward){
-	let textureLoader = new THREE.TextureLoader();
-	let deltaStep = isForward ? 1 : -1;
-	let step = objectsParams.availableObjectIndex + deltaStep;
-
-	scene.getObjectByName('Back').visible = step > -6 ? true : false;
-	
-	if (step != -2 && step < 0){
-		let map = textureLoader.load(`./assets/img/introPopup${step}.png`, function (texture) {
-			texture.minFilter = THREE.LinearFilter;
-		});
-		scene.getObjectByName(`introHero`).material.map = map;
-		scene.getObjectByName(`introHero`).material.needsUpdate = true;
-	}
-
-	if (step == -1 || step == -3){
-		const video = document.getElementById('video');
-		video.pause();
-	}
-
-	if (step == -2){//video
-		//scene.getObjectByName('Back').visible = false;
-		//scene.getObjectByName('Next').visible = false;
-
-		const video = document.getElementById('video');
-		let videoTexture = new THREE.VideoTexture( video );		
-		videoTexture.flipY = true;
-
-		scene.getObjectByName(`introHero`).material.map = videoTexture;
-		video.play();
-	}
-
-	scene.getObjectByName(`introHero`).scale.x = step == -1 ? 0.06 : 0.08;
-	scene.getObjectByName(`Next`).position.x = step == -1 ? 1.45 : 2.0;
-	scene.getObjectByName(`Back`).position.x = step == -1 ? 0.9 : 1.45;
-
-	if (step == 0){
-		scene.getObjectByName(`introGroup`).visible = false;
-		setTimeout(() => {
-			createGlow();
-		}, 1000);
-	}
 }
 
 function restartSimulation(){
@@ -913,6 +898,12 @@ function restartSimulation(){
 
 function showCurrentSimulationStep(){
 	scene.getObjectByName(IntroObjects.IntroContainerName).visible = false;
+	scene.getObjectByName(QuizzObjects.QuizzContainerName).visible = false;
+	scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
+	doGlowObjectsInvisible();
+
+	stepSimType = PPE_DATA.vrSim.sim[simulationStep].type;
+	
 	if (PPE_DATA.vrSim.sim[simulationStep].type.includes('intro')){
 		//intro container
 		scene.getObjectByName(IntroObjects.IntroContainerName).visible = true;
@@ -946,6 +937,28 @@ function showCurrentSimulationStep(){
 			scene.getObjectByName(IntroObjects.mediaContainerObjName).material.map = videoTexture;
 			video.play();
 		}
+	}
+	if (PPE_DATA.vrSim.sim[simulationStep].type === 'quizz'){
+		PPE_DATA.vrSim.sim[simulationStep].highlightedObjectNames.forEach(element => {
+			scene.getObjectByName(element + 'Glow').visible = true;
+		}); console.log('simulationStep=', simulationStep)
+		//title
+		QuizzObjects.titleTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].title});
+		//btns
+		QuizzObjects.btnTextObj[0].set({content: PPE_DATA.vrSim.sim[simulationStep].btnText1});
+		QuizzObjects.btnTextObj[1].set({content: PPE_DATA.vrSim.sim[simulationStep].btnText2});
+		QuizzObjects.btnTextObj[2].set({content: PPE_DATA.vrSim.sim[simulationStep].btnText3});
+		QuizzObjects.btnTextObj[3].set({content: PPE_DATA.vrSim.sim[simulationStep].btnText4});
+		//correct`s
+		QuizzObjects.correctHighlightedObjName = PPE_DATA.vrSim.sim[simulationStep].correctObjectName;
+		QuizzObjects.correctQuizzBtnName = PPE_DATA.vrSim.sim[simulationStep].correctAnswer;
+	}
+	if (PPE_DATA.vrSim.sim[simulationStep].type === 'put-on'){
+		PPE_DATA.vrSim.sim[simulationStep].glowObjectsName.forEach(element => {
+			scene.getObjectByName(element + "Glow").visible = true;
+		})
+		putOnObjects.correctObjectName = PPE_DATA.vrSim.sim[simulationStep].correctOnjectName;
+		putOnObjects.interactiveObject = PPE_DATA.vrSim.sim[simulationStep].interactiveObjectsName;
 	}
 }
 

@@ -6143,7 +6143,71 @@
 				"btnText4": "Continue to other patients on rounds until Mr. Jones COVID-19 test results are available",
 				"highlightedObjectNames": ["Body"],
 				"correctObjectName": "Body",
-				"correctAnswer": "btn-2"
+				"correctAnswer": "quizz-btn-2"
+			},
+			{
+				"id": 7,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Gather PPE",
+				"btnText2": "Put on gloves and enter Mr.Jones patient room",
+				"btnText3": "Enter Mr.Jones patient room",
+				"btnText4": "Put on isolation gown",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-1"
+			},
+			{
+				"id": 8,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Put on goggles",
+				"btnText2": "Use hand sanitizer",
+				"btnText3": "Put on isolation gown",
+				"btnText4": "Put on gloves",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-2"
+			},
+			{
+				"id": 9,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Enter the patient room",
+				"btnText2": "Disinfect gloves",
+				"btnText3": "Perform hand hygiene",
+				"btnText4": "",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-2"
+			},
+			{
+				"id": 10,
+				"type": "put-on",
+				"correctOnjectName": "Robe",
+				"interactiveObjectsName": ["Body", "Mask", "Glasses", "Gloves"],
+				"glowObjectsName": ["Robe", "Mask", "Glasses", "Gloves"]
+			},
+			{
+				"id": 11,
+				"type": "put-on",
+				"correctOnjectName": "Mask",
+				"interactiveObjectsName": ["Body", "Robe", "Glasses", "Gloves"],
+				"glowObjectsName": ["Mask", "Glasses", "Gloves"]
+			},
+			{
+				"id": 12,
+				"type": "put-on",
+				"correctOnjectName": "Glasses",
+				"interactiveObjectsName": ["Body", "Robe", "Mask", "Gloves"],
+				"glowObjectsName": ["Glasses", "Gloves"]
+			},
+			{
+				"id": 13,
+				"type": "put-on",
+				"correctOnjectName": "Gloves",
+				"interactiveObjectsName": ["Body", "Robe", "Mask", "Glasses"],
+				"glowObjectsName": ["Gloves"]
 			}
 		]
 	}
