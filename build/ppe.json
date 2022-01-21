@@ -6171,43 +6171,49 @@
 			},
 			{
 				"id": 9,
+				"type": "put-on",
+				"correctOnjectName": "Robe",
+				"interactiveObjectsName": ["Mask", "Glasses", "Gloves"],
+				"glowObjectsName": ["Robe", "Mask", "Glasses", "Gloves"]
+			},
+			{
+				"id": 10,
+				"type": "put-on",
+				"correctOnjectName": "Mask",
+				"interactiveObjectsName": ["Glasses", "Gloves"],
+				"glowObjectsName": ["Mask", "Glasses", "Gloves"]
+			},
+			{
+				"id": 11,
+				"type": "put-on",
+				"correctOnjectName": "Glasses",
+				"interactiveObjectsName": ["Gloves"],
+				"glowObjectsName": ["Glasses", "Gloves"]
+			},
+			{
+				"id": 12,
+				"type": "put-on",
+				"correctOnjectName": "Gloves",
+				"interactiveObjectsName": [],
+				"glowObjectsName": ["Gloves"]
+			},
+			{
+				"id": 13,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Enter the patient room",
 				"btnText2": "Disinfect gloves",
 				"btnText3": "Perform hand hygiene",
-				"btnText4": "",
+				"btnText4": "Gather PPE",
 				"highlightedObjectNames": ["Body"],
 				"correctObjectName": "Body",
-				"correctAnswer": "quizz-btn-2"
+				"correctAnswer": "quizz-btn-1"
 			},
 			{
-				"id": 10,
-				"type": "put-on",
-				"correctOnjectName": "Robe",
-				"interactiveObjectsName": ["Body", "Mask", "Glasses", "Gloves"],
-				"glowObjectsName": ["Robe", "Mask", "Glasses", "Gloves"]
-			},
-			{
-				"id": 11,
-				"type": "put-on",
-				"correctOnjectName": "Mask",
-				"interactiveObjectsName": ["Body", "Robe", "Glasses", "Gloves"],
-				"glowObjectsName": ["Mask", "Glasses", "Gloves"]
-			},
-			{
-				"id": 12,
-				"type": "put-on",
-				"correctOnjectName": "Glasses",
-				"interactiveObjectsName": ["Body", "Robe", "Mask", "Gloves"],
-				"glowObjectsName": ["Glasses", "Gloves"]
-			},
-			{
-				"id": 13,
-				"type": "put-on",
-				"correctOnjectName": "Gloves",
-				"interactiveObjectsName": ["Body", "Robe", "Mask", "Glasses"],
-				"glowObjectsName": ["Gloves"]
+				"id": 14,
+				"type": "sim-end",
+				"title": "info",
+				"content": "Congratulations, you have completed the VR PPE Demo. Click OK to restart."
 			}
 		]
 	}
