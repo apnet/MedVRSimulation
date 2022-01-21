@@ -262,19 +262,21 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 
 		//find intersects
         const intersections = this.raycaster.intersectObjects(scene.children, true);
-		//console.log(intersections)
+		console.log(intersections)
 		const isQuizzVisible = scene.getObjectByName(QuizzObjects.QuizzContainerName).visible;
 		const isCorrectPopupVisible = scene.getObjectByName(correctIncorrectObjects.containerName).visible;
 		intersections.forEach(intersect => {
 			if (intersect != undefined && intersect.object.type == 'Mesh') { 
 				if (stepSimType.includes('intro')){
-					if (intersect.object.parent.name === 'nextBtn'){
-						simulationStep ++;
-						showCurrentSimulationStep();
-					}						
-					if (intersect.object.parent.name === 'prevBtn'){
-						simulationStep --;
-						showCurrentSimulationStep();
+					if (intersect.object.name == "MeshUI-Frame"){
+						if (intersect.object.parent.children[1].name === 'nextBtn'){
+							simulationStep ++;
+							showCurrentSimulationStep();
+						}						
+						if (intersect.object.parent.children[1].name === 'prevBtn'){
+							simulationStep --;
+							showCurrentSimulationStep();
+						}
 					}
 				}
 				if (stepSimType === 'quizz'){
@@ -282,18 +284,19 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 						!isQuizzVisible && !isCorrectPopupVisible){
 						scene.getObjectByName(QuizzObjects.QuizzContainerName).visible = true;
 					}
-					if (intersect.object.parent.name.includes('quizz-btn') && isQuizzVisible){
-						if (intersect.object.parent.name === QuizzObjects.correctQuizzBtnName)
-							correctIncorrectObjects.contentTextObj.set({content: 'Correct'});
-						else correctIncorrectObjects.contentTextObj.set({content: 'Incorrect'});
-						scene.getObjectByName(QuizzObjects.QuizzContainerName).visible = false;
-						scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
-						setTimeout(() => {
-							scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
-							simulationStep++;
-							showCurrentSimulationStep();
-						}, 2000);
-					}
+					if (intersect.object.name == "MeshUI-Frame" && isQuizzVisible)
+						if (intersect.object.parent.children[1].name.includes('quizz-btn')){
+							if (intersect.object.parent.children[1].name === QuizzObjects.correctQuizzBtnName)
+								correctIncorrectObjects.contentTextObj.set({content: 'Correct'});
+							else correctIncorrectObjects.contentTextObj.set({content: 'Incorrect'});
+							scene.getObjectByName(QuizzObjects.QuizzContainerName).visible = false;
+							scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
+							setTimeout(() => {
+								scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
+								simulationStep++;
+								showCurrentSimulationStep();
+							}, 2000);
+						}
 				}
 				if (stepSimType === 'put-on'){
 					if (intersect.object.parent.name === putOnObjects.correctObjectName){
@@ -318,13 +321,14 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 					});
 				}
 				if (stepSimType === 'sim-end'){
-					if(intersect.object.parent.name === 'successOk'){
-						simulationStep = 6;
-						showCurrentSimulationStep();
-						objectsParams.interactiveObjectList.forEach((obj) => {
-							scene.getObjectByName(obj.objName).position.copy(obj.position);
-						})
-					}
+					if (intersect.object.name == "MeshUI-Frame")
+						if(intersect.object.parent.children[1].name === 'successOk'){
+							simulationStep = 6;
+							showCurrentSimulationStep();
+							objectsParams.interactiveObjectList.forEach((obj) => {
+								scene.getObjectByName(obj.objName).position.copy(obj.position);
+							})
+						}
 					
 				}
 				/*
@@ -388,9 +392,11 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 		intersections.forEach(intersect => {
 			if (intersect != undefined) {
 				hoverObjectsList.forEach(el => {
-					if (intersect.object.parent.name == el.name){
-						scene.getObjectByName(el.name).parent.setState('selected');
-						el.state = "selected";
+					if (intersect.object.name == "MeshUI-Frame"){
+						if (intersect.object.parent.children[1].name == el.name){
+							scene.getObjectByName(el.name).parent.setState('selected');
+							el.state = "selected";
+						}
 					}
 				});
 			}
