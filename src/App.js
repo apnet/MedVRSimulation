@@ -228,7 +228,7 @@ class App {
 		document.body.appendChild( renderer.domElement );
 		document.body.appendChild( VRButton.createButton( renderer ) );
 
-		//window.addEventListener( 'resize', onWindowResize );
+		window.addEventListener( 'resize', onWindowResize );
 
 		// controllers
 		function onSelectStart() {

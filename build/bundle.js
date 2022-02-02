@@ -59414,7 +59414,7 @@
 			document.body.appendChild( renderer.domElement );
 			document.body.appendChild( VRButton.createButton( renderer ) );
 
-			//window.addEventListener( 'resize', onWindowResize );
+			window.addEventListener( 'resize', onWindowResize );
 
 			// controllers
 			function onSelectStart() {
@@ -59636,6 +59636,13 @@
 	      }
 	    }
 	  }
+
+	function onWindowResize() {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
 
 	function buildController( data, name ) {
 		let geometry, material;
