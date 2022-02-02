@@ -3,6 +3,8 @@ import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import ThreeMeshUI from "three-mesh-ui";
+import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry';
+import { Vector3 } from 'three';
 
 let camera, scene, renderer;
 let controller1, controller2;
@@ -92,15 +94,58 @@ let objectsParams = {
 			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 		},
+	],
+	decals: [
+		{
+			objName: 'gown',
+			decalName: 'decal-gown-1',
+			position: new Vector3(1.044, 3.45, -5.05),
+			orientation: new THREE.Euler(0, 0, 0),
+			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
+		},
+		{
+			objName: 'gown',
+			decalName: 'decal-gown-2',
+			position: new Vector3(1.447, 3.0, -5.04),
+			orientation: new THREE.Euler(0, 0, 0),
+			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
+		},
+		{
+			objName: 'gown',
+			decalName: 'decal-gown-3',
+			position: new Vector3(0.984, 2.11, -5.086),
+			orientation: new THREE.Euler(0, 0, 0),
+			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
+		},
+		{
+			objName: 'Glove_on_hands',
+			decalName: 'decal-gloves',
+			position: new Vector3(1.92, 2.22, -5.48),
+			orientation: new THREE.Euler(0, 0, 0),
+			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
+		},
+		{
+			objName: 'gown',
+			decalName: 'decal-gown-4',
+			position: new Vector3(1.47, 1.35, -5.075),
+			orientation: new THREE.Euler(0, 0, 0),
+			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
+		},
+		{
+			objName: 'N95_mask',
+			decalName: 'decal-mask',
+			position: new Vector3(1.26, 3.96, -5.09),
+			orientation: new THREE.Euler(0, 0, 0),
+			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
+		},
+		{
+			objName: 'eye_protection',
+			decalName: 'decal-eye',
+			position: new Vector3(1.44, 4.17, -5.11),
+			orientation: new THREE.Euler(0, 0, 0),
+			scale: new THREE.Vector3(0.1, 0.1, 0.1)	
+		},
 	],	
-	availableObjectIndex: -6, 
-	//-6,-5,-4,-3 - intro
-	//-2 - intro video
-	//-1 - intro
-	//0-4 - window
-	//5-8 - put on
-	//9 - window
-	isPopupShown: false,
 };
 
 class App {
@@ -166,7 +211,8 @@ class App {
 		});	
 		setTimeout(() => {
 			createGlow();
-		}, 10000);
+			//addPolutionDecals();
+		}, 12000);
 		//window with btns
 		createQuizzWindow();
 		createCorrectIncorrectPopup();
@@ -182,7 +228,7 @@ class App {
 		document.body.appendChild( renderer.domElement );
 		document.body.appendChild( VRButton.createButton( renderer ) );
 
-		window.addEventListener( 'resize', onWindowResize );
+		//window.addEventListener( 'resize', onWindowResize );
 
 		// controllers
 		function onSelectStart() {
@@ -262,7 +308,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 
 		//find intersects
         const intersections = this.raycaster.intersectObjects(scene.children, true);
-		console.log(intersections)
+		//console.log(intersections)
 		const isQuizzVisible = scene.getObjectByName(QuizzObjects.QuizzContainerName).visible;
 		const isCorrectPopupVisible = scene.getObjectByName(correctIncorrectObjects.containerName).visible;
 		intersections.forEach(intersect => {
@@ -270,11 +316,11 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 				if (stepSimType.includes('intro')){
 					if (intersect.object.name == "MeshUI-Frame"){
 						if (intersect.object.parent.children[1].name === 'nextBtn'){
-							simulationStep ++;
+							simulationStep++;
 							showCurrentSimulationStep();
 						}						
 						if (intersect.object.parent.children[1].name === 'prevBtn'){
-							simulationStep --;
+							simulationStep--;
 							showCurrentSimulationStep();
 						}
 					}
@@ -323,7 +369,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 				if (stepSimType === 'sim-end'){
 					if (intersect.object.name == "MeshUI-Frame")
 						if(intersect.object.parent.children[1].name === 'successOk'){
-							simulationStep = 6;
+							simulationStep = 0;
 							showCurrentSimulationStep();
 							objectsParams.interactiveObjectList.forEach((obj) => {
 								scene.getObjectByName(obj.objName).position.copy(obj.position);
@@ -479,6 +525,51 @@ function addObject(fileName, position, glowPosition, scale, glowScale, objName, 
 	return Obj;
 }
 
+function addPolutionDecals(){
+	//create decal
+	const decalMaterial = new THREE.MeshPhongMaterial({
+		color: new THREE.Color(0xffffff),
+		flatShading: false,
+		shininess: 30,
+		transparent: true,
+		depthTest: true,
+		depthWrite: false,
+		polygonOffset: true,
+		polygonOffsetFactor: - 4,
+		wireframe: false
+	});
+
+	const loader = new THREE.TextureLoader();
+	const decalTexture = loader.load('./assets/img/polution.png', function (texture) {
+		texture.minFilter = THREE.NearestFilter;
+	});
+
+	const decalTextureMaterial = new THREE.MeshPhongMaterial({
+		map: decalTexture,
+		flatShading: false,
+		shininess: 30,
+		transparent: true,
+		depthTest: true,
+		depthWrite: false,
+		polygonOffset: true,
+		polygonOffsetFactor: - 4,
+		wireframe: false
+	});
+	
+	objectsParams.decals.forEach(item => {
+		const decalGeometry = new DecalGeometry(
+			scene.getObjectByName(item.objName), 
+			item.position, 				
+			item.orientation, 	
+			item.scale	
+		);
+		const decalMesh = new THREE.Mesh(decalGeometry, decalTextureMaterial);
+		decalMesh.name = item.decalName;
+		//decalMesh.visible = false;
+		scene.add(decalMesh);
+	})
+}
+
 function createGlow() {
 	//glowing obj
 	var glowMaterial = new THREE.ShaderMaterial( 
@@ -514,6 +605,12 @@ function doGlowObjectsInvisible(){
 	objectsParams.interactiveObjectList.forEach(element => {
 		let name = element.objName + 'Glow';
 		scene.getObjectByName(name).visible = false;
+	})
+}
+
+function removeDecalsFromScene(){
+	objectsParams.decals.forEach(item => {
+		scene.remove(scene.getObjectByName(item.decalName));
 	})
 }
 
@@ -985,6 +1082,7 @@ function showCurrentSimulationStep(){
 		putOnObjects.interactiveObject = PPE_DATA.vrSim.sim[simulationStep].interactiveObjectsName;
 	}
 	if (PPE_DATA.vrSim.sim[simulationStep].type === 'sim-end'){
+		removeDecalsFromScene();
 		//title
 		successObjects.titleTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].title});
 		//content
@@ -992,6 +1090,31 @@ function showCurrentSimulationStep(){
 		setTimeout(() => {
 			scene.getObjectByName(successObjects.containerName).visible = true;
 		}, 2000);
+	}
+	if (PPE_DATA.vrSim.sim[simulationStep].type === 'take-off'){
+		const objName = PPE_DATA.vrSim.sim[simulationStep].objectName;
+		const objProperties = objectsParams.interactiveObjectList.filter(i => i.objName == objName)[0];
+		scene.getObjectByName(objName).position.copy(objProperties.position);
+		simulationStep++;
+		showCurrentSimulationStep();
+	}
+	if (PPE_DATA.vrSim.sim[simulationStep].type === 'change-room'){
+		console.log('Room changed');
+		simulationStep++;
+		showCurrentSimulationStep();
+	}
+	if (PPE_DATA.vrSim.sim[simulationStep].type === 'create-polution-decals'){
+		addPolutionDecals();
+		simulationStep++;
+		showCurrentSimulationStep();
+	}
+	if (PPE_DATA.vrSim.sim[simulationStep].type === 'polution-decals'){
+		objectsParams.decals.forEach(i => {
+			scene.getObjectByName(i.decalName).visible = 
+				PPE_DATA.vrSim.sim[simulationStep].visibleDecals.some(el => el == i.decalName);
+		})
+		simulationStep++;
+		showCurrentSimulationStep();
 	}
 }
 

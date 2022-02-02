@@ -6211,6 +6211,245 @@
 			},
 			{
 				"id": 14,
+				"type": "change-room"
+			},
+			{
+				"id": 15,
+				"type": "intro-text",
+				"title": "Info",
+				"content": "You are in the patient room, so remember: \n\n - If gloves are grossly contaminated, use purple wipes & allow to dry for 2 minutes. \n\n - Do not turn back to the patient (to keep back of gown clean). \n\n - Avoid readjusting PPE (especially face shield/goggles) while in the room. \n\n - Limit touching surfaces in the patient care area to reduce risk of contamination.",
+				"prevBtnVisibility": false,
+				"nextBtnVisibility": true
+			},
+			{
+				"id": 16,
+				"type": "intro-text",
+				"title": "Info",
+				"content": "You have completed your work with the patient and are ready to start the doffing process. Begin the doffing process inside the room at least six feet from the patient in an area that is safe to do so. Preferably by the door.",
+				"prevBtnVisibility": false,
+				"nextBtnVisibility": true
+			},
+			{
+				"id": 17,
+				"type": "create-polution-decals"
+			},
+			{
+				"id": 18,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Doff gown and place in garbage",
+				"btnText2": "Perform hand hygiene with ETOH-based hand sanitizer",
+				"btnText3": "Doff gloves and place in garbage",
+				"btnText4": "Disinfect front of face shield",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-2"
+			},
+			{
+				"id": 19,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Remove gown & gloves together",
+				"btnText2": "Disinfect front of face shield",
+				"btnText3": "Doff gloves and place in garbage",
+				"btnText4": "Leave the room to remove PPE",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-1"
+			},
+			{
+				"id": 20,
+				"type": "take-off",
+				"objectName": "Robe"
+			},
+			{
+				"id": 21,
+				"type": "take-off",
+				"objectName": "Gloves"
+			},
+			{
+				"id": 22,
+				"type": "polution-decals",
+				"visibleDecals": ["decal-mask", "decal-eye"]
+			},
+			{
+				"id": 23,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Set gown and gloves on the floor by the door",
+				"btnText2": "Drop gown and gloves in garbage",
+				"btnText3": "Disinfect front of face shield",
+				"btnText4": "Leave the room",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-2"
+			},
+			{
+				"id": 24,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Perform hand hygiene",
+				"btnText2": "Disinfect front of face shield",
+				"btnText3": "Don new pair of clean gloves",
+				"btnText4": "Leave the room",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-1"
+			},
+			{
+				"id": 25,
+				"type": "put-on",
+				"correctOnjectName": "Gloves",
+				"interactiveObjectsName": [],
+				"glowObjectsName": ["Gloves"]
+			},
+			{
+				"id": 26,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Disinfect front of face shield",
+				"btnText2": "Doff gloves and place in garbage",
+				"btnText3": "Remove face shield",
+				"btnText4": "Perform hand hygiene on gloves",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-1"
+			},
+			{
+				"id": 27,
+				"type": "polution-decals",
+				"visibleDecals": ["decal-mask"]
+			},
+			{
+				"id": 28,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Leave the room",
+				"btnText2": "Doff gloves and place in garbage",
+				"btnText3": "Remove face shield",
+				"btnText4": "Perform hand hygiene on gloves",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-2"
+			},
+			{
+				"id": 29,
+				"type": "take-off",
+				"objectName": "Gloves"
+			},
+			{
+				"id": 30,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Remove N95 mask",
+				"btnText2": "Leave the room",
+				"btnText3": "Perform hand hygiene",
+				"btnText4": "Remove face shield",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-3"
+			},
+			{
+				"id": 31,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Remove N95 mask",
+				"btnText2": "Leave the room",
+				"btnText3": "Remove face shield",
+				"btnText4": "Don new pair of clean gloves",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-2"
+			},
+			{
+				"id": 32,
+				"type": "change-room"
+			},
+			{
+				"id": 33,
+				"type": "intro-text",
+				"title": "Info",
+				"content": "You are outside the room and prepared to continue the doffing process",
+				"prevBtnVisibility": false,
+				"nextBtnVisibility": true
+			},
+			{
+				"id": 34,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Don new pair of clean gloves",
+				"btnText2": "Perform hand hygiene",
+				"btnText3": "Remove N95 mask",
+				"btnText4": "Remove face shield",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-2"
+			},
+			{
+				"id": 35,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Remove N95 mask",
+				"btnText2": "Don new pair of clean gloves",
+				"btnText3": "Update patient medical record",
+				"btnText4": "Remove face shield",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-4"
+			},
+			{
+				"id": 36,
+				"type": "take-off",
+				"objectName": "Glasses"
+			},
+			{
+				"id": 37,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Perform hand hygiene",
+				"btnText2": "Remove N95 mask",
+				"btnText3": "Update patient medical record",
+				"btnText4": "Don new pair of clean gloves",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-1"
+			},
+			{
+				"id": 38,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Don new pair of clean gloves",
+				"btnText2": "Update patient medical record",
+				"btnText3": "Remove N95 mask",
+				"btnText4": "Perform hand hygiene",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-3"
+			},
+			{
+				"id": 39,
+				"type": "take-off",
+				"objectName": "Mask"
+			},
+			{
+				"id": 40,
+				"type": "polution-decals",
+				"visibleDecals": []
+			},
+			{
+				"id": 41,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Perform hand hygiene",
+				"btnText2": "Don new pair of clean gloves",
+				"btnText3": "Update patient medical record",
+				"btnText4": "Don new pair of clean gloves",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-1"
+			},
+			{
+				"id": 42,
 				"type": "sim-end",
 				"title": "info",
 				"content": "Congratulations, you have completed the VR PPE Demo. Click OK to restart."
