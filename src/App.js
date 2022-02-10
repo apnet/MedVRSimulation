@@ -51,8 +51,8 @@ let objectsParams = {
 	body: {
 		fileName: 'physician',
 		objName: 'Body',
-		position: new THREE.Vector3(-2.6, 0.0, -1.0),
-		glowPosition: new THREE.Vector3(-2.94, 0.0, -4.93),
+		position: new THREE.Vector3(-2.6, -1.5, -1.0),
+		glowPosition: new THREE.Vector3(-2.94, -1.5, -4.93),
 		rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 		scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 		glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
@@ -62,8 +62,8 @@ let objectsParams = {
 			id: 4,
 			fileName: 'gown',
 			objName: 'Robe',
-			position: new THREE.Vector3(-5.5, 0.0, -1.5),
-			glowPosition: new THREE.Vector3(-5.78, -0.1, -5.32),
+			position: new THREE.Vector3(-5.5, -1.5, -1.5),
+			glowPosition: new THREE.Vector3(-5.78, -1.6, -5.32),
 			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 		},
@@ -71,8 +71,8 @@ let objectsParams = {
 			id: 5,
 			fileName: 'mask',
 			objName: 'Mask',
-			position: new THREE.Vector3(-1.2, -2.0, -1.7),
-			glowPosition: new THREE.Vector3(-1.52, -2.08, -5.32),
+			position: new THREE.Vector3(-1.2, -3.5, -1.7),
+			glowPosition: new THREE.Vector3(-1.52, -3.58, -5.32),
 			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 		},
@@ -80,8 +80,8 @@ let objectsParams = {
 			id: 6,
 			fileName: 'eye protection',
 			objName: 'Glasses',
-			position: new THREE.Vector3(-0.8, -2.15, -1.0),
-			glowPosition: new THREE.Vector3(-1.14, -2.24, -4.61),
+			position: new THREE.Vector3(-0.8, -3.65, -1.0),
+			glowPosition: new THREE.Vector3(-1.14, -3.74, -4.61),
 			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 		},
@@ -89,8 +89,8 @@ let objectsParams = {
 			id: 7,
 			fileName: 'gloves',
 			objName: 'Gloves',
-			position: new THREE.Vector3(-4.0, 1.6, -1.9),
-			glowPosition: new THREE.Vector3(-4.34, 1.54, -5.84),
+			position: new THREE.Vector3(-4.0, 0.1, -1.9),
+			glowPosition: new THREE.Vector3(-4.34, 0.04, -5.84),
 			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
 			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
 		},
@@ -99,49 +99,49 @@ let objectsParams = {
 		{
 			objName: 'gown',
 			decalName: 'decal-gown-1',
-			position: new Vector3(1.044, 3.45, -5.05),
+			position: new Vector3(1.044, 1.95, -5.05),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'gown',
 			decalName: 'decal-gown-2',
-			position: new Vector3(1.447, 3.0, -5.04),
+			position: new Vector3(1.447, 1.5, -5.04),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'gown',
 			decalName: 'decal-gown-3',
-			position: new Vector3(0.984, 2.11, -5.086),
+			position: new Vector3(0.984, 0.61, -5.086),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'Glove_on_hands',
 			decalName: 'decal-gloves',
-			position: new Vector3(1.92, 2.22, -5.48),
+			position: new Vector3(1.92, 0.62, -5.48),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'gown',
 			decalName: 'decal-gown-4',
-			position: new Vector3(1.47, 1.35, -5.075),
+			position: new Vector3(1.47, -0.15, -5.075),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'N95_mask',
 			decalName: 'decal-mask',
-			position: new Vector3(1.26, 3.96, -5.09),
+			position: new Vector3(1.26, 1.46, -5.09),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'eye_protection',
 			decalName: 'decal-eye',
-			position: new Vector3(1.44, 4.17, -5.11),
+			position: new Vector3(1.44, 2.67, -5.11),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.1, 0.1, 0.1)	
 		},
@@ -166,7 +166,7 @@ class App {
 		scene = new THREE.Scene();
 		scene.background = new THREE.Color( 0x505050 );
 		camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
-		camera.position.set( 0, 0, 0 );
+		camera.position.set( 0, 1, 0 );
 		scene.add(camera)
 
 		scene.add( new THREE.HemisphereLight( 0x606060, 0x404040 ) );
@@ -186,7 +186,7 @@ class App {
 			}
 		)
 		roomObj.scale.set(0.08, 0.08, 0.08);
-		roomObj.position.set(-4.0, 0, 1.2); 
+		roomObj.position.set(-4.0, -1.5, 1.2); 
 		roomObj.name = 'Room';
 		scene.add(roomObj);
 				
@@ -332,14 +332,18 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 					}
 					if (intersect.object.name == "MeshUI-Frame" && isQuizzVisible)
 						if (intersect.object.parent.children[1].name.includes('quizz-btn')){
-							if (intersect.object.parent.children[1].name === QuizzObjects.correctQuizzBtnName)
+							let isCorrrect = false;
+							if (intersect.object.parent.children[1].name === QuizzObjects.correctQuizzBtnName){
+								isCorrrect = true;
 								correctIncorrectObjects.contentTextObj.set({content: 'Correct'});
+							}
 							else correctIncorrectObjects.contentTextObj.set({content: 'Incorrect'});
 							scene.getObjectByName(QuizzObjects.QuizzContainerName).visible = false;
 							scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
 							setTimeout(() => {
 								scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
-								simulationStep++;
+								if (isCorrrect)
+									simulationStep++;
 								showCurrentSimulationStep();
 							}, 2000);
 						}
@@ -572,6 +576,12 @@ function addPolutionDecals(){
 
 function createGlow() {
 	//glowing obj
+	/*
+	var glowMaterial = new THREE.MeshBasicMaterial({
+		color: 0x0000ff, transparent: true, opacity: 0.2
+	});
+	*/
+
 	var glowMaterial = new THREE.ShaderMaterial( 
 	{
 		uniforms: 
@@ -581,8 +591,25 @@ function createGlow() {
 			glowColor: { type: "c", value: new THREE.Color(0x0000FF) },
 			viewVector: { type: "v3", value: camera.position }
 		},
-		vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
-		fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+		vertexShader:   `uniform vec3 viewVector;
+						uniform float base;
+						uniform float p;
+						varying float intensity;
+						void main() 
+						{
+							vec3 vNormal = normalize( normalMatrix * normal );
+							vec3 vNormel = normalize( normalMatrix * viewVector );
+							intensity = pow( base - dot(vNormal, vNormel), p );
+							
+							gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+						}`,
+		fragmentShader: `uniform vec3 glowColor;
+						varying float intensity;
+						void main() 
+						{
+							vec3 glow = glowColor * intensity;
+							gl_FragColor = vec4( glow, 1.0 );
+						}`,
 		side: THREE.BackSide,
 		blending: THREE.AdditiveBlending,
 		transparent: true
@@ -1116,6 +1143,12 @@ function showCurrentSimulationStep(){
 		simulationStep++;
 		showCurrentSimulationStep();
 	}
+	/*
+	scene.getObjectByName(element).children[0].children.forEach(element => {
+				if (element.material && element.material.emissive)
+					element.material.emissive.b = 0.1;
+			});
+	*/
 }
 
 export default App;

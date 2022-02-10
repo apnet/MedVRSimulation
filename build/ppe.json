@@ -6143,7 +6143,7 @@
 				"btnText4": "Continue to other patients on rounds until Mr. Jones COVID-19 test results are available",
 				"highlightedObjectNames": ["Body"],
 				"correctObjectName": "Body",
-				"correctAnswer": "quizz-btn-2"
+				"correctAnswer": "quizz-btn-3"
 			},
 			{
 				"id": 7,
