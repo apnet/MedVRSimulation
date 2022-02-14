@@ -32,6 +32,22 @@ let correctIncorrectObjects = {
 	"titleTextObj": null,
 	"contentTextObj": null
 }
+let infoObjectsMediumText = {
+	"containerName": "infoGroupMediumText",
+	"titleTextObj": null,
+	"contentTextObj": null
+};
+let infoObjectsMediumTextImg = {
+	"containerName": "infoGroupMediumTextImg",
+	"titleTextObj": null,
+	"contentTextObj": null,
+	"imgContainerObjName": "imageInfoMd",
+};
+let infoObjectsSmall = {
+	"containerName": "infoGroupSmall",
+	"titleTextObj": null,
+	"contentTextObj": null,
+};
 let successObjects = {
 	"containerName": "successPopup",
 	"titleTextObj": null,
@@ -218,6 +234,9 @@ class App {
 		createCorrectIncorrectPopup();
 		createIntroPopup();
 		createSuccessPopup();
+		createInfoSmall();
+		createInfoMediumText();
+		createInfoMediumTextImg();
 
 		//render
 		renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -313,16 +332,29 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 		const isCorrectPopupVisible = scene.getObjectByName(correctIncorrectObjects.containerName).visible;
 		intersections.forEach(intersect => {
 			if (intersect != undefined && intersect.object.type == 'Mesh') { 
-				if (stepSimType.includes('intro')){
+				if (stepSimType.includes('intro')){console.log(stepSimType)
 					if (intersect.object.name == "MeshUI-Frame"){
-						if (intersect.object.parent.children[1].name === 'nextBtn'){
+						if (intersect.object.parent.children[1]?.name === 'nextBtn'){
 							simulationStep++;
 							showCurrentSimulationStep();
 						}						
-						if (intersect.object.parent.children[1].name === 'prevBtn'){
+						if (intersect.object.parent.children[1]?.name === 'prevBtn'){
 							simulationStep--;
 							showCurrentSimulationStep();
 						}
+					}
+				}
+				if (stepSimType.includes('info')){
+					if (intersect.object.name == "MeshUI-Frame"){
+						let objName = intersect.object.parent.children[1].name;
+						if (
+							(objName === 'okBtnInfoMediumTextImg' && stepSimType === 'info-md-text-img') ||
+							(objName === 'okBtnInfoMediumText' && stepSimType === 'info-md-text') ||
+							(objName === 'okBtnInfoSmall' && stepSimType === 'info-sm')
+						){
+							simulationStep++;
+							showCurrentSimulationStep();
+						}	
 					}
 				}
 				if (stepSimType === 'quizz'){
@@ -443,7 +475,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 			if (intersect != undefined) {
 				hoverObjectsList.forEach(el => {
 					if (intersect.object.name == "MeshUI-Frame"){
-						if (intersect.object.parent.children[1].name == el.name){
+						if (intersect.object.parent.children[1]?.name == el.name){
 							scene.getObjectByName(el.name).parent.setState('selected');
 							el.state = "selected";
 						}
@@ -891,6 +923,346 @@ function createIntroPopup(){
 	scene.add(popupGroup);
 }
 
+function createInfoSmall(){
+	const params = {
+		fontFamily: "./assets/Roboto-msdf.json",
+	  	fontTexture: "./assets/Roboto-msdf.png",
+		darkColor: new THREE.Color(0x3e3e3e),
+		lightColor: new THREE.Color(0xe2e2e2),
+		width: 3.5,
+		titleFontSize: 0.125,
+		textFontSize: 0.1,
+	}; 
+	const selectedAttributes = {
+		backgroundColor: new THREE.Color( 0x777777 ),
+		fontColor: new THREE.Color( 0x222222 )
+	};
+	const normalAttributes = {
+		backgroundColor: params.darkColor,
+		fontColor: params.lightColor
+	};
+	
+	let popupGroup = new THREE.Group();
+	popupGroup.name = infoObjectsSmall.containerName;
+
+	const container = new ThreeMeshUI.Block({
+		width: params.width,
+		fontFamily: params.fontFamily,
+	  	fontTexture: params.fontTexture,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});
+	const titleBlock = new ThreeMeshUI.Block({
+		height: 0.28,
+		width: params.width,
+		alignContent: "left",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.darkColor,
+	});  
+	const contentBlock = new ThreeMeshUI.Block({
+		height: 0.75,
+		width: params.width,
+		alignContent: "left",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});  
+	container.add(titleBlock, contentBlock);
+	infoObjectsSmall.titleTextObj = new ThreeMeshUI.Text({
+		content: "Info",
+		fontColor: params.lightColor,
+	  	fontSize: params.titleFontSize,
+	});
+	titleBlock.add(infoObjectsSmall.titleTextObj);
+	infoObjectsSmall.contentTextObj = new ThreeMeshUI.Text({
+		content: "Info",
+		fontColor: params.darkColor,
+	  	fontSize: params.titleFontSize,
+	});
+	contentBlock.add(infoObjectsSmall.contentTextObj);
+
+	//btns
+	const btnContainer = new ThreeMeshUI.Block({
+		height: 0.4,
+		width: params.width,
+		justifyContent: 'center',
+		alignContent: 'center',
+		contentDirection: 'row',
+		fontFamily: params.fontFamily,
+	  	fontTexture: params.fontTexture,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});
+
+	const btnBlock = new ThreeMeshUI.Block({
+		height: 0.25,
+		width: 0.6,
+		alignContent: "center",
+		justifyContent: "center",
+		backgroundColor: params.darkColor,
+	}); 
+	const btnText = new ThreeMeshUI.Text({
+		content: "OK",
+		fontColor: params.lightColor,
+	  	fontSize: params.textFontSize,
+	}); 
+	btnText.name = "okBtnInfoSmall"; 
+	btnBlock.setupState({
+		state: "selected",
+		attributes: selectedAttributes
+	});
+	btnBlock.setupState({
+		state: "normal",
+		attributes: normalAttributes
+	});
+	btnBlock.add(btnText);
+	btnContainer.add(btnBlock);
+	hoverObjectsList.push({
+		name: "okBtnInfoSmall",
+		state: 'normal'
+	})
+
+	container.add(btnContainer);
+
+	popupGroup.add(container)
+	popupGroup.position.set(0.0, 2.6, -2.6);
+	popupGroup.visible = false;
+	
+	scene.add(popupGroup);
+}
+
+function createInfoMediumText(){
+	const params = {
+		fontFamily: "./assets/Roboto-msdf.json",
+	  	fontTexture: "./assets/Roboto-msdf.png",
+		darkColor: new THREE.Color(0x3e3e3e),
+		lightColor: new THREE.Color(0xe2e2e2),
+		width: 4.0,
+		titleFontSize: 0.125,
+		textFontSize: 0.1,
+	}; 
+	const selectedAttributes = {
+		backgroundColor: new THREE.Color( 0x777777 ),
+		fontColor: new THREE.Color( 0x222222 )
+	};
+	const normalAttributes = {
+		backgroundColor: params.darkColor,
+		fontColor: params.lightColor
+	};
+	
+	let popupGroup = new THREE.Group();
+	popupGroup.name = infoObjectsMediumText.containerName;
+
+	const container = new ThreeMeshUI.Block({
+		width: params.width,
+		fontFamily: params.fontFamily,
+	  	fontTexture: params.fontTexture,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});
+	const titleBlock = new ThreeMeshUI.Block({
+		height: 0.28,
+		width: params.width,
+		alignContent: "left",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.darkColor,
+	});  
+	const contentBlock = new ThreeMeshUI.Block({
+		height: 2.5,
+		width: params.width,
+		alignContent: "left",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});  
+	container.add(titleBlock, contentBlock);
+	infoObjectsMediumText.titleTextObj = new ThreeMeshUI.Text({
+		content: "Info",
+		fontColor: params.lightColor,
+	  	fontSize: params.titleFontSize,
+	});
+	titleBlock.add(infoObjectsMediumText.titleTextObj);
+	infoObjectsMediumText.contentTextObj = new ThreeMeshUI.Text({
+		content: "Info",
+		fontColor: params.darkColor,
+	  	fontSize: params.titleFontSize,
+	});
+	contentBlock.add(infoObjectsMediumText.contentTextObj);
+
+	//btns
+	const btnContainer = new ThreeMeshUI.Block({
+		height: 0.4,
+		width: params.width,
+		justifyContent: 'center',
+		alignContent: 'center',
+		contentDirection: 'row',
+		fontFamily: params.fontFamily,
+	  	fontTexture: params.fontTexture,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});
+
+	const btnBlock = new ThreeMeshUI.Block({
+		height: 0.25,
+		width: 0.6,
+		alignContent: "center",
+		justifyContent: "center",
+		backgroundColor: params.darkColor,
+	}); 
+	const btnText = new ThreeMeshUI.Text({
+		content: "OK",
+		fontColor: params.lightColor,
+	  	fontSize: params.textFontSize,
+	}); 
+	btnText.name = "okBtnInfoMediumText"; 
+	btnBlock.setupState({
+		state: "selected",
+		attributes: selectedAttributes
+	});
+	btnBlock.setupState({
+		state: "normal",
+		attributes: normalAttributes
+	});
+	btnBlock.add(btnText);
+	btnContainer.add(btnBlock);
+	hoverObjectsList.push({
+		name: "okBtnInfoMediumText",
+		state: 'normal'
+	})
+
+	container.add(btnContainer);
+
+	popupGroup.add(container)
+	popupGroup.position.set(0.0, 2.0, -2.6);
+	popupGroup.visible = false;
+	
+	scene.add(popupGroup);
+}
+
+function createInfoMediumTextImg(){
+	const params = {
+		fontFamily: "./assets/Roboto-msdf.json",
+	  	fontTexture: "./assets/Roboto-msdf.png",
+		darkColor: new THREE.Color(0x3e3e3e),
+		lightColor: new THREE.Color(0xe2e2e2),
+		width: 5.5,
+		titleFontSize: 0.125,
+		textFontSize: 0.1,
+	}; 
+	const selectedAttributes = {
+		backgroundColor: new THREE.Color( 0x777777 ),
+		fontColor: new THREE.Color( 0x222222 )
+	};
+	const normalAttributes = {
+		backgroundColor: params.darkColor,
+		fontColor: params.lightColor
+	};
+	
+	let popupGroup = new THREE.Group();
+	popupGroup.name = infoObjectsMediumTextImg.containerName;
+
+	const container = new ThreeMeshUI.Block({
+		width: params.width,
+		fontFamily: params.fontFamily,
+	  	fontTexture: params.fontTexture,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});
+	const titleBlock = new ThreeMeshUI.Block({
+		height: 0.28,
+		width: params.width,
+		alignContent: "left",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.darkColor,
+	});  
+	const contentBlock = new ThreeMeshUI.Block({
+		height: 0.75,
+		width: params.width,
+		alignContent: "left",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});  
+	container.add(titleBlock, contentBlock);
+	infoObjectsMediumTextImg.titleTextObj = new ThreeMeshUI.Text({
+		content: "Info",
+		fontColor: params.lightColor,
+	  	fontSize: params.titleFontSize,
+	});
+	titleBlock.add(infoObjectsMediumTextImg.titleTextObj);
+	infoObjectsMediumTextImg.contentTextObj = new ThreeMeshUI.Text({
+		content: "Info",
+		fontColor: params.darkColor,
+	  	fontSize: params.titleFontSize,
+	});
+	contentBlock.add(infoObjectsMediumTextImg.contentTextObj);
+
+	infoObjectsMediumTextImg.imgContainerObjName = new ThreeMeshUI.Block({
+		height: 2.0,
+		width: params.width * 0.6,
+		alignContent: "center",
+		justifyContent: "start",
+		padding: 0.1,
+		backgroundColor: params.darkColor,
+	});
+	container.add(infoObjectsMediumTextImg.imgContainerObjName);
+
+	//btns
+	const btnContainer = new ThreeMeshUI.Block({
+		height: 0.4,
+		width: params.width,
+		justifyContent: 'center',
+		alignContent: 'center',
+		contentDirection: 'row',
+		fontFamily: params.fontFamily,
+	  	fontTexture: params.fontTexture,
+		backgroundColor: params.lightColor,
+		backgroundOpacity: 1,
+	});
+
+	const btnBlock = new ThreeMeshUI.Block({
+		height: 0.25,
+		width: 0.6,
+		alignContent: "center",
+		justifyContent: "center",
+		backgroundColor: params.darkColor,
+	}); 
+	const btnText = new ThreeMeshUI.Text({
+		content: "OK",
+		fontColor: params.lightColor,
+	  	fontSize: params.textFontSize,
+	}); 
+	btnText.name = "okBtnInfoMediumTextImg"; 
+	btnBlock.setupState({
+		state: "selected",
+		attributes: selectedAttributes
+	});
+	btnBlock.setupState({
+		state: "normal",
+		attributes: normalAttributes
+	});
+	btnBlock.add(btnText);
+	btnContainer.add(btnBlock);
+	hoverObjectsList.push({
+		name: "okBtnInfoMediumTextImg",
+		state: 'normal'
+	})
+
+	container.add(btnContainer);
+
+	popupGroup.add(container)
+	popupGroup.position.set(0.0, 2.0, -2.6);
+	popupGroup.visible = false;
+	
+	scene.add(popupGroup);
+}
+
 function createCorrectIncorrectPopup(){
 	const params = {
 		fontFamily: "./assets/Roboto-msdf.json",
@@ -1048,7 +1420,11 @@ function showCurrentSimulationStep(){
 	scene.getObjectByName(QuizzObjects.QuizzContainerName).visible = false;
 	scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
 	scene.getObjectByName(successObjects.containerName).visible = false;
-	doGlowObjectsInvisible();
+	scene.getObjectByName(infoObjectsMediumTextImg.containerName).visible = false;
+	scene.getObjectByName(infoObjectsMediumText.containerName).visible = false;
+	scene.getObjectByName(infoObjectsSmall.containerName).visible = false;
+	doGlowObjectsInvisible(); 
+	document.getElementById('video').pause();
 
 	stepSimType = PPE_DATA.vrSim.sim[simulationStep].type;
 	
@@ -1085,6 +1461,36 @@ function showCurrentSimulationStep(){
 			scene.getObjectByName(IntroObjects.mediaContainerObjName).material.map = videoTexture;
 			video.play();
 		}
+	}
+	if (PPE_DATA.vrSim.sim[simulationStep].type === 'info-md-text-img'){
+		//intro container
+		scene.getObjectByName(infoObjectsMediumTextImg.containerName).visible = true;
+		//title
+		infoObjectsMediumTextImg.titleTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].title});
+		//content text
+		infoObjectsMediumTextImg.contentTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].content});
+		//img
+		const loader = new THREE.TextureLoader();  
+		loader.load(PPE_DATA.vrSim.sim[simulationStep].img, function (texture) {
+			//texture.minFilter = THREE.LinearFilter;
+			infoObjectsMediumTextImg.imgContainerObjName.set({ backgroundTexture: texture });
+		});
+	}
+	if (PPE_DATA.vrSim.sim[simulationStep].type === 'info-md-text'){
+		//intro container
+		scene.getObjectByName(infoObjectsMediumText.containerName).visible = true;
+		//title
+		infoObjectsMediumText.titleTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].title});
+		//content text
+		infoObjectsMediumText.contentTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].content});
+	}
+	if (PPE_DATA.vrSim.sim[simulationStep].type === 'info-sm'){
+		//intro container
+		scene.getObjectByName(infoObjectsSmall.containerName).visible = true;
+		//title
+		infoObjectsSmall.titleTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].title});
+		//content text
+		infoObjectsSmall.contentTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].content});
 	}
 	if (PPE_DATA.vrSim.sim[simulationStep].type === 'quizz'){
 		PPE_DATA.vrSim.sim[simulationStep].highlightedObjectNames.forEach(element => {
