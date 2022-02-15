@@ -6128,7 +6128,7 @@
 				"id": 5,
 				"type": "info-md-text",
 				"title": "Info",
-				"content": "BEFORE DONNING: Please be familiar with your local operational arrangements and procedures regarding PPE. The following video is for hospital healthcare workers involved in the assessment and care of individuals with possible or confirmed COVID-19. This video covers how to put on (don) PPE correctly and remove (doff) PPE correctly and safely.\n REMINDER: PPE is one part of a Safe System of Working. Only clinical staff that are trained and competent in the use of PPE, should be allowed to enter a patient's room or clinical setting.\n WARNING: The CDC recommends the use of a trained observer, or buddy, to assist with the safe donning and doffing of PPE. When a trained observer is not available, please follow instructions on your institutional donning/doffing checklists and ensure"
+				"content": "BEFORE DONNING: Please be familiar with your local operational arrangements and procedures regarding PPE. The following video is for hospital healthcare workers involved in the assessment and care of individuals with possible or confirmed COVID-19. This video covers how to put on (don) PPE correctly and remove (doff) PPE correctly and safely.\n\n REMINDER: PPE is one part of a Safe System of Working. Only clinical staff that are trained and competent in the use of PPE, should be allowed to enter a patient's room or clinical setting.\n\n WARNING: The CDC recommends the use of a trained observer, or buddy, to assist with the safe donning and doffing of PPE. When a trained observer is not available, please follow instructions on your institutional donning/doffing checklists and ensure"
 			},
 			{
 				"id": 6,
@@ -6171,6 +6171,18 @@
 			},
 			{
 				"id": 11,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct.\nJewelry, pens, badges, etc. can puncture PPE and should be removed."
+			},
+			{
+				"id": 12,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Begin the donning process outside of the patient room."
+			},
+			{
+				"id": 13,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Gather PPE",
@@ -6182,7 +6194,32 @@
 				"correctAnswer": "quizz-btn-1"
 			},
 			{
-				"id": 12,
+				"id": 14,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nGather PPE for COVID-19 Enhanced Respiratory Precautuins (N95 mask, isolation gown, gloves, face shield).",
+				"img": "./assets/img/PPE.jpg"
+			},
+			{
+				"id": 15,
+				"type": "quizz",
+				"title": "Healthcare provider",
+				"btnText1": "Enter Mr. Jones patient room",
+				"btnText2": "Inspect all exposed skin for wounds",
+				"btnText3": "Put on face shield",
+				"btnText4": "Put on isolation gown",
+				"highlightedObjectNames": ["Body"],
+				"correctObjectName": "Body",
+				"correctAnswer": "quizz-btn-2"
+			},
+			{
+				"id": 16,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct.\nInspect all exposed skin for wounds, cuts, and scrapes."
+			},
+			{
+				"id": 17,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Put on goggles",
@@ -6194,35 +6231,68 @@
 				"correctAnswer": "quizz-btn-2"
 			},
 			{
-				"id": 13,
+				"id": 18,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nUse hand sanitizer and allow to dry fully (20 seconds) OR wash with soap and water.",
+				"img": "./assets/img/sanitize.jpg"
+			},
+			{
+				"id": 19,
 				"type": "put-on",
 				"correctOnjectName": "Robe",
 				"interactiveObjectsName": ["Mask", "Glasses", "Gloves"],
 				"glowObjectsName": ["Robe", "Mask", "Glasses", "Gloves"]
 			},
 			{
-				"id": 10,
+				"id": 20,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct.\nPut on isolation gown."
+			},
+			{
+				"id": 21,
 				"type": "put-on",
 				"correctOnjectName": "Mask",
 				"interactiveObjectsName": ["Glasses", "Gloves"],
 				"glowObjectsName": ["Mask", "Glasses", "Gloves"]
 			},
 			{
-				"id": 11,
+				"id": 22,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nPut on N95 mask and perform a fit check.",
+				"img": "./assets/img/MaskPutOn.jpg"
+			},
+			{
+				"id": 23,
 				"type": "put-on",
 				"correctOnjectName": "Glasses",
 				"interactiveObjectsName": ["Gloves"],
 				"glowObjectsName": ["Glasses", "Gloves"]
 			},
 			{
-				"id": 12,
+				"id": 24,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct.\nPut on face shield."
+			},
+			{
+				"id": 25,
 				"type": "put-on",
 				"correctOnjectName": "Gloves",
 				"interactiveObjectsName": [],
 				"glowObjectsName": ["Gloves"]
 			},
 			{
-				"id": 13,
+				"id": 26,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nPut on gloves ensuring gown cuffs are covered",
+				"img": "./assets/img/GlovesPutOn.jpg"
+			},
+			{
+				"id": 27,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Enter the patient room",
@@ -6234,31 +6304,33 @@
 				"correctAnswer": "quizz-btn-1"
 			},
 			{
-				"id": 14,
+				"id": 28,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct.\nPerform final PPE inspection BEFORE entering the patient care area and THEN enter the patient room."
+			},
+			{
+				"id": 29,
 				"type": "change-room"
 			},
 			{
-				"id": 15,
-				"type": "intro-text",
+				"id": 30,
+				"type": "info-md-text",
 				"title": "Info",
-				"content": "You are in the patient room, so remember: \n\n - If gloves are grossly contaminated, use purple wipes & allow to dry for 2 minutes. \n\n - Do not turn back to the patient (to keep back of gown clean). \n\n - Avoid readjusting PPE (especially face shield/goggles) while in the room. \n\n - Limit touching surfaces in the patient care area to reduce risk of contamination.",
-				"prevBtnVisibility": false,
-				"nextBtnVisibility": true
+				"content": "You are in the patient room, so remember: \n\n - If gloves are grossly contaminated, use purple wipes & allow to dry for 2 minutes. \n\n - Do not turn back to the patient (to keep back of gown clean). \n\n - Avoid readjusting PPE (especially face shield/goggles) while in the room. \n\n - Limit touching surfaces in the patient care area to reduce risk of contamination."
 			},
 			{
-				"id": 16,
-				"type": "intro-text",
-				"title": "Info",
-				"content": "You have completed your work with the patient and are ready to start the doffing process. Begin the doffing process inside the room at least six feet from the patient in an area that is safe to do so. Preferably by the door.",
-				"prevBtnVisibility": false,
-				"nextBtnVisibility": true
-			},
-			{
-				"id": 17,
+				"id": 31,
 				"type": "create-polution-decals"
 			},
 			{
-				"id": 18,
+				"id": 32,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "You have completed your work with the patient and are ready to start the doffing process. Begin the doffing process inside the room at least six feet from the patient in an area that is safe to do so. Preferably by the door."
+			},
+			{
+				"id": 33,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Doff gown and place in garbage",
@@ -6270,7 +6342,14 @@
 				"correctAnswer": "quizz-btn-2"
 			},
 			{
-				"id": 19,
+				"id": 34,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nPerform hand hygiene with ETOH-based hand sanitizer. Use purple wipes IF you note any gross cantamination and allow to dry for 2 minutes.",
+				"img": "./assets/img/ETOHSanitizer.jpg"
+			},
+			{
+				"id": 35,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Remove gown & gloves together",
@@ -6282,22 +6361,29 @@
 				"correctAnswer": "quizz-btn-1"
 			},
 			{
-				"id": 20,
+				"id": 36,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nBegin by pulling at the gown midsection to break the waist ties, then, using both hands, grab the gown in the front of your chest crossing arms and slowly extend your arms fully in front of you pulling the gown off and forward. The goal is to roll the gown up slowly turning the contaminated outer surface internally. You should lean slightly forward and hold it fully away.",
+				"img": "./assets/img/TakeOffGown.jpg"
+			},
+			{
+				"id": 38,
 				"type": "take-off",
 				"objectName": "Robe"
 			},
 			{
-				"id": 21,
+				"id": 39,
 				"type": "take-off",
 				"objectName": "Gloves"
 			},
 			{
-				"id": 22,
+				"id": 40,
 				"type": "polution-decals",
 				"visibleDecals": ["decal-mask", "decal-eye"]
 			},
 			{
-				"id": 23,
+				"id": 41,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Set gown and gloves on the floor by the door",
@@ -6309,7 +6395,13 @@
 				"correctAnswer": "quizz-btn-2"
 			},
 			{
-				"id": 24,
+				"id": 42,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct\nDrop gown and gloves in garbage."
+			},
+			{
+				"id": 43,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Perform hand hygiene",
@@ -6321,14 +6413,27 @@
 				"correctAnswer": "quizz-btn-1"
 			},
 			{
-				"id": 25,
+				"id": 44,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nPerform hand hygiene with ETOH-based hand sanitizer.",
+				"img": "./assets/img/ETOHSanitizer.jpg"
+			},
+			{
+				"id": 45,
 				"type": "put-on",
 				"correctOnjectName": "Gloves",
 				"interactiveObjectsName": [],
 				"glowObjectsName": ["Gloves"]
 			},
 			{
-				"id": 26,
+				"id": 46,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct\nDon new pair of clean gloves"
+			},
+			{
+				"id": 47,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Disinfect front of face shield",
@@ -6340,12 +6445,18 @@
 				"correctAnswer": "quizz-btn-1"
 			},
 			{
-				"id": 27,
+				"id": 48,
 				"type": "polution-decals",
 				"visibleDecals": ["decal-mask"]
 			},
 			{
-				"id": 28,
+				"id": 49,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct\nDisinfect front of face shield with purple wipe (while still on HCW face) being careful not to touch the inside og the shield."
+			},
+			{
+				"id": 50,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Leave the room",
@@ -6357,12 +6468,18 @@
 				"correctAnswer": "quizz-btn-2"
 			},
 			{
-				"id": 29,
+				"id": 51,
 				"type": "take-off",
 				"objectName": "Gloves"
 			},
 			{
-				"id": 30,
+				"id": 52,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct\nDoff gloves and place in garbage."
+			},
+			{
+				"id": 53,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Remove N95 mask",
@@ -6374,7 +6491,14 @@
 				"correctAnswer": "quizz-btn-3"
 			},
 			{
-				"id": 31,
+				"id": 54,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nPerform hand hygiene with ETOH-based hand sanitizer.",
+				"img": "./assets/img/ETOHSanitizer.jpg"
+			},
+			{
+				"id": 55,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Remove N95 mask",
@@ -6386,19 +6510,23 @@
 				"correctAnswer": "quizz-btn-2"
 			},
 			{
-				"id": 32,
+				"id": 56,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct\nLeave the room and prepare to continue the doffing process."
+			},
+			{
+				"id": 57,
 				"type": "change-room"
 			},
 			{
-				"id": 33,
-				"type": "intro-text",
+				"id": 58,
+				"type": "info-sm",
 				"title": "Info",
-				"content": "You are outside the room and prepared to continue the doffing process",
-				"prevBtnVisibility": false,
-				"nextBtnVisibility": true
+				"content": "You are outside the room and prepared to continue the doffing process"
 			},
 			{
-				"id": 34,
+				"id": 59,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Don new pair of clean gloves",
@@ -6410,7 +6538,14 @@
 				"correctAnswer": "quizz-btn-2"
 			},
 			{
-				"id": 35,
+				"id": 60,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nPerform hand hygiene with ETOH-based hand sanitizer.",
+				"img": "./assets/img/ETOHSanitizer.jpg"
+			},
+			{
+				"id": 61,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Remove N95 mask",
@@ -6422,12 +6557,18 @@
 				"correctAnswer": "quizz-btn-4"
 			},
 			{
-				"id": 36,
+				"id": 62,
 				"type": "take-off",
 				"objectName": "Glasses"
 			},
 			{
-				"id": 37,
+				"id": 63,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct\nRemove face shield - reach back, grab the strap and pull it over towards the front. Place on bedside table or designated surface for re-use."
+			},
+			{
+				"id": 64,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Perform hand hygiene",
@@ -6439,7 +6580,14 @@
 				"correctAnswer": "quizz-btn-1"
 			},
 			{
-				"id": 38,
+				"id": 65,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nPerform hand hygiene with ETOH-based hand sanitizer.",
+				"img": "./assets/img/ETOHSanitizer.jpg"
+			},
+			{
+				"id": 66,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Don new pair of clean gloves",
@@ -6451,17 +6599,23 @@
 				"correctAnswer": "quizz-btn-3"
 			},
 			{
-				"id": 39,
+				"id": 67,
 				"type": "take-off",
 				"objectName": "Mask"
 			},
 			{
-				"id": 40,
+				"id": 68,
 				"type": "polution-decals",
 				"visibleDecals": []
 			},
 			{
-				"id": 41,
+				"id": 69,
+				"type": "info-sm",
+				"title": "Info",
+				"content": "Correct\nRemove N95 mask, making sure to only touch straps of mask, and drop in garbage."
+			},
+			{
+				"id": 70,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Perform hand hygiene",
@@ -6473,7 +6627,14 @@
 				"correctAnswer": "quizz-btn-1"
 			},
 			{
-				"id": 42,
+				"id": 71,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Correct\nPerform hand hygiene with ETOH-based hand sanitizer.",
+				"img": "./assets/img/ETOHSanitizer.jpg"
+			},
+			{
+				"id": 72,
 				"type": "sim-end",
 				"title": "info",
 				"content": "Congratulations, you have completed the VR PPE Demo. Click OK to restart."

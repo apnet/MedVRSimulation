@@ -370,44 +370,38 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 						scene.getObjectByName(QuizzObjects.QuizzContainerName).visible = true;
 					}
 					if (intersect.object.name == "MeshUI-Frame" && isQuizzVisible)
-						if (intersect.object.parent.children[1].name.includes('quizz-btn')){
-							let isCorrrect = false;
-							if (intersect.object.parent.children[1].name === QuizzObjects.correctQuizzBtnName){
-								isCorrrect = true;
-								correctIncorrectObjects.contentTextObj.set({content: 'Correct'});
-							}
-							else correctIncorrectObjects.contentTextObj.set({content: 'Incorrect'});
+						if (intersect.object.parent.children[1]?.name.includes('quizz-btn')){
 							scene.getObjectByName(QuizzObjects.QuizzContainerName).visible = false;
-							scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
-							setTimeout(() => {
-								scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
-								if (isCorrrect)
-									simulationStep++;
+							if (intersect.object.parent.children[1].name === QuizzObjects.correctQuizzBtnName){
+								simulationStep++;
 								showCurrentSimulationStep();
-							}, 2000);
+							}
+							else {
+								correctIncorrectObjects.contentTextObj.set({content: 'Incorrect.\nPlease try again.'});
+								scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
+								setTimeout(() => {
+									scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
+									showCurrentSimulationStep();
+								}, 2000);
+							}
 						}
 				}
 				if (stepSimType === 'put-on'){
 					if (intersect.object.parent.name === putOnObjects.correctObjectName){
 						scene.getObjectByName(putOnObjects.correctObjectName).position.copy(objectsParams.body.position);
 						scene.getObjectByName(putOnObjects.correctObjectName + "Glow").visible = false;
-						correctIncorrectObjects.contentTextObj.set({content: 'Correct'});
-						scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
-						setTimeout(() => {
-							scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
-							simulationStep++;
-							showCurrentSimulationStep();
-						}, 2000);
-					}
-					putOnObjects.interactiveObject.forEach((element) => {
-						if (intersect.object.parent.name === element){
-							correctIncorrectObjects.contentTextObj.set({content: 'Incorrect'});
-							scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
-							setTimeout(() => {
-								scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
-							}, 2000);
-						}
-					});
+						simulationStep++;
+						showCurrentSimulationStep();
+					} else
+						putOnObjects.interactiveObject.forEach((element) => {
+							if (intersect.object.parent.name === element){
+								correctIncorrectObjects.contentTextObj.set({content: 'Incorrect.\nPlease try again.'});
+								scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
+								setTimeout(() => {
+									scene.getObjectByName(correctIncorrectObjects.containerName).visible = false;
+								}, 2000);
+							}
+						});
 				}
 				if (stepSimType === 'sim-end'){
 					if (intersect.object.name == "MeshUI-Frame")
