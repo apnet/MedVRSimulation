@@ -64,51 +64,58 @@ let stepSimType = "";
 
 let objectsParams = {
 	modelPath: './assets/models/',
+	room: {
+		fileName: 'VR_Room_Test_01.fbx',
+		objName: 'Room',
+		position: new THREE.Vector3(-3.2, -1.5, 0.33),
+		rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
+		scale: 	  new THREE.Vector3(0.07, 0.07, 0.07),
+	},	
 	body: {
 		fileName: 'physician',
 		objName: 'Body',
-		position: new THREE.Vector3(-2.6, -1.5, -1.0),
-		glowPosition: new THREE.Vector3(-2.94, -1.5, -4.93),
+		position: new THREE.Vector3(-2.4, -1.5, -1.0),
+		glowPosition: new THREE.Vector3(-2.77, -1.5, -4.34),
 		rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-		scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
-		glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
+		scale: 	  new THREE.Vector3(0.07, 0.07, 0.07),
+		glowScale: 	  new THREE.Vector3(0.077, 0.072, 0.01),
 	},	
 	interactiveObjectList: [
 		{
 			id: 4,
 			fileName: 'gown',
 			objName: 'Robe',
-			position: new THREE.Vector3(-5.5, -1.5, -1.5),
-			glowPosition: new THREE.Vector3(-5.78, -1.6, -5.32),
-			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
-			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
+			position: new THREE.Vector3(-5.0, -1.5, -2.0),
+			glowPosition: new THREE.Vector3(-5.32, -1.6, -5.27),
+			scale: 	  new THREE.Vector3(0.07, 0.07, 0.07),
+			glowScale: 	  new THREE.Vector3(0.077, 0.072, 0.01),
 		},
 		{
 			id: 5,
 			fileName: 'mask',
 			objName: 'Mask',
-			position: new THREE.Vector3(-1.2, -3.5, -1.7),
-			glowPosition: new THREE.Vector3(-1.52, -3.58, -5.32),
-			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
-			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
+			position: new THREE.Vector3(-0.8, -3.2, -1.7),
+			glowPosition: new THREE.Vector3(-1.14, -3.3, -4.79),
+			scale: 	  new THREE.Vector3(0.07, 0.07, 0.07),
+			glowScale: 	  new THREE.Vector3(0.077, 0.072, 0.01),
 		},
 		{
 			id: 6,
 			fileName: 'eye protection',
 			objName: 'Glasses',
-			position: new THREE.Vector3(-0.8, -3.65, -1.0),
-			glowPosition: new THREE.Vector3(-1.14, -3.74, -4.61),
-			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
-			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
+			position: new THREE.Vector3(-0.19, -3.4, -1.7),
+			glowPosition: new THREE.Vector3(-0.54, -3.5, -4.77),
+			scale: 	  new THREE.Vector3(0.07, 0.07, 0.07),
+			glowScale: 	  new THREE.Vector3(0.077, 0.072, 0.01),
 		},
 		{
 			id: 7,
 			fileName: 'gloves',
 			objName: 'Gloves',
-			position: new THREE.Vector3(-4.0, 0.1, -1.9),
-			glowPosition: new THREE.Vector3(-4.34, 0.04, -5.84),
-			scale: 	  new THREE.Vector3(0.08, 0.08, 0.08),
-			glowScale: 	  new THREE.Vector3(0.087, 0.082, 0.01),
+			position: new THREE.Vector3(-3.6, -0.23, -2.2),
+			glowPosition: new THREE.Vector3(-3.6, -0.27, -5.55),
+			scale: 	  new THREE.Vector3(0.07, 0.07, 0.07),
+			glowScale: 	  new THREE.Vector3(0.07, 0.072, 0.01),
 		},
 	],
 	decals: [
@@ -195,15 +202,15 @@ class App {
 		let fbxLoader = new FBXLoader();
 		fbxLoader.setPath(objectsParams.modelPath);
 		fbxLoader.load(
-			'VR_Room_Test_01.fbx',
+			objectsParams.room.fileName,
 			(object) => {
-				object.name = 'Room';
+				object.name = objectsParams.room.objName;
 				roomObj.add(object)
 			}
 		)
-		roomObj.scale.set(0.08, 0.08, 0.08);
-		roomObj.position.set(-4.0, -1.5, 1.2); 
-		roomObj.name = 'Room';
+		roomObj.scale.copy(objectsParams.room.scale);
+		roomObj.position.copy(objectsParams.room.position); 
+		roomObj.name = objectsParams.room.objName;
 		scene.add(roomObj);
 				
 		//patient
@@ -346,7 +353,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 				}
 				if (stepSimType.includes('info')){
 					if (intersect.object.name == "MeshUI-Frame"){
-						let objName = intersect.object.parent.children[1].name;
+						let objName = intersect.object.parent.children[1]?.name;
 						if (
 							(objName === 'okBtnInfoMediumTextImg' && stepSimType === 'info-md-text-img') ||
 							(objName === 'okBtnInfoMediumText' && stepSimType === 'info-md-text') ||
@@ -961,7 +968,7 @@ function createInfoSmall(){
 		backgroundColor: params.darkColor,
 	});  
 	const contentBlock = new ThreeMeshUI.Block({
-		height: 0.75,
+		height: 0.5,
 		width: params.width,
 		alignContent: "left",
 		justifyContent: "start",
@@ -1149,7 +1156,7 @@ function createInfoMediumTextImg(){
 	  	fontTexture: "./assets/Roboto-msdf.png",
 		darkColor: new THREE.Color(0x3e3e3e),
 		lightColor: new THREE.Color(0xe2e2e2),
-		width: 5.5,
+		width: 5.0,
 		titleFontSize: 0.125,
 		textFontSize: 0.1,
 	}; 
@@ -1181,7 +1188,7 @@ function createInfoMediumTextImg(){
 		backgroundColor: params.darkColor,
 	});  
 	const contentBlock = new ThreeMeshUI.Block({
-		height: 0.75,
+		height: 1.5,
 		width: params.width,
 		alignContent: "left",
 		justifyContent: "start",
@@ -1204,12 +1211,11 @@ function createInfoMediumTextImg(){
 	contentBlock.add(infoObjectsMediumTextImg.contentTextObj);
 
 	infoObjectsMediumTextImg.imgContainerObjName = new ThreeMeshUI.Block({
-		height: 2.0,
-		width: params.width * 0.6,
+		height: 1.5,
+		width: 1.5,
 		alignContent: "center",
 		justifyContent: "start",
-		padding: 0.1,
-		backgroundColor: params.darkColor,
+		padding: 0.1
 	});
 	container.add(infoObjectsMediumTextImg.imgContainerObjName);
 

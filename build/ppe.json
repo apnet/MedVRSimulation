@@ -6119,24 +6119,24 @@
 			},
 			{
 				"id": 4,
+				"type": "info-md-text-img",
+				"title": "Info",
+				"content": "Instructions. \n During this eMicroSim you will complete the following steps:\n 1. Watch short videos on Donning and Doffing PPE.\n 2. After each video, perform steps within the eMicroSim.\n 3. Take short quiz.\n 4. Review references and a debriefing report.\n 5. Review your score on the leaderboard.\n Note: In this eMicroSim, you only be selecting the healthcare provider.\n Good luck and thank you for taking this brief learning exercise.",
+				"img": "./assets/img/body.jpeg"
+			},
+			{
+				"id": 5,
+				"type": "info-md-text",
+				"title": "Info",
+				"content": "BEFORE DONNING: Please be familiar with your local operational arrangements and procedures regarding PPE. The following video is for hospital healthcare workers involved in the assessment and care of individuals with possible or confirmed COVID-19. This video covers how to put on (don) PPE correctly and remove (doff) PPE correctly and safely.\n REMINDER: PPE is one part of a Safe System of Working. Only clinical staff that are trained and competent in the use of PPE, should be allowed to enter a patient's room or clinical setting.\n WARNING: The CDC recommends the use of a trained observer, or buddy, to assist with the safe donning and doffing of PPE. When a trained observer is not available, please follow instructions on your institutional donning/doffing checklists and ensure"
+			},
+			{
+				"id": 6,
 				"type": "intro-video",
 				"content": "",
 				"video": "",
 				"prevBtnVisibility": "true",
 				"nextBtnVisibility": "true"
-			},
-			{
-				"id": 5,
-				"type": "info-md-text-img",
-				"title": "Info",
-				"content": "Instructions. \n During this eMicroSim you will complete the following steps:\n 1. Watch short videos on Donning and Doffing PPE.\n 2. After each video, perform steps within the eMicroSim.\n 3. Take short quiz.\n 4. Review references and a debriefing report.\n 5. Review your score on the leaderboard.\n Note: In this eMicroSim, you only be selecting the healthcare provider.\n Good luck and thank you for taking this brief learning exercise.",
-				"img": "./assets/img/body.png"
-			},
-			{
-				"id": 6,
-				"type": "info-md-text",
-				"title": "Info",
-				"content": "BEFORE DONNING: Please be familiar with your local operational arrangements and procedures regarding PPE. The following video is for hospital healthcare workers involved in the assessment and care of individuals with possible or confirmed COVID-19. This video covers how to put on (don) PPE correctly and remove (doff) PPE correctly and safely.\n REMINDER: PPE is one part of a Safe System of Working. Only clinical staff that are trained and competent in the use of PPE, should be allowed to enter a patient's room or clinical setting.\n WARNING: The CDC recommends the use of a trained observer, or buddy, to assist with the safe donning and doffing of PPE. When a trained observer is not available, please follow instructions on your institutional donning/doffing checklists and ensure"
 			},
 			{
 				"id": 7,
@@ -6148,7 +6148,7 @@
 				"id": 8,
 				"type": "info-md-text-img",
 				"title": "Info",
-				"content": "The CDC recommends the use of the trained observer, or buddy, to assist with the safe donning and doffing of PPE. When a trained observer is not available, please follow instructions on your institutional donning/doffing checklists and ensure each step is completed correctly. It is recommended one use the restroom and hydrate prior to donning PPE.",
+				"content": "\n The CDC recommends the use of the trained observer, or buddy, to assist with the safe donning and doffing of PPE.\n When a trained observer is not available, please follow instructions on your institutional donning/doffing checklists and ensure each step is completed correctly.\n It is recommended one use the restroom and hydrate prior to donning PPE.",
 				"img": "./assets/img/persons.png"
 			},
 			{
@@ -6170,7 +6170,7 @@
 				"correctAnswer": "quizz-btn-3"
 			},
 			{
-				"id": 7,
+				"id": 11,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Gather PPE",
@@ -6182,7 +6182,7 @@
 				"correctAnswer": "quizz-btn-1"
 			},
 			{
-				"id": 8,
+				"id": 12,
 				"type": "quizz",
 				"title": "Healthcare provider",
 				"btnText1": "Put on goggles",
@@ -6194,7 +6194,7 @@
 				"correctAnswer": "quizz-btn-2"
 			},
 			{
-				"id": 9,
+				"id": 13,
 				"type": "put-on",
 				"correctOnjectName": "Robe",
 				"interactiveObjectsName": ["Mask", "Glasses", "Gloves"],
