@@ -59262,7 +59262,7 @@
 			objName: 'Body',
 			position: new Vector3(-2.4, -1.5, -1.0),
 			glowPosition: new Vector3(-2.77, -1.5, -4.34),
-			rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
+			rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),		
 			scale: 	  new Vector3(0.07, 0.07, 0.07),
 			glowScale: 	  new Vector3(0.077, 0.072, 0.01),
 		},	
@@ -59273,6 +59273,9 @@
 				objName: 'Robe',
 				position: new Vector3(-5.0, -1.5, -2.0),
 				glowPosition: new Vector3(-5.32, -1.6, -5.27),
+				droppedPosition: new Vector3(1, 2, -1),
+				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
+				droppedRotation: new Vector3(-1.35, 0, 1.74),
 				scale: 	  new Vector3(0.07, 0.07, 0.07),
 				glowScale: 	  new Vector3(0.077, 0.072, 0.01),
 			},
@@ -59282,6 +59285,7 @@
 				objName: 'Mask',
 				position: new Vector3(-0.8, -3.2, -1.7),
 				glowPosition: new Vector3(-1.14, -3.3, -4.79),
+				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 				scale: 	  new Vector3(0.07, 0.07, 0.07),
 				glowScale: 	  new Vector3(0.077, 0.072, 0.01),
 			},
@@ -59291,6 +59295,7 @@
 				objName: 'Glasses',
 				position: new Vector3(-0.19, -3.4, -1.7),
 				glowPosition: new Vector3(-0.54, -3.5, -4.77),
+				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 				scale: 	  new Vector3(0.07, 0.07, 0.07),
 				glowScale: 	  new Vector3(0.077, 0.072, 0.01),
 			},
@@ -59300,6 +59305,20 @@
 				objName: 'Gloves',
 				position: new Vector3(-3.6, -0.23, -2.2),
 				glowPosition: new Vector3(-3.6, -0.27, -5.55),
+				droppedPosition: new Vector3(-4.35, 1.32, -0.62),
+				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
+				droppedRotation: new Vector3(-1.1, 0, 0),
+				scale: 	  new Vector3(0.07, 0.07, 0.07),
+				glowScale: 	  new Vector3(0.07, 0.072, 0.01),
+			},
+			{
+				id: 7,
+				fileName: 'gloves',
+				objName: 'Gloves2',
+				position: new Vector3(-3.6, -0.23, -2.2),
+				glowPosition: new Vector3(-3.6, -0.27, -5.55),
+				droppedPosition: new Vector3(-4.35, 1.32, -0.62),
+				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 				scale: 	  new Vector3(0.07, 0.07, 0.07),
 				glowScale: 	  new Vector3(0.07, 0.072, 0.01),
 			},
@@ -59308,49 +59327,49 @@
 			{
 				objName: 'gown',
 				decalName: 'decal-gown-1',
-				position: new Vector3(1.044, 1.95, -5.05),
+				position: new Vector3(0.77, 1.49, -4.54),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'gown',
 				decalName: 'decal-gown-2',
-				position: new Vector3(1.447, 1.5, -5.04),
+				position: new Vector3(1.1, 1.07, -4.52),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'gown',
 				decalName: 'decal-gown-3',
-				position: new Vector3(0.984, 0.61, -5.086),
-				orientation: new Euler(0, 0, 0),
-				scale: new Vector3(0.2, 0.2, 0.2)	
-			},
-			{
-				objName: 'Glove_on_hands',
-				decalName: 'decal-gloves',
-				position: new Vector3(1.92, 0.62, -5.48),
+				position: new Vector3(0.86, 0.36, -4.545),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'gown',
 				decalName: 'decal-gown-4',
-				position: new Vector3(1.47, -0.15, -5.075),
+				position: new Vector3(1.16, -0.43, -4.57),
+				orientation: new Euler(0, 0, 0),
+				scale: new Vector3(0.2, 0.2, 0.2)	
+			},
+			{
+				objName: 'Glove_on_hands',
+				decalName: 'decal-gloves',
+				position: new Vector3(1.51, 0.51, -4.9),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'N95_mask',
 				decalName: 'decal-mask',
-				position: new Vector3(1.26, 1.46, -5.09),
+				position: new Vector3(0.973, 2.0, -4.56),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'eye_protection',
 				decalName: 'decal-eye',
-				position: new Vector3(1.44, 2.67, -5.11),
+				position: new Vector3(0.9, 2.2, -4.6),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.1, 0.1, 0.1)	
 			},
@@ -60148,7 +60167,7 @@
 			backgroundColor: params.darkColor,
 		});  
 		const contentBlock = new ThreeMeshUI.Block({
-			height: 0.5,
+			height: 0.7,
 			width: params.width,
 			alignContent: "left",
 			justifyContent: "start",
@@ -60646,6 +60665,7 @@
 
 				scene.getObjectByName(IntroObjects.mediaContainerObjName).material.map = videoTexture;
 				video.play();
+				video.currentTime = PPE_DATA.vrSim.sim[simulationStep].time;
 			}
 		}
 		if (PPE_DATA.vrSim.sim[simulationStep].type === 'info-md-text-img'){
@@ -60713,7 +60733,24 @@
 		if (PPE_DATA.vrSim.sim[simulationStep].type === 'take-off'){
 			const objName = PPE_DATA.vrSim.sim[simulationStep].objectName;
 			const objProperties = objectsParams.interactiveObjectList.filter(i => i.objName == objName)[0];
-			scene.getObjectByName(objName).position.copy(objProperties.position);
+			scene.getObjectByName(objName).position.copy(objProperties.droppedPosition);
+			scene.getObjectByName(objName).rotation.setFromVector3(objProperties.droppedRotation);
+			simulationStep++;
+			showCurrentSimulationStep();
+		}
+		if (PPE_DATA.vrSim.sim[simulationStep].type === 'throw-away'){
+			const objName = PPE_DATA.vrSim.sim[simulationStep].objectName;
+			objectsParams.interactiveObjectList.filter(i => i.objName == objName)[0];
+			scene.getObjectByName(objName).visible = false;
+			simulationStep++;
+			showCurrentSimulationStep();
+		}
+		if (PPE_DATA.vrSim.sim[simulationStep].type === 'init-med-objects'){
+			objectsParams.interactiveObjectList.forEach((e) => {
+				scene.getObjectByName(e.objName).visible = true;
+				scene.getObjectByName(e.objName).position.copy(e.position);
+				scene.getObjectByName(e.objName).rotation.setFromVector3(e.rotation);
+			});
 			simulationStep++;
 			showCurrentSimulationStep();
 		}
