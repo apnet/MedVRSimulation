@@ -59255,121 +59255,121 @@
 			objName: 'Room',
 			position: new Vector3(-3.2, -1.5, 0.33),
 			rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-			scale: 	  new Vector3(0.07, 0.07, 0.07),
+			scale: 	  new Vector3(0.06, 0.06, 0.06),
 		},	
 		body: {
 			fileName: 'physician',
 			objName: 'Body',
 			position: new Vector3(-2.4, -1.5, -1.0),
-			glowPosition: new Vector3(-2.77, -1.5, -4.34),
+			glowPosition: new Vector3(-2.75, -1.54, -3.73),
 			rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),		
-			scale: 	  new Vector3(0.07, 0.07, 0.07),
-			glowScale: 	  new Vector3(0.077, 0.072, 0.01),
+			scale: 	  new Vector3(0.06, 0.06, 0.06),
+			glowScale: 	  new Vector3(0.067, 0.062, 0.01),
 		},	
 		interactiveObjectList: [
 			{
 				id: 4,
 				fileName: 'gown',
 				objName: 'Robe',
-				position: new Vector3(-5.0, -1.5, -2.0),
-				glowPosition: new Vector3(-5.32, -1.6, -5.27),
-				droppedPosition: new Vector3(1, 2, -1),
+				position: new Vector3(-5.0, -1.5, -1.9),
+				glowPosition: new Vector3(-5.32, -1.6, -4.6),
+				droppedPosition: new Vector3(0.65, 1.48, -0.66),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 				droppedRotation: new Vector3(-1.35, 0, 1.74),
-				scale: 	  new Vector3(0.07, 0.07, 0.07),
-				glowScale: 	  new Vector3(0.077, 0.072, 0.01),
+				scale: 	  new Vector3(0.06, 0.06, 0.06),
+				glowScale: 	  new Vector3(0.067, 0.062, 0.01),
 			},
 			{
 				id: 5,
 				fileName: 'mask',
 				objName: 'Mask',
-				position: new Vector3(-0.8, -3.2, -1.7),
-				glowPosition: new Vector3(-1.14, -3.3, -4.79),
+				position: new Vector3(-1.12, -2.97, -1.45),
+				glowPosition: new Vector3(-1.46, -3.06, -4.0),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-				scale: 	  new Vector3(0.07, 0.07, 0.07),
-				glowScale: 	  new Vector3(0.077, 0.072, 0.01),
+				scale: 	  new Vector3(0.06, 0.06, 0.06),
+				glowScale: 	  new Vector3(0.067, 0.062, 0.01),
 			},
 			{
 				id: 6,
 				fileName: 'eye protection',
 				objName: 'Glasses',
-				position: new Vector3(-0.19, -3.4, -1.7),
-				glowPosition: new Vector3(-0.54, -3.5, -4.77),
+				position: new Vector3(-0.64, -3.08, -1.35),
+				glowPosition: new Vector3(-0.98, -3.19, -3.9),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-				scale: 	  new Vector3(0.07, 0.07, 0.07),
-				glowScale: 	  new Vector3(0.077, 0.072, 0.01),
+				scale: 	  new Vector3(0.06, 0.06, 0.06),
+				glowScale: 	  new Vector3(0.067, 0.062, 0.01),
 			},
 			{
 				id: 7,
 				fileName: 'gloves',
 				objName: 'Gloves',
-				position: new Vector3(-3.6, -0.23, -2.2),
-				glowPosition: new Vector3(-3.6, -0.27, -5.55),
-				droppedPosition: new Vector3(-4.35, 1.32, -0.62),
+				position: new Vector3(-3.6, -0.36, -1.85),
+				glowPosition: new Vector3(-3.59, -0.4, -4.6),
+				droppedPosition: new Vector3(-3.95, 0.95, -0.33),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 				droppedRotation: new Vector3(-1.1, 0, 0),
-				scale: 	  new Vector3(0.07, 0.07, 0.07),
-				glowScale: 	  new Vector3(0.07, 0.072, 0.01),
+				scale: 	  new Vector3(0.06, 0.06, 0.06),
+				glowScale: 	  new Vector3(0.06, 0.062, 0.01),
 			},
 			{
 				id: 7,
 				fileName: 'gloves',
 				objName: 'Gloves2',
-				position: new Vector3(-3.6, -0.23, -2.2),
-				glowPosition: new Vector3(-3.6, -0.27, -5.55),
+				position: new Vector3(-3.6, -0.36, -1.85),
+				glowPosition: new Vector3(-3.59, -0.4, -4.6),
 				droppedPosition: new Vector3(-4.35, 1.32, -0.62),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-				scale: 	  new Vector3(0.07, 0.07, 0.07),
-				glowScale: 	  new Vector3(0.07, 0.072, 0.01),
+				scale: 	  new Vector3(0.06, 0.06, 0.06),
+				glowScale: 	  new Vector3(0.06, 0.062, 0.01),
 			},
 		],
 		decals: [
 			{
 				objName: 'gown',
 				decalName: 'decal-gown-1',
-				position: new Vector3(0.77, 1.49, -4.54),
+				position: new Vector3(0.31, 1.135, -4.07),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'gown',
 				decalName: 'decal-gown-2',
-				position: new Vector3(1.1, 1.07, -4.52),
+				position: new Vector3(0.59, 0.79, -4.02),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'gown',
 				decalName: 'decal-gown-3',
-				position: new Vector3(0.86, 0.36, -4.545),
+				position: new Vector3(0.387, -0.02, -4.04),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'gown',
 				decalName: 'decal-gown-4',
-				position: new Vector3(1.16, -0.43, -4.57),
+				position: new Vector3(0.63, -0.485, -4.05),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'Glove_on_hands',
 				decalName: 'decal-gloves',
-				position: new Vector3(1.51, 0.51, -4.9),
+				position: new Vector3(0.97, 0.174, -4.35),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'N95_mask',
 				decalName: 'decal-mask',
-				position: new Vector3(0.973, 2.0, -4.56),
+				position: new Vector3(0.5, 1.5, -4.05),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.2, 0.2, 0.2)	
 			},
 			{
 				objName: 'eye_protection',
 				decalName: 'decal-eye',
-				position: new Vector3(0.9, 2.2, -4.6),
+				position: new Vector3(0.43, 1.64, -4.01),
 				orientation: new Euler(0, 0, 0),
 				scale: new Vector3(0.1, 0.1, 0.1)	
 			},
@@ -59539,7 +59539,7 @@
 
 			//find intersects
 	        const intersections = this.raycaster.intersectObjects(scene.children, true);
-			//console.log(intersections)
+			console.log(intersections);
 			const isQuizzVisible = scene.getObjectByName(QuizzObjects.QuizzContainerName).visible;
 			const isCorrectPopupVisible = scene.getObjectByName(correctIncorrectObjects.containerName).visible;
 			intersections.forEach(intersect => {
