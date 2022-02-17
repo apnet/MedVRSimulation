@@ -59255,7 +59255,7 @@
 			objName: 'Room',
 			position: new Vector3(-3.2, -1.5, 0.33),
 			rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-			scale: 	  new Vector3(0.06, 0.06, 0.06),
+			scale: 	  new Vector3(0.065, 0.065, 0.065),
 		},	
 		body: {
 			fileName: 'physician',
@@ -59263,7 +59263,7 @@
 			position: new Vector3(-2.4, -1.5, -1.0),
 			glowPosition: new Vector3(-2.75, -1.54, -3.73),
 			rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),		
-			scale: 	  new Vector3(0.06, 0.06, 0.06),
+			scale: 	  new Vector3(0.065, 0.065, 0.065),
 			glowScale: 	  new Vector3(0.067, 0.062, 0.01),
 		},	
 		interactiveObjectList: [
@@ -59276,7 +59276,7 @@
 				droppedPosition: new Vector3(0.65, 1.48, -0.66),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 				droppedRotation: new Vector3(-1.35, 0, 1.74),
-				scale: 	  new Vector3(0.06, 0.06, 0.06),
+				scale: 	  new Vector3(0.065, 0.065, 0.065),
 				glowScale: 	  new Vector3(0.067, 0.062, 0.01),
 			},
 			{
@@ -59286,7 +59286,7 @@
 				position: new Vector3(-1.12, -2.97, -1.45),
 				glowPosition: new Vector3(-1.46, -3.06, -4.0),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-				scale: 	  new Vector3(0.06, 0.06, 0.06),
+				scale: 	  new Vector3(0.065, 0.065, 0.065),
 				glowScale: 	  new Vector3(0.067, 0.062, 0.01),
 			},
 			{
@@ -59296,7 +59296,7 @@
 				position: new Vector3(-0.64, -3.08, -1.35),
 				glowPosition: new Vector3(-0.98, -3.19, -3.9),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-				scale: 	  new Vector3(0.06, 0.06, 0.06),
+				scale: 	  new Vector3(0.065, 0.065, 0.065),
 				glowScale: 	  new Vector3(0.067, 0.062, 0.01),
 			},
 			{
@@ -59308,7 +59308,7 @@
 				droppedPosition: new Vector3(-3.95, 0.95, -0.33),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 				droppedRotation: new Vector3(-1.1, 0, 0),
-				scale: 	  new Vector3(0.06, 0.06, 0.06),
+				scale: 	  new Vector3(0.065, 0.065, 0.065),
 				glowScale: 	  new Vector3(0.06, 0.062, 0.01),
 			},
 			{
@@ -59319,7 +59319,7 @@
 				glowPosition: new Vector3(-3.59, -0.4, -4.6),
 				droppedPosition: new Vector3(-4.35, 1.32, -0.62),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-				scale: 	  new Vector3(0.06, 0.06, 0.06),
+				scale: 	  new Vector3(0.065, 0.065, 0.065),
 				glowScale: 	  new Vector3(0.06, 0.062, 0.01),
 			},
 		],
