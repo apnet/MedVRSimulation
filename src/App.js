@@ -74,11 +74,11 @@ let objectsParams = {
 	body: {
 		fileName: 'physician',
 		objName: 'Body',
-		position: new THREE.Vector3(-2.4, -1.5, -1.0),
-		glowPosition: new THREE.Vector3(-2.75, -1.54, -3.73),
+		position: new THREE.Vector3(-2.4, -1.5, -1.3),
+		glowPosition: new THREE.Vector3(-2.63, -1.7, -4.29),
 		rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),		
 		scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
-		glowScale: 	  new THREE.Vector3(0.067, 0.062, 0.01),
+		glowScale: 	  new THREE.Vector3(0.07, 0.07, 0.01),
 	},	
 	interactiveObjectList: [
 		{
@@ -86,50 +86,50 @@ let objectsParams = {
 			fileName: 'gown',
 			objName: 'Robe',
 			position: new THREE.Vector3(-5.0, -1.5, -1.9),
-			glowPosition: new THREE.Vector3(-5.32, -1.6, -4.6),
+			glowPosition: new THREE.Vector3(-5.21, -1.64, -4.86),
 			droppedPosition: new THREE.Vector3(0.65, 1.48, -0.66),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 			droppedRotation: new THREE.Vector3(-1.35, 0, 1.74),
 			scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
-			glowScale: 	  new THREE.Vector3(0.067, 0.062, 0.01),
+			glowScale: 	  new THREE.Vector3(0.07, 0.067, 0.01),
 		},
 		{
 			id: 5,
 			fileName: 'mask',
 			objName: 'Mask',
-			position: new THREE.Vector3(-1.12, -2.97, -1.45),
-			glowPosition: new THREE.Vector3(-1.46, -3.06, -4.0),
+			position: new THREE.Vector3(-0.9, -3.1, -1.6),
+			glowPosition: new THREE.Vector3(-1.13, -3.2, -4.44),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 			scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
-			glowScale: 	  new THREE.Vector3(0.067, 0.062, 0.01),
+			glowScale: 	  new THREE.Vector3(0.07, 0.067, 0.01),
 		},
 		{
 			id: 6,
 			fileName: 'eye protection',
 			objName: 'Glasses',
-			position: new THREE.Vector3(-0.64, -3.08, -1.35),
-			glowPosition: new THREE.Vector3(-0.98, -3.19, -3.9),
+			position: new THREE.Vector3(-0.4, -3.27, -1.6),
+			glowPosition: new THREE.Vector3(-0.64, -3.38, -4.41),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 			scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
-			glowScale: 	  new THREE.Vector3(0.067, 0.062, 0.01),
+			glowScale: 	  new THREE.Vector3(0.07, 0.067, 0.01),
 		},
 		{
 			id: 7,
 			fileName: 'gloves',
 			objName: 'Gloves',
-			position: new THREE.Vector3(-3.6, -0.36, -1.85),
-			glowPosition: new THREE.Vector3(-3.59, -0.4, -4.6),
-			droppedPosition: new THREE.Vector3(-3.95, 0.95, -0.33),
+			position: new THREE.Vector3(-3.6, -0.28, -2.13),
+			glowPosition: new THREE.Vector3(-3.59, -0.4, -5.18),
+			droppedPosition: new THREE.Vector3(-3.6, 0.95, -0.33),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 			droppedRotation: new THREE.Vector3(-1.1, 0, 0),
 			scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
-			glowScale: 	  new THREE.Vector3(0.06, 0.062, 0.01),
+			glowScale: 	  new THREE.Vector3(0.065, 0.07, 0.01),
 		},
 		{
 			id: 7,
 			fileName: 'gloves',
 			objName: 'Gloves2',
-			position: new THREE.Vector3(-3.6, -0.36, -1.85),
+			position: new THREE.Vector3(-3.6, -0.28, -2.13),
 			glowPosition: new THREE.Vector3(-3.59, -0.4, -4.6),
 			droppedPosition: new THREE.Vector3(-4.35, 1.32, -0.62),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
@@ -141,49 +141,49 @@ let objectsParams = {
 		{
 			objName: 'gown',
 			decalName: 'decal-gown-1',
-			position: new Vector3(0.31, 1.135, -4.07),
+			position: new Vector3(0.57, 1.285, -4.6),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'gown',
 			decalName: 'decal-gown-2',
-			position: new Vector3(0.59, 0.79, -4.02),
+			position: new Vector3(0.9, 0.92, -4.6),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'gown',
 			decalName: 'decal-gown-3',
-			position: new Vector3(0.387, -0.02, -4.04),
+			position: new Vector3(0.57, 0.43, -4.58),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'gown',
 			decalName: 'decal-gown-4',
-			position: new Vector3(0.63, -0.485, -4.05),
+			position: new Vector3(0.89, -0.23, -4.61),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'Glove_on_hands',
 			decalName: 'decal-gloves',
-			position: new Vector3(0.97, 0.174, -4.35),
+			position: new Vector3(1.27, 0.36, -4.96),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'N95_mask',
 			decalName: 'decal-mask',
-			position: new Vector3(0.5, 1.5, -4.05),
+			position: new Vector3(0.735, 1.75, -4.61),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.2, 0.2, 0.2)	
 		},
 		{
 			objName: 'eye_protection',
 			decalName: 'decal-eye',
-			position: new Vector3(0.43, 1.64, -4.01),
+			position: new Vector3(0.664, 1.92, -4.635),
 			orientation: new THREE.Euler(0, 0, 0),
 			scale: new THREE.Vector3(0.1, 0.1, 0.1)	
 		},
@@ -784,7 +784,7 @@ function createSuccessPopup(){
 	contentBlock.add(btnBlock);
 
 	popupGroup.add(container)
-	popupGroup.position.set(0.0, 2.6, -2.6);
+	popupGroup.position.set(0.0, 2.6, -4.5);
 	popupGroup.visible = false;
 
 	scene.add(popupGroup); 
@@ -937,7 +937,7 @@ function createIntroPopup(){
 	btnsContainer.add(prevBtnBlock, nextBtnBlock);
 	container.add(btnsContainer);
 
-	popupGroup.position.set(0.0, 2.16, -2.6);
+	popupGroup.position.set(0.0, 2.16, -4.5);
 	popupGroup.add(container);
 	popupGroup.visible = false;
 	scene.add(popupGroup);
@@ -1047,7 +1047,7 @@ function createInfoSmall(){
 	container.add(btnContainer);
 
 	popupGroup.add(container)
-	popupGroup.position.set(0.0, 2.6, -2.6);
+	popupGroup.position.set(0.0, 2.6, -4.5);
 	popupGroup.visible = false;
 	
 	scene.add(popupGroup);
@@ -1157,7 +1157,7 @@ function createInfoMediumText(){
 	container.add(btnContainer);
 
 	popupGroup.add(container)
-	popupGroup.position.set(0.0, 2.0, -2.6);
+	popupGroup.position.set(0.0, 2.0, -4.5);
 	popupGroup.visible = false;
 	
 	scene.add(popupGroup);
@@ -1276,7 +1276,7 @@ function createInfoMediumTextImg(){
 	container.add(btnContainer);
 
 	popupGroup.add(container)
-	popupGroup.position.set(0.0, 2.0, -2.6);
+	popupGroup.position.set(0.0, 2.0, -4.5);
 	popupGroup.visible = false;
 	
 	scene.add(popupGroup);
@@ -1335,7 +1335,7 @@ function createCorrectIncorrectPopup(){
 	contentBlock.add(correctIncorrectObjects.contentTextObj);
 
 	popupGroup.add(container)
-	popupGroup.position.set(0.0, 2.6, -2.6);
+	popupGroup.position.set(0.0, 2.6, -4.5);
 	popupGroup.visible = false;
 	
 	scene.add(popupGroup);
@@ -1429,7 +1429,7 @@ function createQuizzWindow(){
 	})
 
 	popupGroup.add(container);
-	popupGroup.position.set(0.0, 2.16, -2.6);
+	popupGroup.position.set(0.0, 2.16, -4.5);
 	popupGroup.false = true;
 	scene.add(popupGroup);
 }
