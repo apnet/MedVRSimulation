@@ -75,10 +75,13 @@ let objectsParams = {
 		fileName: 'physician',
 		objName: 'Body',
 		position: new THREE.Vector3(-2.4, -1.5, -1.3),
-		glowPosition: new THREE.Vector3(-2.63, -1.7, -4.29),
+		glowPosition: new THREE.Vector3(-2.65, -1.7, -4.29),
 		rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),		
 		scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
 		glowScale: 	  new THREE.Vector3(0.07, 0.07, 0.01),
+		collisionGeometry: 'Box',
+		collisionPosition: new THREE.Vector3(0.72, 0.34, -5.0),
+		collisionSize: new THREE.Vector3(1.1, 3.6, 1.0),
 	},	
 	interactiveObjectList: [
 		{
@@ -87,54 +90,69 @@ let objectsParams = {
 			objName: 'Robe',
 			position: new THREE.Vector3(-5.0, -1.5, -1.9),
 			glowPosition: new THREE.Vector3(-5.21, -1.64, -4.86),
-			droppedPosition: new THREE.Vector3(0.65, 1.48, -0.66),
+			droppedPosition: new THREE.Vector3(0.65, 1.73, -0.8),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 			droppedRotation: new THREE.Vector3(-1.35, 0, 1.74),
 			scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
 			glowScale: 	  new THREE.Vector3(0.07, 0.067, 0.01),
+			collisionGeometry: 'Box',
+			collisionPosition: new THREE.Vector3(-1.88, 0.43, -5.43),
+			collisionSize: new THREE.Vector3(1.2, 2.3, 0.6)
 		},
 		{
 			id: 5,
 			fileName: 'mask',
 			objName: 'Mask',
 			position: new THREE.Vector3(-0.9, -3.1, -1.6),
-			glowPosition: new THREE.Vector3(-1.13, -3.2, -4.44),
+			glowPosition: new THREE.Vector3(-1.63, -3.35, -0.81),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 			scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
-			glowScale: 	  new THREE.Vector3(0.07, 0.067, 0.01),
+			glowScale: 	  new THREE.Vector3(0.08, 0.07, 0.08),
+			collisionGeometry: 'Sphree',
+			collisionPosition: new THREE.Vector3(2.2, 0.14, -5.16),
+			collisionSize: new THREE.Vector3(0.3, 16, 16)
 		},
 		{
 			id: 6,
 			fileName: 'eye protection',
 			objName: 'Glasses',
-			position: new THREE.Vector3(-0.4, -3.27, -1.6),
-			glowPosition: new THREE.Vector3(-0.64, -3.38, -4.41),
+			position: new THREE.Vector3(-0.34, -3.27, -1.6),
+			glowPosition: new THREE.Vector3(-0.58, -3.38, -4.41),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 			scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
 			glowScale: 	  new THREE.Vector3(0.07, 0.067, 0.01),
+			collisionGeometry: 'Sphree',
+			collisionPosition: new THREE.Vector3(2.8, 0.14, -5.16),
+			collisionSize: new THREE.Vector3(0.3, 16, 16)
 		},
 		{
 			id: 7,
 			fileName: 'gloves',
 			objName: 'Gloves',
 			position: new THREE.Vector3(-3.6, -0.28, -2.13),
-			glowPosition: new THREE.Vector3(-3.59, -0.4, -5.18),
-			droppedPosition: new THREE.Vector3(-3.6, 0.95, -0.33),
+			glowPosition: new THREE.Vector3(-3.59, -0.4, -5.16),
+			droppedPosition: new THREE.Vector3(-4.3, 1.1, -0.43),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 			droppedRotation: new THREE.Vector3(-1.1, 0, 0),
 			scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
 			glowScale: 	  new THREE.Vector3(0.065, 0.07, 0.01),
+			collisionGeometry: 'Box',
+			collisionPosition: new THREE.Vector3(-0.47, 1.5, -5.74),
+			collisionSize: new THREE.Vector3(1.25, 0.55, 0.2)
 		},
 		{
 			id: 7,
 			fileName: 'gloves',
 			objName: 'Gloves2',
 			position: new THREE.Vector3(-3.6, -0.28, -2.13),
-			glowPosition: new THREE.Vector3(-3.59, -0.4, -4.6),
+			glowPosition: new THREE.Vector3(-3.59, -0.4, -5.16),
 			droppedPosition: new THREE.Vector3(-4.35, 1.32, -0.62),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 			scale: 	  new THREE.Vector3(0.065, 0.065, 0.065),
-			glowScale: 	  new THREE.Vector3(0.06, 0.062, 0.01),
+			glowScale: 	  new THREE.Vector3(0.065, 0.07, 0.01),
+			collisionGeometry: 'Box',
+			collisionPosition: new THREE.Vector3(-0.47, 1.5, -5.74),
+			collisionSize: new THREE.Vector3(1.25, 0.55, 0.2)
 		},
 	],
 	decals: [
@@ -238,7 +256,10 @@ class App {
 					objectsParams.body.glowPosition,
 					objectsParams.body.scale,
 					objectsParams.body.glowScale,
-					objectsParams.body.objName
+					objectsParams.body.objName,
+					objectsParams.body.collisionGeometry,
+					objectsParams.body.collisionPosition,
+					objectsParams.body.collisionSize
 				);
 		
 		//interactive elements
@@ -248,11 +269,14 @@ class App {
 						element.glowPosition,
 						element.scale,
 						element.glowScale,
-						element.objName
+						element.objName,
+						element.collisionGeometry,
+						element.collisionPosition,
+						element.collisionSize
 			);
 		});	
 		setTimeout(() => {
-			createGlow();
+			//createGlow();
 			//addPolutionDecals();
 		}, 12000);
 		//window with btns
@@ -358,7 +382,7 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 		const isCorrectPopupVisible = scene.getObjectByName(correctIncorrectObjects.containerName).visible;
 		intersections.forEach(intersect => {
 			if (intersect != undefined && intersect.object.type == 'Mesh') { 
-				if (stepSimType.includes('intro')){console.log(stepSimType)
+				if (stepSimType.includes('intro')){
 					if (intersect.object.name == "MeshUI-Frame"){
 						if (intersect.object.parent.children[1]?.name === 'nextBtn'){
 							simulationStep++;
@@ -406,14 +430,14 @@ class ControllerPickHelper extends THREE.EventDispatcher {
 						}
 				}
 				if (stepSimType === 'put-on'){
-					if (intersect.object.parent.name === putOnObjects.correctObjectName){
+					if (intersect.object.name === putOnObjects.correctObjectName + 'Collider'){
 						scene.getObjectByName(putOnObjects.correctObjectName).position.copy(objectsParams.body.position);
 						scene.getObjectByName(putOnObjects.correctObjectName + "Glow").visible = false;
 						simulationStep++;
 						showCurrentSimulationStep();
 					} else
 						putOnObjects.interactiveObject.forEach((element) => {
-							if (intersect.object.parent.name === element){
+							if (intersect.object.name === element  + 'Collider'){
 								correctIncorrectObjects.contentTextObj.set({content: 'Incorrect.\nPlease try again.'});
 								scene.getObjectByName(correctIncorrectObjects.containerName).visible = true;
 								setTimeout(() => {
@@ -543,7 +567,9 @@ function render() {
 	renderer.render( scene, camera );
 }
 
-function addObject(fileName, position, glowPosition, scale, glowScale, objName, visible = true){
+function addObject(fileName, position, glowPosition, scale, glowScale, objName, 
+	collisionGeometry, collisionPosition, collisionSize, visible = true
+	){
 	let Obj = new THREE.Object3D();
 	let fbxLoader = new FBXLoader();
 	fbxLoader.setPath(objectsParams.modelPath);
@@ -551,6 +577,12 @@ function addObject(fileName, position, glowPosition, scale, glowScale, objName, 
 		fileName + '.fbx',
 		(object) => {
 			object.name = objName;
+			//do glasses more visible
+			if (objName === 'Glasses'){
+				object.children[0].material.color.r = 0.0;
+				object.children[0].material.color.g = 0.0;
+				object.children[0].material.color.b = 0.0;
+			}
 			Obj.add(object);
 		},
 	)
@@ -561,12 +593,51 @@ function addObject(fileName, position, glowPosition, scale, glowScale, objName, 
 
 	scene.add(Obj);
 
+	//glow obj
+	var glowMaterial = new THREE.ShaderMaterial( 
+		{
+			uniforms: 
+			{ 
+				"base":   { type: "f", value: 0.0 },
+				"p":   { type: "f", value: 0.0 },
+				glowColor: { type: "c", value: new THREE.Color(0x0000FF) },
+				viewVector: { type: "v3", value: camera.position }
+			},
+			vertexShader:   `uniform vec3 viewVector;
+							uniform float base;
+							uniform float p;
+							varying float intensity;
+							void main() 
+							{
+								vec3 vNormal = normalize( normalMatrix * normal );
+								vec3 vNormel = normalize( normalMatrix * viewVector );
+								intensity = pow( base - dot(vNormal, vNormel), p );
+								
+								gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+							}`,
+			fragmentShader: `uniform vec3 glowColor;
+							varying float intensity;
+							void main() 
+							{
+								vec3 glow = glowColor * intensity;
+								gl_FragColor = vec4( glow, 1.0 );
+							}`,
+			side: THREE.BackSide,
+			blending: THREE.AdditiveBlending,
+			transparent: true
+	});
+
 	let ObjGlow = new THREE.Object3D();
 	fbxLoader = new FBXLoader();
 	fbxLoader.setPath(objectsParams.modelPath);
 	fbxLoader.load(
 		fileName + '.fbx',
 		(object) => {
+			object.traverse( function ( child ) {
+				if ( child.isMesh ) {
+					child.material = glowMaterial
+				}
+			})
 			ObjGlow.add(object);
 		}
 	)
@@ -577,6 +648,18 @@ function addObject(fileName, position, glowPosition, scale, glowScale, objName, 
 	ObjGlow.visible = false;
 
 	scene.add(ObjGlow);
+
+	//collider
+	let geometry;
+	if (collisionGeometry === 'Box')
+		geometry = new THREE.BoxGeometry(collisionSize.x, collisionSize.y, collisionSize.z)
+	else geometry = new THREE.SphereGeometry(collisionSize.x, collisionSize.y, collisionSize.z);
+	const material = new THREE.MeshBasicMaterial( { color: 0xffff00, transparent: true, opacity: 0.5 } );
+	const collider = new THREE.Mesh( geometry, material );
+	collider.position.copy(collisionPosition);
+	collider.name = objName + 'Collider';
+	collider.visible = false;
+	scene.add( collider );
 
 	return Obj;
 }
