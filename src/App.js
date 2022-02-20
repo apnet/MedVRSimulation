@@ -594,37 +594,8 @@ function addObject(fileName, position, glowPosition, scale, glowScale, objName,
 	scene.add(Obj);
 
 	//glow obj
-	var glowMaterial = new THREE.ShaderMaterial( 
-		{
-			uniforms: 
-			{ 
-				"base":   { type: "f", value: 0.0 },
-				"p":   { type: "f", value: 0.0 },
-				glowColor: { type: "c", value: new THREE.Color(0x0000FF) },
-				viewVector: { type: "v3", value: camera.position }
-			},
-			vertexShader:   `uniform vec3 viewVector;
-							uniform float base;
-							uniform float p;
-							varying float intensity;
-							void main() 
-							{
-								vec3 vNormal = normalize( normalMatrix * normal );
-								vec3 vNormel = normalize( normalMatrix * viewVector );
-								intensity = pow( base - dot(vNormal, vNormel), p );
-								
-								gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-							}`,
-			fragmentShader: `uniform vec3 glowColor;
-							varying float intensity;
-							void main() 
-							{
-								vec3 glow = glowColor * intensity;
-								gl_FragColor = vec4( glow, 1.0 );
-							}`,
-			side: THREE.BackSide,
-			blending: THREE.AdditiveBlending,
-			transparent: true
+	var glowMaterial = new THREE.MeshBasicMaterial({
+		color: 0x0000ff, transparent: true, opacity: 0.2
 	});
 
 	let ObjGlow = new THREE.Object3D();
