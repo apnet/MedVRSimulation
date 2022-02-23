@@ -5,8 +5,15 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import ThreeMeshUI from "three-mesh-ui";
 import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry';
 import { Vector3 } from 'three';
+import { BoxLineGeometry } from 'three/examples/jsm/geometries/BoxLineGeometry.js';
 
 let camera, scene, renderer;
+let loaderObjects = {
+	roomObjectName: 'LoaderRoom',
+	textObjectName: 'LoaderTextContainer',
+	cubeObjectName: 'LoaderCube'
+
+}
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 let pickHelper;
@@ -58,9 +65,10 @@ let putOnObjects = {
 	interactiveObject : []
 }
 
-let simulationStep = 0;
+let simulationStep = -1;
 let hoverObjectsList = [];  
 let stepSimType = "";
+let isSceneLoaded = false;
 
 let objectsParams = {
 	modelPath: './assets/models/',
@@ -207,9 +215,88 @@ let objectsParams = {
 		},
 	],	
 };
+let loadedObjects = {
+	Room: false,
+	Body: false,
+	Robe: false,
+	Mask: false,
+	Glasses: false,
+	Gloves: false,
+	Gloves2: false,
+	BodyGlow: false,
+	RobeGlow: false,
+	MaskGlow: false,
+	GlassesGlow: false,
+	GlovesGlow: false,
+	Gloves2Glow: false
+}
 
 class App {
 	async start(){
+		//scene
+		scene = new THREE.Scene();
+		scene.background = new THREE.Color( 0x505050 );
+		camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		camera.position.set( 0, 1, 0 );
+		scene.add(camera)
+
+		scene.add( new THREE.HemisphereLight( 0x606060, 0x404040 ) );
+		const light = new THREE.DirectionalLight( 0xffffff );
+		light.position.set( 1, 1, 1 ).normalize();
+		scene.add( light );
+		//loader room
+		const room = new THREE.LineSegments(
+			new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ).translate( 0, 3, 0 ),
+			new THREE.LineBasicMaterial( { color: 0x808080 } )
+		);
+		room.name = loaderObjects.roomObjectName;
+		scene.add( room );
+		//UI text
+		const container = new ThreeMeshUI.Block({
+			width: 3.0,
+			fontFamily: "./assets/Roboto-msdf.json",
+			fontTexture: "./assets/Roboto-msdf.png",
+			backgroundColor: new THREE.Color(0xe2e2e2),
+			backgroundOpacity: 1,
+		});
+		const textBlock = new ThreeMeshUI.Block({
+			height: 0.5,
+			width: 3.0,
+			alignContent: "center",
+			justifyContent: "center",
+			padding: 0.1,
+			backgroundColor: new THREE.Color(0xe2e2e2),
+		});   
+		container.add(textBlock);
+		const text = new ThreeMeshUI.Text({
+			content: "Loading. Please wait",
+			fontColor: new THREE.Color(0x3e3e3e),
+			fontSize: 0.2,
+		});
+		textBlock.add(text);
+		container.position.set(0.0, 2.6, -3.0);
+		container.name = loaderObjects.textObjectName;
+		scene.add(container);
+		//box
+		const boxGeometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+		const boxMaterial = new THREE.MeshStandardMaterial( {color: 0x2020ff} );
+		const cube = new THREE.Mesh( boxGeometry, boxMaterial );
+		cube.position.set(0.0, 1.8, -3.0);
+		cube.name = loaderObjects.cubeObjectName;
+		cube.rotation.x = 3.8;
+		scene.add( cube );
+
+		//render
+		renderer = new THREE.WebGLRenderer( { antialias: true } );
+		//renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.outputEncoding = THREE.sRGBEncoding;
+		renderer.xr.enabled = true;
+		document.body.appendChild( renderer.domElement );
+		document.body.appendChild( VRButton.createButton( renderer ) );
+
+		animate();
+
 		await fetch('./build/ppe.json', {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'}
@@ -223,19 +310,9 @@ class App {
 			})
 	}
 	init() {
-		scene = new THREE.Scene();
-		scene.background = new THREE.Color( 0x505050 );
-		camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
-		camera.position.set( 0, 1, 0 );
-		scene.add(camera)
-
-		scene.add( new THREE.HemisphereLight( 0x606060, 0x404040 ) );
-		const light = new THREE.DirectionalLight( 0xffffff );
-		light.position.set( 1, 1, 1 ).normalize();
-		scene.add( light );
-
 		//room
 		let roomObj = new THREE.Object3D();
+		roomObj.visible = false;
 		let fbxLoader = new FBXLoader();
 		fbxLoader.setPath(objectsParams.modelPath);
 		fbxLoader.load(
@@ -243,7 +320,11 @@ class App {
 			(object) => {
 				object.name = objectsParams.room.objName;
 				roomObj.add(object)
-			}
+			}, (xhr) => {
+				if ( (xhr.loaded / xhr.total) === 1){
+					loadedObjects.Room = true;
+				}
+			},
 		)
 		roomObj.scale.copy(objectsParams.room.scale);
 		roomObj.position.copy(objectsParams.room.position); 
@@ -276,7 +357,7 @@ class App {
 						element.collisionSize
 			);
 		}
-		
+
 		//window with btns
 		createQuizzWindow();
 		createCorrectIncorrectPopup();
@@ -285,15 +366,6 @@ class App {
 		createInfoSmall();
 		createInfoMediumText();
 		createInfoMediumTextImg();
-
-		//render
-		renderer = new THREE.WebGLRenderer( { antialias: true } );
-		//renderer.setPixelRatio( window.devicePixelRatio );
-		renderer.setSize( window.innerWidth, window.innerHeight );
-		renderer.outputEncoding = THREE.sRGBEncoding;
-		renderer.xr.enabled = true;
-		document.body.appendChild( renderer.domElement );
-		document.body.appendChild( VRButton.createButton( renderer ) );
 
 		window.addEventListener( 'resize', onWindowResize );
 
@@ -337,9 +409,6 @@ class App {
 		scene.add( controllerGrip2 );	
 
 		pickHelper = new ControllerPickHelper(scene);
-
-		showCurrentSimulationStep();
-		animate();
 	}
 }
 
@@ -560,15 +629,37 @@ function animate() {
 }
 
 function render() {
+	//rotate loader cube
+	if (!isSceneLoaded) {
+		scene.getObjectByName(loaderObjects.cubeObjectName).rotation.z += 0.03;
+	}
+	//chack for end of loader scene
+	if (!isSceneLoaded && Object.values(loadedObjects).every(i => i === true)){
+		setTimeout(() => {
+			isSceneLoaded = true;
+			simulationStep = 0;
+			showCurrentSimulationStep();
+
+			Object.values(loaderObjects).forEach(i => {
+				let object = scene.getObjectByName(i);
+				scene.remove( object );
+			})
+			renderer.renderLists.dispose();
+			}, 1000);
+	} 
+	//controller update
+	if (isSceneLoaded)
+		pickHelper.update(scene);
+
 	ThreeMeshUI.update();
-	pickHelper.update(scene);
 	renderer.render( scene, camera );
 }
 
 function addObject(fileName, position, glowPosition, scale, glowScale, objName, 
-	collisionGeometry, collisionPosition, collisionSize, visible = true
+	collisionGeometry, collisionPosition, collisionSize
 	){
 	let Obj = new THREE.Object3D();
+	Obj.visible = false;
 	let fbxLoader = new FBXLoader();
 	fbxLoader.setPath(objectsParams.modelPath);
 	fbxLoader.load(
@@ -583,11 +674,14 @@ function addObject(fileName, position, glowPosition, scale, glowScale, objName,
 			}
 			Obj.add(object);
 		},
+		(xhr) => {
+			if ( (xhr.loaded / xhr.total) === 1)
+				loadedObjects[objName] = true;
+		}
 	)
 	Obj.position.copy(position);
 	Obj.scale.copy(scale);
 	Obj.name = objName;
-	Obj.visible = visible;
 
 	scene.add(Obj);
 
@@ -626,6 +720,7 @@ function addObject(fileName, position, glowPosition, scale, glowScale, objName,
 	});
 
 	let ObjGlow = new THREE.Object3D();
+	ObjGlow.visible = false;
 	fbxLoader = new FBXLoader();
 	fbxLoader.setPath(objectsParams.modelPath);
 	fbxLoader.load(
@@ -637,13 +732,16 @@ function addObject(fileName, position, glowPosition, scale, glowScale, objName,
 				}
 			})
 			ObjGlow.add(object);
+		},
+		(xhr) => {
+			if ( (xhr.loaded / xhr.total) === 1)
+				loadedObjects[objName + 'Glow'] = true;
 		}
 	)
 	
 	ObjGlow.position.copy(glowPosition);
 	ObjGlow.scale.copy(glowScale);
 	ObjGlow.name = objName + 'Glow';
-	ObjGlow.visible = false;
 
 	scene.add(ObjGlow);
 
@@ -1511,7 +1609,7 @@ function createQuizzWindow(){
 
 	popupGroup.add(container);
 	popupGroup.position.set(0.0, 2.16, -4.5);
-	popupGroup.false = true;
+	popupGroup.visible = false;
 	scene.add(popupGroup);
 }
 
@@ -1641,6 +1739,8 @@ function showCurrentSimulationStep(){
 		showCurrentSimulationStep();
 	}
 	if (PPE_DATA.vrSim.sim[simulationStep].type === 'init-med-objects'){
+		scene.getObjectByName(objectsParams.room.objName).visible = true;
+		scene.getObjectByName(objectsParams.body.objName).visible = true;
 		objectsParams.interactiveObjectList.forEach((e) => {
 			scene.getObjectByName(e.objName).visible = true;
 			scene.getObjectByName(e.objName).position.copy(e.position);

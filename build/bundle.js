@@ -59192,7 +59192,76 @@
 
 	}
 
+	class BoxLineGeometry extends BufferGeometry {
+
+		constructor( width = 1, height = 1, depth = 1, widthSegments = 1, heightSegments = 1, depthSegments = 1 ) {
+
+			super();
+
+			widthSegments = Math.floor( widthSegments );
+			heightSegments = Math.floor( heightSegments );
+			depthSegments = Math.floor( depthSegments );
+
+			const widthHalf = width / 2;
+			const heightHalf = height / 2;
+			const depthHalf = depth / 2;
+
+			const segmentWidth = width / widthSegments;
+			const segmentHeight = height / heightSegments;
+			const segmentDepth = depth / depthSegments;
+
+			const vertices = [];
+
+			let x = - widthHalf;
+			let y = - heightHalf;
+			let z = - depthHalf;
+
+			for ( let i = 0; i <= widthSegments; i ++ ) {
+
+				vertices.push( x, - heightHalf, - depthHalf, x, heightHalf, - depthHalf );
+				vertices.push( x, heightHalf, - depthHalf, x, heightHalf, depthHalf );
+				vertices.push( x, heightHalf, depthHalf, x, - heightHalf, depthHalf );
+				vertices.push( x, - heightHalf, depthHalf, x, - heightHalf, - depthHalf );
+
+				x += segmentWidth;
+
+			}
+
+			for ( let i = 0; i <= heightSegments; i ++ ) {
+
+				vertices.push( - widthHalf, y, - depthHalf, widthHalf, y, - depthHalf );
+				vertices.push( widthHalf, y, - depthHalf, widthHalf, y, depthHalf );
+				vertices.push( widthHalf, y, depthHalf, - widthHalf, y, depthHalf );
+				vertices.push( - widthHalf, y, depthHalf, - widthHalf, y, - depthHalf );
+
+				y += segmentHeight;
+
+			}
+
+			for ( let i = 0; i <= depthSegments; i ++ ) {
+
+				vertices.push( - widthHalf, - heightHalf, z, - widthHalf, heightHalf, z );
+				vertices.push( - widthHalf, heightHalf, z, widthHalf, heightHalf, z );
+				vertices.push( widthHalf, heightHalf, z, widthHalf, - heightHalf, z );
+				vertices.push( widthHalf, - heightHalf, z, - widthHalf, - heightHalf, z );
+
+				z += segmentDepth;
+
+			}
+
+			this.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+
+		}
+
+	}
+
 	let camera, scene, renderer;
+	let loaderObjects = {
+		roomObjectName: 'LoaderRoom',
+		textObjectName: 'LoaderTextContainer',
+		cubeObjectName: 'LoaderCube'
+
+	};
 	let controller1, controller2;
 	let controllerGrip1, controllerGrip2;
 	let pickHelper;
@@ -59244,9 +59313,10 @@
 		interactiveObject : []
 	};
 
-	let simulationStep = 0;
+	let simulationStep = -1;
 	let hoverObjectsList = [];  
 	let stepSimType = "";
+	let isSceneLoaded = false;
 
 	let objectsParams = {
 		modelPath: './assets/models/',
@@ -59393,9 +59463,88 @@
 			},
 		],	
 	};
+	let loadedObjects = {
+		Room: false,
+		Body: false,
+		Robe: false,
+		Mask: false,
+		Glasses: false,
+		Gloves: false,
+		Gloves2: false,
+		BodyGlow: false,
+		RobeGlow: false,
+		MaskGlow: false,
+		GlassesGlow: false,
+		GlovesGlow: false,
+		Gloves2Glow: false
+	};
 
 	class App {
 		async start(){
+			//scene
+			scene = new Scene();
+			scene.background = new Color( 0x505050 );
+			camera = new PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			camera.position.set( 0, 1, 0 );
+			scene.add(camera);
+
+			scene.add( new HemisphereLight( 0x606060, 0x404040 ) );
+			const light = new DirectionalLight( 0xffffff );
+			light.position.set( 1, 1, 1 ).normalize();
+			scene.add( light );
+			//loader room
+			const room = new LineSegments(
+				new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ).translate( 0, 3, 0 ),
+				new LineBasicMaterial( { color: 0x808080 } )
+			);
+			room.name = loaderObjects.roomObjectName;
+			scene.add( room );
+			//UI text
+			const container = new ThreeMeshUI.Block({
+				width: 3.0,
+				fontFamily: "./assets/Roboto-msdf.json",
+				fontTexture: "./assets/Roboto-msdf.png",
+				backgroundColor: new Color(0xe2e2e2),
+				backgroundOpacity: 1,
+			});
+			const textBlock = new ThreeMeshUI.Block({
+				height: 0.5,
+				width: 3.0,
+				alignContent: "center",
+				justifyContent: "center",
+				padding: 0.1,
+				backgroundColor: new Color(0xe2e2e2),
+			});   
+			container.add(textBlock);
+			const text = new ThreeMeshUI.Text({
+				content: "Loading. Please wait",
+				fontColor: new Color(0x3e3e3e),
+				fontSize: 0.2,
+			});
+			textBlock.add(text);
+			container.position.set(0.0, 2.6, -3.0);
+			container.name = loaderObjects.textObjectName;
+			scene.add(container);
+			//box
+			const boxGeometry = new BoxGeometry( 0.5, 0.5, 0.5 );
+			const boxMaterial = new MeshStandardMaterial( {color: 0x2020ff} );
+			const cube = new Mesh( boxGeometry, boxMaterial );
+			cube.position.set(0.0, 1.8, -3.0);
+			cube.name = loaderObjects.cubeObjectName;
+			cube.rotation.x = 3.8;
+			scene.add( cube );
+
+			//render
+			renderer = new WebGLRenderer( { antialias: true } );
+			//renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.outputEncoding = sRGBEncoding;
+			renderer.xr.enabled = true;
+			document.body.appendChild( renderer.domElement );
+			document.body.appendChild( VRButton.createButton( renderer ) );
+
+			animate();
+
 			await fetch('./build/ppe.json', {
 				method: 'GET',
 				headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'}
@@ -59409,19 +59558,9 @@
 				});
 		}
 		init() {
-			scene = new Scene();
-			scene.background = new Color( 0x505050 );
-			camera = new PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
-			camera.position.set( 0, 1, 0 );
-			scene.add(camera);
-
-			scene.add( new HemisphereLight( 0x606060, 0x404040 ) );
-			const light = new DirectionalLight( 0xffffff );
-			light.position.set( 1, 1, 1 ).normalize();
-			scene.add( light );
-
 			//room
 			let roomObj = new Object3D();
+			roomObj.visible = false;
 			let fbxLoader = new FBXLoader();
 			fbxLoader.setPath(objectsParams.modelPath);
 			fbxLoader.load(
@@ -59429,7 +59568,11 @@
 				(object) => {
 					object.name = objectsParams.room.objName;
 					roomObj.add(object);
-				}
+				}, (xhr) => {
+					if ( (xhr.loaded / xhr.total) === 1){
+						loadedObjects.Room = true;
+					}
+				},
 			);
 			roomObj.scale.copy(objectsParams.room.scale);
 			roomObj.position.copy(objectsParams.room.position); 
@@ -59462,7 +59605,7 @@
 							element.collisionSize
 				);
 			}
-			
+
 			//window with btns
 			createQuizzWindow();
 			createCorrectIncorrectPopup();
@@ -59471,15 +59614,6 @@
 			createInfoSmall();
 			createInfoMediumText();
 			createInfoMediumTextImg();
-
-			//render
-			renderer = new WebGLRenderer( { antialias: true } );
-			//renderer.setPixelRatio( window.devicePixelRatio );
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			renderer.outputEncoding = sRGBEncoding;
-			renderer.xr.enabled = true;
-			document.body.appendChild( renderer.domElement );
-			document.body.appendChild( VRButton.createButton( renderer ) );
 
 			window.addEventListener( 'resize', onWindowResize );
 
@@ -59523,9 +59657,6 @@
 			scene.add( controllerGrip2 );	
 
 			pickHelper = new ControllerPickHelper(scene);
-
-			showCurrentSimulationStep();
-			animate();
 		}
 	}
 
@@ -59746,15 +59877,37 @@
 	}
 
 	function render() {
+		//rotate loader cube
+		if (!isSceneLoaded) {
+			scene.getObjectByName(loaderObjects.cubeObjectName).rotation.z += 0.03;
+		}
+		//chack for end of loader scene
+		if (!isSceneLoaded && Object.values(loadedObjects).every(i => i === true)){
+			setTimeout(() => {
+				isSceneLoaded = true;
+				simulationStep = 0;
+				showCurrentSimulationStep();
+
+				Object.values(loaderObjects).forEach(i => {
+					let object = scene.getObjectByName(i);
+					scene.remove( object );
+				});
+				renderer.renderLists.dispose();
+				}, 1000);
+		} 
+		//controller update
+		if (isSceneLoaded)
+			pickHelper.update(scene);
+
 		ThreeMeshUI.update();
-		pickHelper.update(scene);
 		renderer.render( scene, camera );
 	}
 
 	function addObject(fileName, position, glowPosition, scale, glowScale, objName, 
-		collisionGeometry, collisionPosition, collisionSize, visible = true
+		collisionGeometry, collisionPosition, collisionSize
 		){
 		let Obj = new Object3D();
+		Obj.visible = false;
 		let fbxLoader = new FBXLoader();
 		fbxLoader.setPath(objectsParams.modelPath);
 		fbxLoader.load(
@@ -59769,11 +59922,14 @@
 				}
 				Obj.add(object);
 			},
+			(xhr) => {
+				if ( (xhr.loaded / xhr.total) === 1)
+					loadedObjects[objName] = true;
+			}
 		);
 		Obj.position.copy(position);
 		Obj.scale.copy(scale);
 		Obj.name = objName;
-		Obj.visible = visible;
 
 		scene.add(Obj);
 
@@ -59812,6 +59968,7 @@
 		});
 
 		let ObjGlow = new Object3D();
+		ObjGlow.visible = false;
 		fbxLoader = new FBXLoader();
 		fbxLoader.setPath(objectsParams.modelPath);
 		fbxLoader.load(
@@ -59823,13 +59980,16 @@
 					}
 				});
 				ObjGlow.add(object);
+			},
+			(xhr) => {
+				if ( (xhr.loaded / xhr.total) === 1)
+					loadedObjects[objName + 'Glow'] = true;
 			}
 		);
 		
 		ObjGlow.position.copy(glowPosition);
 		ObjGlow.scale.copy(glowScale);
 		ObjGlow.name = objName + 'Glow';
-		ObjGlow.visible = false;
 
 		scene.add(ObjGlow);
 
@@ -60644,7 +60804,7 @@
 
 		popupGroup.add(container);
 		popupGroup.position.set(0.0, 2.16, -4.5);
-		popupGroup.false = true;
+		popupGroup.visible = false;
 		scene.add(popupGroup);
 	}
 
@@ -60774,6 +60934,8 @@
 			showCurrentSimulationStep();
 		}
 		if (PPE_DATA.vrSim.sim[simulationStep].type === 'init-med-objects'){
+			scene.getObjectByName(objectsParams.room.objName).visible = true;
+			scene.getObjectByName(objectsParams.body.objName).visible = true;
 			objectsParams.interactiveObjectList.forEach((e) => {
 				scene.getObjectByName(e.objName).visible = true;
 				scene.getObjectByName(e.objName).position.copy(e.position);
