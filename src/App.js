@@ -95,7 +95,7 @@ let objectsParams = {
 	interactiveObjectList: [
 		{
 			id: 4,
-			fileName: 'table_gown_01',
+			fileName: 'gown',
 			objName: 'Robe',
 			position: new THREE.Vector3(-5.0, -1.5, -1.9),
 			glowPosition: new THREE.Vector3(-5.21, -1.64, -4.86),
@@ -123,7 +123,7 @@ let objectsParams = {
 		},
 		{
 			id: 6,
-			fileName: 'faceshield_01',
+			fileName: 'eye protection',
 			objName: 'Glasses',
 			position: new THREE.Vector3(-0.34, -3.27, -1.6),
 			glowPosition: new THREE.Vector3(-0.58, -3.38, -4.41),
@@ -136,7 +136,7 @@ let objectsParams = {
 		},
 		{
 			id: 7,
-			fileName: 'table_glove box_01',
+			fileName: 'gloves',
 			objName: 'Gloves',
 			position: new THREE.Vector3(-3.6, -0.28, -2.13),
 			glowPosition: new THREE.Vector3(-3.59, -0.4, -5.16),
@@ -151,7 +151,7 @@ let objectsParams = {
 		},
 		{
 			id: 7,
-			fileName: 'table_glove box_01',
+			fileName: 'gloves',
 			objName: 'Gloves2',
 			position: new THREE.Vector3(-3.6, -0.28, -2.13),
 			glowPosition: new THREE.Vector3(-3.59, -0.4, -5.16),
