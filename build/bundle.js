@@ -59342,7 +59342,7 @@
 		interactiveObjectList: [
 			{
 				id: 4,
-				fileName: 'gown',
+				fileName: 'table_gown_01',
 				objName: 'Robe',
 				position: new Vector3(-5.0, -1.5, -1.9),
 				glowPosition: new Vector3(-5.21, -1.64, -4.86),
@@ -59370,7 +59370,7 @@
 			},
 			{
 				id: 6,
-				fileName: 'eye protection',
+				fileName: 'faceshield_01',
 				objName: 'Glasses',
 				position: new Vector3(-0.34, -3.27, -1.6),
 				glowPosition: new Vector3(-0.58, -3.38, -4.41),
@@ -59383,7 +59383,7 @@
 			},
 			{
 				id: 7,
-				fileName: 'gloves',
+				fileName: 'table_glove box_01',
 				objName: 'Gloves',
 				position: new Vector3(-3.6, -0.28, -2.13),
 				glowPosition: new Vector3(-3.59, -0.4, -5.16),
@@ -59398,7 +59398,7 @@
 			},
 			{
 				id: 7,
-				fileName: 'gloves',
+				fileName: 'table_glove box_01',
 				objName: 'Gloves2',
 				position: new Vector3(-3.6, -0.28, -2.13),
 				glowPosition: new Vector3(-3.59, -0.4, -5.16),
