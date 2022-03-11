@@ -123,7 +123,7 @@ let objectsParams = {
 		},
 		{
 			id: 6,
-			fileName: 'eye protection',
+			fileName: 'faceshield_01',
 			objName: 'Glasses',
 			position: new THREE.Vector3(-0.34, -3.27, -1.6),
 			glowPosition: new THREE.Vector3(-0.58, -3.38, -4.41),
