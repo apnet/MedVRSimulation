@@ -74,7 +74,7 @@ let isSceneLoaded = false;
 let objectsParams = {
 	modelPath: './assets/models/',
 	room: {
-		fileName: 'VR_Room_Test_01.fbx',
+		fileName: 'ER_rooom_01_w_table.fbx',
 		objName: 'Room',
 		position: new THREE.Vector3(-3.2, -1.5, 0.33),
 		rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
