@@ -59344,7 +59344,7 @@
 				id: 4,
 				fileName: 'gown',
 				objName: 'Robe',
-				position: new Vector3(-5.0, -1.5, -1.9),
+				position: new Vector3(-4.2, -1.1, 0.0),
 				glowPosition: new Vector3(-5.21, -1.64, -4.86),
 				droppedPosition: new Vector3(0.65, 1.73, -0.8),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
@@ -59385,7 +59385,7 @@
 				id: 7,
 				fileName: 'gloves',
 				objName: 'Gloves',
-				position: new Vector3(-3.6, -0.28, -2.13),
+				position: new Vector3(-3.0, -1.1, 0.0),
 				glowPosition: new Vector3(-3.59, -0.4, -5.16),
 				droppedPosition: new Vector3(-4.3, 1.1, -0.43),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
@@ -59395,21 +59395,21 @@
 				collisionGeometry: 'Box',
 				collisionPosition: new Vector3(-0.47, 1.5, -5.74),
 				collisionSize: new Vector3(1.25, 0.55, 0.2)
-			},
-			{
-				id: 7,
-				fileName: 'gloves',
-				objName: 'Gloves2',
-				position: new Vector3(-3.6, -0.28, -2.13),
-				glowPosition: new Vector3(-3.59, -0.4, -5.16),
-				droppedPosition: new Vector3(-4.35, 1.32, -0.62),
-				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-				scale: 	  new Vector3(0.065, 0.065, 0.065),
-				glowScale: 	  new Vector3(0.065, 0.07, 0.01),
-				collisionGeometry: 'Box',
-				collisionPosition: new Vector3(-0.47, 1.5, -5.74),
-				collisionSize: new Vector3(1.25, 0.55, 0.2)
-			},
+			}
+			// {
+			// 	id: 7,
+			// 	fileName: 'gloves',
+			// 	objName: 'Gloves2',
+			// 	position: new Vector3(-3.6, -0.28, -2.13),
+			// 	glowPosition: new Vector3(-3.59, -0.4, -5.16),
+			// 	droppedPosition: new Vector3(-4.35, 1.32, -0.62),
+			// 	rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
+			// 	scale: 	  new Vector3(0.065, 0.065, 0.065),
+			// 	glowScale: 	  new Vector3(0.065, 0.07, 0.01),
+			// 	collisionGeometry: 'Box',
+			// 	collisionPosition: new Vector3(-0.47, 1.5, -5.74),
+			// 	collisionSize: new Vector3(1.25, 0.55, 0.2)
+			// },
 		],
 		decals: [
 			{

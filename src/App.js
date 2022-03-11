@@ -98,7 +98,7 @@ let objectsParams = {
 			fileName: 'gown',
 			objName: 'Robe',
 			position: new THREE.Vector3(-5.0, -1.5, -1.9),
-			glowPosition: new THREE.Vector3(-5.21, -1.64, -4.86),
+			glowPosition: new THREE.Vector3(-5.21, -1.64, -2.86),
 			droppedPosition: new THREE.Vector3(0.65, 1.73, -0.8),
 			rotation: new THREE.Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 			droppedRotation: new THREE.Vector3(-1.35, 0, 1.74),
