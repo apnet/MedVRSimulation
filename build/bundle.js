@@ -59344,7 +59344,7 @@
 				id: 4,
 				fileName: 'gown',
 				objName: 'Robe',
-				position: new Vector3(-4.2, -1.1, 0.0),
+				position: new Vector3(-5.0, -1.5, -1.9),
 				glowPosition: new Vector3(-5.21, -1.64, -4.86),
 				droppedPosition: new Vector3(0.65, 1.73, -0.8),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
@@ -59353,14 +59353,15 @@
 				glowScale: 	  new Vector3(0.07, 0.067, 0.01),
 				collisionGeometry: 'Box',
 				collisionPosition: new Vector3(-1.88, 0.43, -5.43),
-				collisionSize: new Vector3(1.2, 2.3, 0.6)
+				collisionSize: new Vector3(1.2, 2.3, 0.6),
+				isOff: true
 			},
 			{
 				id: 5,
 				fileName: 'mask',
 				objName: 'Mask',
-				position: new Vector3(-0.9, -3.1, -1.6),
-				glowPosition: new Vector3(-1.63, -3.35, -0.81),
+				position: new Vector3(-5.1, -3.1, 1.3),
+				glowPosition: new Vector3(-3.63, -3.25, -4.81),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 				scale: 	  new Vector3(0.065, 0.065, 0.065),
 				glowScale: 	  new Vector3(0.08, 0.07, 0.08),
@@ -59370,10 +59371,10 @@
 			},
 			{
 				id: 6,
-				fileName: 'eye protection',
+				fileName: 'faceshield',
 				objName: 'Glasses',
-				position: new Vector3(-0.34, -3.27, -1.6),
-				glowPosition: new Vector3(-0.58, -3.38, -4.41),
+				position: new Vector3(-4.44, -3.27, 1.0),
+				glowPosition: new Vector3(-0.58, -3.0, -4.41),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
 				scale: 	  new Vector3(0.065, 0.065, 0.065),
 				glowScale: 	  new Vector3(0.07, 0.067, 0.01),
@@ -59385,7 +59386,7 @@
 				id: 7,
 				fileName: 'gloves',
 				objName: 'Gloves',
-				position: new Vector3(-3.0, -1.1, 0.0),
+				position: new Vector3(-3.6, -0.28, -2.13),
 				glowPosition: new Vector3(-3.59, -0.4, -5.16),
 				droppedPosition: new Vector3(-4.3, 1.1, -0.43),
 				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
@@ -59394,22 +59395,55 @@
 				glowScale: 	  new Vector3(0.065, 0.07, 0.01),
 				collisionGeometry: 'Box',
 				collisionPosition: new Vector3(-0.47, 1.5, -5.74),
-				collisionSize: new Vector3(1.25, 0.55, 0.2)
-			}
-			// {
-			// 	id: 7,
-			// 	fileName: 'gloves',
-			// 	objName: 'Gloves2',
-			// 	position: new Vector3(-3.6, -0.28, -2.13),
-			// 	glowPosition: new Vector3(-3.59, -0.4, -5.16),
-			// 	droppedPosition: new Vector3(-4.35, 1.32, -0.62),
-			// 	rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
-			// 	scale: 	  new Vector3(0.065, 0.065, 0.065),
-			// 	glowScale: 	  new Vector3(0.065, 0.07, 0.01),
-			// 	collisionGeometry: 'Box',
-			// 	collisionPosition: new Vector3(-0.47, 1.5, -5.74),
-			// 	collisionSize: new Vector3(1.25, 0.55, 0.2)
-			// },
+				collisionSize: new Vector3(1.25, 0.55, 0.2),
+				isOff: true
+			},
+			{
+				id: 7,
+				fileName: 'gloves',
+				objName: 'Gloves2',
+				position: new Vector3(-3.6, -0.28, -2.13),
+				glowPosition: new Vector3(-3.59, -0.4, -5.16),
+				droppedPosition: new Vector3(-4.35, 1.32, -0.62),
+				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
+				scale: 	  new Vector3(0.065, 0.065, 0.065),
+				glowScale: 	  new Vector3(0.065, 0.07, 0.01),
+				collisionGeometry: 'Box',
+				collisionPosition: new Vector3(-0.47, 1.5, -5.74),
+				collisionSize: new Vector3(1.25, 0.55, 0.2),
+				isOff: true
+			},
+			{
+				id: 8,
+				fileName: 'table_gown',
+				objName: 'TableRobe',
+				position: new Vector3(-4.1, -1.1, 0.0),
+				glowPosition: new Vector3(-4.1, -1.0, -1.0),
+				droppedPosition: new Vector3(-3.2, -1.1, 0.0),
+				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
+				droppedRotation: new Vector3(-4.2, -1.1, 0.0),
+				scale: 	  new Vector3(0.065, 0.065, 0.065),
+				glowScale: 	  new Vector3(0.07, 0.067, 0.01),
+				collisionGeometry: 'Box',
+				collisionPosition: new Vector3(-4.2, -1.1, 0.0),
+				collisionSize: new Vector3(2, 2.3, 2),
+				
+			},
+			{
+				id: 9,
+				fileName: 'table_glove box',
+				objName: 'TableGloveBox',
+				position: new Vector3(-2.2, -1.0, 0.0),
+				glowPosition: new Vector3(-4.2, -1.1, 0.0),
+				droppedPosition: new Vector3(-4.2, -1.1, 0.0),
+				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
+				droppedRotation: new Vector3(-4.2, -1.1, 0.0),
+				scale: 	  new Vector3(0.065, 0.065, 0.065),
+				glowScale: 	  new Vector3(0.07, 0.067, 0.01),
+				collisionGeometry: 'Box',
+				collisionPosition: new Vector3(-4.2, -1.1, 0.0),
+				collisionSize: new Vector3(1.2, 2.3, 0.6)
+			},
 		],
 		decals: [
 			{
@@ -59602,7 +59636,8 @@
 							element.objName,
 							element.collisionGeometry,
 							element.collisionPosition,
-							element.collisionSize
+							element.collisionSize,
+							element.isOff
 				);
 			}
 
@@ -59745,9 +59780,29 @@
 							}
 					}
 					if (stepSimType === 'put-on'){
-						if (intersect.object.name === putOnObjects.correctObjectName + 'Collider'){
-							scene.getObjectByName(putOnObjects.correctObjectName).position.copy(objectsParams.body.position);
-							scene.getObjectByName(putOnObjects.correctObjectName + "Glow").visible = false;
+						if (intersect.object.name === putOnObjects.correctObjectName + 'Collider' || 
+							intersect.object.parent.name === putOnObjects.correctObjectName + 'Collider' || 
+							intersect.object.parent.name === putOnObjects.correctObjectName ) {
+								switch (intersect.object.parent.name) {
+									case "TableRobe":
+										objectsParams.interactiveObjectList.forEach(element => {
+											if (element.objName === "Robe") element.isOff = false;
+											if (element.objName === "TableRobe") element.isOff = true;
+										});
+										scene.getObjectByName("Robe").position.copy(objectsParams.body.position);
+										break;
+									case "TableGloveBox":
+										objectsParams.interactiveObjectList.forEach(element => {
+											if (element.objName === "Gloves") element.isOff = false;
+										});
+										scene.getObjectByName("Gloves").position.copy(objectsParams.body.position);
+										break;
+									default:
+										scene.getObjectByName(putOnObjects.correctObjectName).position.copy(objectsParams.body.position);
+										scene.getObjectByName(putOnObjects.correctObjectName + "Glow").visible = false;
+										break;
+								}
+							
 							simulationStep++;
 							showCurrentSimulationStep();
 						} else
@@ -59904,7 +59959,7 @@
 	}
 
 	function addObject(fileName, position, glowPosition, scale, glowScale, objName, 
-		collisionGeometry, collisionPosition, collisionSize
+		collisionGeometry, collisionPosition, collisionSize, isOff
 		){
 		let Obj = new Object3D();
 		Obj.visible = false;
@@ -59916,9 +59971,13 @@
 				object.name = objName;
 				//do glasses more visible
 				if (objName === 'Glasses'){
-					object.children[0].material.color.r = 0.0;
-					object.children[0].material.color.g = 0.0;
-					object.children[0].material.color.b = 0.0;
+					object.children[0].material.color.r = 1.0;
+					object.children[0].material.color.g = 1.0;
+					object.children[0].material.color.b = 1.0;
+					object.children[2].material.color.r = 1.0;
+					object.children[2].material.color.g = 1.0;
+					object.children[2].material.color.b = 1.0;
+					object.children[2].material.opacity = 0.2;
 				}
 				Obj.add(object);
 			},
@@ -60057,6 +60116,11 @@
 		scene.getObjectByName("BodyGlow").visible = false;
 		objectsParams.interactiveObjectList.forEach(element => {
 			let name = element.objName + 'Glow';
+			if (element.isOff) { 
+				scene.getObjectByName(element.objName).visible = false;
+			} else {
+				scene.getObjectByName(element.objName).visible = true;
+			}
 			scene.getObjectByName(name).visible = false;
 		});
 	}
@@ -60888,7 +60952,7 @@
 		}
 		if (PPE_DATA.vrSim.sim[simulationStep].type === 'quizz'){
 			PPE_DATA.vrSim.sim[simulationStep].highlightedObjectNames.forEach(element => {
-				scene.getObjectByName(element + 'Glow').visible = true;
+				// scene.getObjectByName(element + 'Glow').visible = true;
 			}); 
 			//title
 			QuizzObjects.titleTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].title});

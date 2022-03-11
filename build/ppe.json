@@ -6254,9 +6254,9 @@
 			{
 				"id": 21,
 				"type": "put-on",
-				"correctOnjectName": "Robe",
-				"interactiveObjectsName": ["Mask", "Glasses", "Gloves"],
-				"glowObjectsName": ["Robe", "Mask", "Glasses", "Gloves"]
+				"correctOnjectName": "TableRobe",
+				"interactiveObjectsName": ["Mask", "Glasses", "TableRobe", "TableGloveBox"],
+				"glowObjectsName": ["TableRobe", "Mask", "Glasses", "TableGloveBox"]
 			},
 			{
 				"id": 22,
@@ -6268,8 +6268,8 @@
 				"id": 23,
 				"type": "put-on",
 				"correctOnjectName": "Mask",
-				"interactiveObjectsName": ["Glasses", "Gloves"],
-				"glowObjectsName": ["Mask", "Glasses", "Gloves"]
+				"interactiveObjectsName": ["Glasses", "TableGloveBox"],
+				"glowObjectsName": ["Mask", "Glasses", "TableGloveBox"]
 			},
 			{
 				"id": 24,
@@ -6282,8 +6282,8 @@
 				"id": 25,
 				"type": "put-on",
 				"correctOnjectName": "Glasses",
-				"interactiveObjectsName": ["Gloves"],
-				"glowObjectsName": ["Glasses", "Gloves"]
+				"interactiveObjectsName": ["TableGloveBox"],
+				"glowObjectsName": ["Glasses", "TableGloveBox"]
 			},
 			{
 				"id": 26,
@@ -6294,9 +6294,9 @@
 			{
 				"id": 27,
 				"type": "put-on",
-				"correctOnjectName": "Gloves",
+				"correctOnjectName": "TableGloveBox",
 				"interactiveObjectsName": [],
-				"glowObjectsName": ["Gloves"]
+				"glowObjectsName": ["TableGloveBox"]
 			},
 			{
 				"id": 28,
