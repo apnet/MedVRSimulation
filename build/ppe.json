@@ -6255,8 +6255,8 @@
 				"id": 21,
 				"type": "put-on",
 				"correctOnjectName": "TableRobe",
-				"interactiveObjectsName": ["Mask", "Glasses", "TableRobe", "TableGloveBox"],
-				"glowObjectsName": ["TableRobe", "Mask", "Glasses", "TableGloveBox"]
+				"interactiveObjectsName": ["TableMask", "Glasses", "TableRobe", "TableGloveBox"],
+				"glowObjectsName": ["TableRobe", "TableMask", "Glasses", "TableGloveBox"]
 			},
 			{
 				"id": 22,
@@ -6267,9 +6267,9 @@
 			{
 				"id": 23,
 				"type": "put-on",
-				"correctOnjectName": "Mask",
+				"correctOnjectName": "TableMask",
 				"interactiveObjectsName": ["Glasses", "TableGloveBox"],
-				"glowObjectsName": ["Mask", "Glasses", "TableGloveBox"]
+				"glowObjectsName": ["TableMask", "Glasses", "TableGloveBox"]
 			},
 			{
 				"id": 24,
@@ -6643,7 +6643,7 @@
 			{
 				"id": 72,
 				"type": "throw-away",
-				"objectName": "Mask"
+				"objectName": "TableMask"
 			},
 			{
 				"id": 73,

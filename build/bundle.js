@@ -59367,7 +59367,8 @@
 				glowScale: 	  new Vector3(0.08, 0.07, 0.08),
 				collisionGeometry: 'Sphree',
 				collisionPosition: new Vector3(2.2, 0.14, -5.16),
-				collisionSize: new Vector3(0.3, 16, 16)
+				collisionSize: new Vector3(0.3, 16, 16),
+				isOff: true
 			},
 			{
 				id: 6,
@@ -59443,6 +59444,19 @@
 				collisionGeometry: 'Box',
 				collisionPosition: new Vector3(-4.2, -1.1, 0.0),
 				collisionSize: new Vector3(1.2, 2.3, 0.6)
+			},
+			{
+				id: 5,
+				fileName: 'table_mask',
+				objName: 'TableMask',
+				position: new Vector3(-3.6, -1.7, 0.8),
+				glowPosition: new Vector3(-3.63, -3.25, -4.81),
+				rotation: new Vector3(Math.PI * 0.0, Math.PI * 0.0, Math.PI * 0.0),
+				scale: 	  new Vector3(0.065, 0.065, 0.065),
+				glowScale: 	  new Vector3(0.08, 0.07, 0.08),
+				collisionGeometry: 'Sphree',
+				collisionPosition: new Vector3(2.2, 0.14, -5.16),
+				collisionSize: new Vector3(0.3, 16, 16)
 			},
 		],
 		decals: [
@@ -59790,6 +59804,13 @@
 											if (element.objName === "TableRobe") element.isOff = true;
 										});
 										scene.getObjectByName("Robe").position.copy(objectsParams.body.position);
+										break;
+									case "TableMask":
+										objectsParams.interactiveObjectList.forEach(element => {
+											if (element.objName === "Mask") element.isOff = false;
+											if (element.objName === "TableMask") element.isOff = true;
+										});
+										scene.getObjectByName("Mask").position.copy(objectsParams.body.position);
 										break;
 									case "TableGloveBox":
 										objectsParams.interactiveObjectList.forEach(element => {
@@ -60967,7 +60988,7 @@
 		}
 		if (PPE_DATA.vrSim.sim[simulationStep].type === 'put-on'){
 			PPE_DATA.vrSim.sim[simulationStep].glowObjectsName.forEach(element => {
-				scene.getObjectByName(element + "Glow").visible = true;
+				// scene.getObjectByName(element + "Glow").visible = true;
 			});
 			putOnObjects.correctObjectName = PPE_DATA.vrSim.sim[simulationStep].correctOnjectName;
 			putOnObjects.interactiveObject = PPE_DATA.vrSim.sim[simulationStep].interactiveObjectsName;
