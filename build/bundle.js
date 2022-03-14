@@ -59794,9 +59794,7 @@
 							}
 					}
 					if (stepSimType === 'put-on'){
-						if (intersect.object.name === putOnObjects.correctObjectName + 'Collider' || 
-							intersect.object.parent.name === putOnObjects.correctObjectName + 'Collider' || 
-							intersect.object.parent.name === putOnObjects.correctObjectName ) {
+						if (intersect.object.name === putOnObjects.correctObjectName + 'Collider') {
 								switch (intersect.object.parent.name) {
 									case "TableRobe":
 										objectsParams.interactiveObjectList.forEach(element => {
@@ -60042,7 +60040,7 @@
 								vec3 glow = glowColor * intensity;
 								gl_FragColor = vec4( glow, 1.0 );
 							}`,
-				side: DoubleSide,
+				side: BackSide,//DoubleSide,
 				//blllll
 				blending: AdditiveBlending,
 				transparent: true
@@ -60977,7 +60975,7 @@
 		}
 		if (PPE_DATA.vrSim.sim[simulationStep].type === 'quizz'){
 			PPE_DATA.vrSim.sim[simulationStep].highlightedObjectNames.forEach(element => {
-				// scene.getObjectByName(element + 'Glow').visible = true;
+				scene.getObjectByName(element + 'Glow').visible = true;
 			}); 
 			//title
 			QuizzObjects.titleTextObj.set({content: PPE_DATA.vrSim.sim[simulationStep].title});
