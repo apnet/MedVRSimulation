@@ -59794,9 +59794,9 @@
 							}
 					}
 					if (stepSimType === 'put-on'){
-						if (intersect.object.name === putOnObjects.correctObjectName + 'Collider'/* || 
-							intersect.object.parent.name === putOnObjects.correctObjectName + 'Collider'/* || 
-							intersect.object.parent.name === putOnObjects.correctObjectName */) {
+						if (intersect.object.name === putOnObjects.correctObjectName + 'Collider' || 
+							intersect.object.parent.name === putOnObjects.correctObjectName + 'Collider' || 
+							intersect.object.parent.name === putOnObjects.correctObjectName ) {
 								switch (intersect.object.parent.name) {
 									case "TableRobe":
 										objectsParams.interactiveObjectList.forEach(element => {
