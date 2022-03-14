@@ -60042,7 +60042,7 @@
 								vec3 glow = glowColor * intensity;
 								gl_FragColor = vec4( glow, 1.0 );
 							}`,
-				side: BackSide,//DoubleSide,
+				side: objName === "Body" ? BackSide : DoubleSide,//DoubleSide,
 				//blllll
 				blending: AdditiveBlending,
 				transparent: true
